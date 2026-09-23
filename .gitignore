@@ -1,0 +1,19 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+.vercel/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Generated/cache files
+*.tsbuildinfo
+coverage/
+.DS_Store
+*.log
+
+# Local deployment archives
+*.zip
