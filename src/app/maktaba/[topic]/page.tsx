@@ -39,6 +39,9 @@ export default async function TopicPage({
       chunkId: c.id,
       text: c.text,
       chapter: c.chapter,
+      page: c.page,
+      citationStatus: c.citationStatus ?? "chapter-only",
+      excerptType: c.excerptType,
       keywords: c.keywords,
       score: 10 - i,
       source: {
@@ -48,7 +51,9 @@ export default async function TopicPage({
         author: src.author,
         publisher: src.publisher,
         registryUrl: src.registryUrl,
-        originalUrl: src.originalUrl,
+        originalUrl: c.sourceUrl ?? src.originalUrl,
+        verificationUrl: src.verificationUrl,
+        verificationLabel: src.verificationLabel,
       },
     };
   });

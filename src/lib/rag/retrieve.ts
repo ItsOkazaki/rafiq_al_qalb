@@ -88,12 +88,38 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
     .sort((a, b) => b.score - a.score);
 
   const limit = Math.min(opts.limit ?? MAX_PASSAGES, MAX_PASSAGES);
-  return scored.slice(0, limit).map(({ chunk, score }) => {
+
+  // تنويع مضبوط للمصادر: نأخذ أعلى مقطع من كل مصدر ذي صلة أولاً، ثم نملأ
+  // المواضع المتبقية حسب الدرجة. لا يُخفض هذا عتبة الصلة ولا يُدخل مصدراً
+  // لم ينجح مقطعه في الترشيح؛ إنما يمنع مصدراً واحداً من احتكار الحد كله.
+  const selected: typeof scored = [];
+  const selectedIds = new Set<string>();
+  const representedSources = new Set<string>();
+  for (const item of scored) {
+    if (representedSources.has(item.chunk.sourceId)) continue;
+    selected.push(item);
+    selectedIds.add(item.chunk.id);
+    representedSources.add(item.chunk.sourceId);
+    if (selected.length >= limit) break;
+  }
+  if (selected.length < limit) {
+    for (const item of scored) {
+      if (selectedIds.has(item.chunk.id)) continue;
+      selected.push(item);
+      selectedIds.add(item.chunk.id);
+      if (selected.length >= limit) break;
+    }
+  }
+
+  return selected.map(({ chunk, score }) => {
     const src = getSourceById(chunk.sourceId)!;
     return {
       chunkId: chunk.id,
       text: chunk.text,
       chapter: chunk.chapter,
+      page: chunk.page,
+      citationStatus: chunk.citationStatus ?? "chapter-only",
+      excerptType: chunk.excerptType,
       keywords: chunk.keywords,
       score,
       source: {
@@ -103,7 +129,9 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
         author: src.author,
         publisher: src.publisher,
         registryUrl: src.registryUrl,
-        originalUrl: src.originalUrl,
+        originalUrl: chunk.sourceUrl ?? src.originalUrl,
+        verificationUrl: src.verificationUrl,
+        verificationLabel: src.verificationLabel,
       },
     } satisfies RetrievedPassage;
   });

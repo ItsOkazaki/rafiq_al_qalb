@@ -18,28 +18,48 @@ export const APPROVED_SOURCES: RegisteredSource[] = [
     author: "الإمام ابن قيم الجوزية (٦٩١–٧٥١هـ)",
     category: "تزكية وسلوك",
     publisher: "موقع البدر — المكتبة الإلكترونية",
-    registryUrl: "https://www.al-badr.net/ebook",
-    originalUrl: "https://www.al-badr.net/ebook",
+    registryUrl: "https://www.al-badr.net/sub/376",
+    originalUrl: "https://www.al-badr.net/sub/376",
+    verificationUrl: "https://shamela.ws/book/98093",
+    verificationLabel: "فتح النسخة النصية المرجعية للتوثيق",
     status: "active",
     approvedBy: "فريق رفيق القلوب لاعتماد المصادر",
     approvedAt: "2026-01-15",
     notes:
-      "نسخة مسجلة ومفهرسة على مستوى المواضع (الفصول). الاسترجاع مقصور على هذه النسخة المعتمدة، ولا تُعرض أي مادة من خارجها.",
+      "مصدر رسمي مسجّل بصفحة مواد «شرح كتاب الداء والدواء» على موقع البدر. الرابط السابق /ebook غير مستخدم لأنه يعيد صفحة 404؛ جميع مقاطع الاسترجاع تتجه إلى الرابط الرسمي العامل.",
   },
   {
-    id: "binbaz-books",
-    slug: "binbaz-books",
-    title: "مكتبة كتب الشيخ عبد العزيز بن باز",
+    id: "binbaz-majmou-fatawa",
+    slug: "majmou-fatawa-wa-maqalat",
+    title: "مجموع فتاوى ومقالات متنوعة",
     author: "الشيخ عبد العزيز بن باز رحمه الله (١٣٣٠–١٤٢٠هـ)",
-    category: "كتب ورسائل",
+    category: "فتاوى ومقالات",
+    publisher: "الموقع الرسمي لسماحة الشيخ ابن باز",
+    registryUrl: "https://binbaz.org.sa/majmou-fatawa",
+    originalUrl: "https://binbaz.org.sa/majmou-fatawa",
+    status: "active",
+    approvedBy: "فريق رفيق القلوب لاعتماد المصادر",
+    approvedAt: "2026-09-24",
+    notes:
+      "فهرسة انتقائية لمواضع بحثية محددة من المجموع؛ كل مقطع يحمل رقم الجزء والصفحة ورابط صفحته الرسمية. لا يعني تفعيل هذا المصدر أن جميع مجلداته مفهرسة.",
+  },
+  {
+    id: "binbaz-tawba-musaaib",
+    slug: "wujub-al-tawba-ind-al-musaaib",
+    title: "التوبة إلى الله والضراعة إليه عند نزول المصائب",
+    author: "الشيخ عبد العزيز بن باز رحمه الله (١٣٣٠–١٤٢٠هـ)",
+    category: "رسائل وتوجيهات",
     publisher: "الموقع الرسمي لسماحة الشيخ ابن باز",
     registryUrl: "https://binbaz.org.sa/books",
-    originalUrl: "https://binbaz.org.sa/books",
-    status: "registered-pending",
+    originalUrl: "https://binbaz.org.sa/books/pdf/237",
+    verificationUrl:
+      "https://binbaz.org.sa/articles/49/%D9%88%D8%AC%D9%88%D8%A8-%D8%A7%D9%84%D8%AA%D9%88%D8%A8%D8%A9-%D8%A7%D9%84%D9%89-%D8%A7%D9%84%D9%84%D9%87-%D9%88%D8%A7%D9%84%D8%B6%D8%B1%D8%A7%D8%B9%D8%A9-%D8%B9%D9%86%D8%AF-%D9%86%D8%B2%D9%88%D9%84-%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D9%89%D8%A8",
+    verificationLabel: "فتح النسخة النصية الرسمية للتحقق",
+    status: "active",
     approvedBy: "فريق رفيق القلوب لاعتماد المصادر",
-    approvedAt: "2026-01-15",
+    approvedAt: "2026-09-24",
     notes:
-      "مصدر مسجّل في السجل، ولم تُعتمد منه مادة مسترجعة بعد. لن تظهر أي نتائج منه حتى يكتمل التوثيق والفهرسة على مستوى المواضع.",
+      "كتاب رسمي من فهرس كتب ابن باز (مرفق PDF رقم 237، 36 صفحة). فُهرست المقاطع على مستوى صفحات ملف PDF، وقوبل نصها بالنسخة النصية الرسمية المنشورة في الموقع بعنوان «وجوب التوبة إلى الله والضراعة عند نزول المصائب» (مقال رقم 49).",
   },
 ];
 
@@ -69,6 +89,18 @@ export function isExcludedSourceTitle(title: string): boolean {
   const n = normalizeArabic(title);
   if (!n) return false;
   return EXCLUDED_NORMALIZED.some((ex) => n.includes(ex) || ex.includes(n));
+}
+
+/**
+ * المصادر العامة الظاهرة للمستخدم: فعّالة، غير مستبعدة، ولها مادة قابلة
+ * للاسترجاع. المصدر قيد التوثيق يبقى داخلياً ولا يظهر كأنه مستخدم.
+ */
+export const ACTIVE_SOURCES: RegisteredSource[] = APPROVED_SOURCES.filter(
+  (source) => source.status === "active" && !isExcludedSourceTitle(source.title),
+);
+
+export function getActiveSourceBySlug(slug: string): RegisteredSource | undefined {
+  return ACTIVE_SOURCES.find((source) => source.slug === slug);
 }
 
 /**

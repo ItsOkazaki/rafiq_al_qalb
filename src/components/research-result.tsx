@@ -163,7 +163,7 @@ function AbstainView({ result }: { result: ResearchResult }) {
       <p className="mx-auto mt-2 max-w-xl text-sm leading-8 text-ink-600">
         {result.message ?? "لم نجد مادة كافية من المصادر المعتمدة لهذا الموضوع."}
         {" "}لا يستحدث النظام جواباً من خارج المصادر المعتمدة. جرّب إعادة صياغة موضوع
-        بحثك بإحدى الكلمات المفتاحية، أو تصفّح الموضوعات المعتمدة.
+        بحثك بإحدى الكلمات المفتاحية، أو تصفّح أبواب المكتبة المعتمدة.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         {result.suggestions.map((s) => (
@@ -252,7 +252,7 @@ function SafetyView({ result }: { result: ResearchResult }) {
         </ol>
         <p className="flex items-start gap-2 rounded-xl border border-parchment-300 bg-parchment-200/60 p-4 text-[13px] leading-7 text-ink-600">
           <HeartHandshake className="mt-0.5 size-4 shrink-0 text-forest-600" strokeWidth={1.9} />
-          بعد اطمئنانك على نفسك، يمكنك العودة والبحث في موضوعات مثل{" "}
+          بعد اطمئنانك على نفسك، يمكنك العودة والبحث في أبواب مثل{" "}
           <Link href="/maktaba/al-hamm-wal-qalaq" className="link-brass font-semibold">الهم والقلق</Link>
           {" "}لغرض الاطلاع العلمي.
         </p>

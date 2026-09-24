@@ -15,7 +15,7 @@ export default function HalaPage() {
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-8 text-ink-500">
           ليست استبانتنا مقياساً لحالة ولا سؤالاً عن شدة أمر — بل أسئلة ملاحة تحدد
           <strong className="text-ink-700"> ما الذي تريد البحث فيه</strong>، فتخرج بمسار
-          موضوعات وكلمات مفتاحية جاهزة للاسترجاع.
+          أبواب وكلمات مفتاحية جاهزة للاسترجاع.
         </p>
       </header>
       <div className="mt-10">

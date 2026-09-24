@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheck, BookMarked, ExternalLink, Library, ShieldCheck } from "lucide-react";
-import { APPROVED_SOURCES } from "@/lib/sources/registry";
+import { ACTIVE_SOURCES } from "@/lib/sources/registry";
 import { TOPICS } from "@/lib/rag/topics";
 import { getChunksByTopic, getChunksBySource } from "@/lib/corpus/chunks";
-import { ApprovalStamp, OrnamentDivider, CornerFrame } from "@/components/ornaments";
+import { ApprovalStamp, OrnamentDivider } from "@/components/ornaments";
 
 export const metadata: Metadata = {
   title: "المكتبة المعتمدة",
   description:
-    "سجل المصادر المعتمدة في رفيق القلوب وموضوعات البحث المفهرسة. الكتب غير المعتمدة لا تظهر هنا ولا يُسترجع منها.",
+    "المصادر المعتمدة الفعّالة في رفيق القلوب وأبواب البحث المفهرسة. الكتب غير المعتمدة لا تظهر هنا ولا يُسترجع منها.",
 };
 
 export default function MaktabaPage() {
@@ -25,8 +25,7 @@ export default function MaktabaPage() {
       </header>
 
       {/* سياسة الاعتماد */}
-      <CornerFrame>
-        <section className="card-manuscript mx-auto mt-10 max-w-4xl rounded-2xl p-6 sm:p-7">
+      <section className="card-manuscript mx-auto mt-10 max-w-4xl rounded-2xl p-6 sm:p-7">
           <h2 className="flex items-center gap-2 text-sm font-bold text-forest-700">
             <ShieldCheck className="size-4.5" strokeWidth={2} />
             سياسة اعتماد المصادر
@@ -38,7 +37,6 @@ export default function MaktabaPage() {
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> ظاهر للمستخدم دائماً: الاسم، الموضع، ورابط الأصل.</li>
           </ul>
         </section>
-      </CornerFrame>
 
       {/* سجل المصادر */}
       <section className="mt-14">
@@ -47,21 +45,19 @@ export default function MaktabaPage() {
           سجل المصادر
         </h2>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
-          {APPROVED_SOURCES.map((s) => {
+          {ACTIVE_SOURCES.map((s) => {
             const count = getChunksBySource(s.id).length;
             return (
               <div key={s.id} className="card-manuscript flex flex-col rounded-2xl p-6">
                 <div className="flex flex-wrap items-center gap-2">
-                  <ApprovalStamp label={s.status === "active" ? "مصدر معتمد — فعّال" : "مسجّل — قيد التوثيق"} />
+                  <ApprovalStamp />
                   <span className="text-[11px] text-ink-500">{s.category}</span>
                 </div>
                 <h3 className="heading-display mt-3 text-xl font-bold leading-9 text-ink-800">{s.title}</h3>
                 <p className="mt-1 text-xs text-ink-500">{s.author}</p>
                 <dl className="mt-4 space-y-1.5 rounded-xl border border-parchment-300 bg-parchment-200/50 p-4 text-xs leading-6 text-ink-600">
                   <div className="flex gap-2"><dt className="font-semibold text-ink-700">الناشر المعتمد:</dt><dd>{s.publisher}</dd></div>
-                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">اعتُمد بواسطة:</dt><dd>{s.approvedBy}</dd></div>
-                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">تاريخ الاعتماد:</dt><dd>{s.approvedAt}</dd></div>
-                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">المقاطع المفهرسة:</dt><dd>{count > 0 ? `${count} مقطعاً` : "لا مادة مسترجعة بعد"}</dd></div>
+                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">المقاطع المفهرسة:</dt><dd>{count} مقطعاً مستخدماً في الاسترجاع</dd></div>
                 </dl>
                 <p className="mt-3 text-[11px] leading-6 text-ink-500">{s.notes}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-parchment-300 pt-4">
@@ -90,15 +86,18 @@ export default function MaktabaPage() {
             <Link
               key={t.id}
               href={`/maktaba/${t.slug}`}
-              className="card-manuscript group relative rounded-2xl p-5 transition-all hover:-translate-y-1 hover:border-brass-400/60 hover:shadow-lift"
+              className="card-manuscript group rounded-2xl p-5 transition-all hover:-translate-y-1 hover:border-brass-400/60 hover:shadow-lift"
             >
-              <span className="font-ornament absolute left-4 top-4 text-xl text-brass-400/60">{t.order}</span>
-              <div className="flex items-start justify-between gap-6">
-                <h3 className="heading-display text-lg font-bold leading-8 text-ink-800 group-hover:text-forest-700">{t.title}</h3>
-                <span className="shrink-0 rounded-full border border-brass-400/40 bg-brass-100 px-2.5 py-0.5 text-[10px] font-bold text-brass-600">
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex size-8 items-center justify-center rounded-full border border-brass-400/50 bg-brass-100 font-ornament text-sm font-bold text-brass-600">
+                  {t.order}
+                </span>
+                <span className="rounded-full border border-brass-400/40 bg-brass-100 px-2.5 py-0.5 text-[10px] font-bold text-brass-600">
                   {getChunksByTopic(t.id).length} مقاطع
                 </span>
               </div>
+              <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-ink-800 group-hover:text-forest-700">{t.title}</h3>
+              <p className="mt-2 line-clamp-2 text-xs leading-6 text-ink-500">{t.description}</p>
               <p className="mt-2 line-clamp-2 text-xs leading-6 text-ink-500">{t.description}</p>
             </Link>
           ))}

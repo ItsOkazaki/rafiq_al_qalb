@@ -81,7 +81,13 @@ describe("الاسترجاع والنتيجة السليمة", () => {
     expect(result.topics.length).toBeGreaterThan(0);
     expect(result.keywords.length).toBeGreaterThan(0);
     expect(result.passages.length).toBeGreaterThan(0);
-    expect(result.passages[0].source.originalUrl).toContain("al-badr.net");
+    const sourceIds = new Set(result.passages.map((passage) => passage.source.sourceId));
+    expect(sourceIds).toContain("albadr-daa-dawaa");
+    expect(sourceIds).toContain("binbaz-tawba-musaaib");
+    for (const passage of result.passages) {
+      expect(passage.source.originalUrl).toMatch(/^https:\/\/(www\.al-badr\.net|binbaz\.org\.sa)\//);
+      expect(passage.chapter.length).toBeGreaterThan(3);
+    }
     expect(result.disclaimer).toContain("ليست تشخيصاً");
   });
 

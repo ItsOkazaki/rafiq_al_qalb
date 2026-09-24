@@ -15,6 +15,9 @@ export interface RegisteredSource {
   publisher: string;
   registryUrl: string;
   originalUrl: string;
+  /** نسخة نصية رسمية إضافية للتحقق من النقل، إن توفرت. */
+  verificationUrl?: string;
+  verificationLabel?: string;
   status: SourceStatus;
   approvedBy: string;
   approvedAt: string; // ISO date
@@ -22,10 +25,19 @@ export interface RegisteredSource {
 }
 
 /** مقطع نصي من المصدر المعتمد مع بيانات الموضع (إحالة على مستوى الفصل). */
+export type CitationStatus = "verified-page" | "chapter-only" | "page-pending";
+export type ExcerptType = "literal" | "curated-summary";
+
 export interface CorpusChunk {
   id: string;
   sourceId: string;
   chapter: string; // الموضع داخل الكتاب
+  page?: string; // إحالة الجزء/الصفحة المعتمدة والموافقة للمطبوع
+  /** رابط الصفحة الرسمية الخاصة بهذا المقطع، إن كان أدق من رابط الكتاب العام. */
+  sourceUrl?: string;
+  citationStatus?: CitationStatus;
+  /** literal = مطابق لأصل موثق؛ curated-summary = عرض بحثي موجّه للأصل. */
+  excerptType: ExcerptType;
   topics: string[];
   keywords: string[];
   text: string;
@@ -59,6 +71,8 @@ export interface PassageSourceMeta {
   publisher: string;
   registryUrl: string;
   originalUrl: string;
+  verificationUrl?: string;
+  verificationLabel?: string;
 }
 
 /** مقطع مسترجع فعلي من المادة المعتمدة مع بيانات المصدر والموضع. */
@@ -66,6 +80,9 @@ export interface RetrievedPassage {
   chunkId: string;
   text: string;
   chapter: string;
+  page?: string;
+  citationStatus?: CitationStatus;
+  excerptType?: ExcerptType;
   keywords: string[];
   score: number;
   source: PassageSourceMeta;

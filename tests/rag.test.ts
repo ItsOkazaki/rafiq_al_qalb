@@ -14,8 +14,10 @@ import { extractKeywords } from "@/lib/rag/keywords";
 import { identifyTopics, retrievePassages, MAX_PASSAGES } from "@/lib/rag/retrieve";
 import { TOPICS } from "@/lib/rag/topics";
 import {
+  ACTIVE_SOURCES,
   APPROVED_SOURCES,
   EXCLUDED_SOURCES,
+  getActiveSourceBySlug,
   getSourceById,
   isExcludedSourceTitle,
   isRetrievableSourceId,
@@ -101,13 +103,19 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
     }
   });
 
-  it("كل مقطع يحمل بيانات المصدر والموضع كاملة", () => {
+  it("كل مقطع يحمل بيانات المصدر الرسمي والموضع كاملة", () => {
     const passages = retrievePassages(SAMPLE_QUERY);
-    for (const p of passages) {
-      expect(p.source.title).toContain("الداء والدواء");
-      expect(p.source.author).toContain("ابن قيم");
-      expect(p.source.originalUrl).toMatch(/^https:\/\//);
-      expect(p.chapter.length).toBeGreaterThan(3);
+    const allowedIds = new Set([
+      "albadr-daa-dawaa",
+      "binbaz-tawba-musaaib",
+      "binbaz-majmou-fatawa",
+    ]);
+    for (const passage of passages) {
+      expect(allowedIds.has(passage.source.sourceId)).toBe(true);
+      expect(passage.source.title.length).toBeGreaterThan(8);
+      expect(passage.source.author.length).toBeGreaterThan(8);
+      expect(passage.source.originalUrl).toMatch(/^https:\/\/(www\.al-badr\.net|binbaz\.org\.sa)\//);
+      expect(passage.chapter.length).toBeGreaterThan(3);
     }
   });
 
@@ -131,6 +139,7 @@ describe("تنفيذ الاعتماد والاستبعاد", () => {
     id: "legacy-1",
     sourceId: "legacy-ihya",
     chapter: "غير معروف",
+    excerptType: "curated-summary",
     topics: ["qaswat-al-qalb"],
     keywords: ["قسوة القلب"],
     text: "نص قديم من كتاب غير معتمد يجب ألا يظهر إطلاقاً مهما طابقت الكلمات الاستعلام.",
@@ -140,8 +149,31 @@ describe("تنفيذ الاعتماد والاستبعاد", () => {
     expect(isRetrievableSourceId("legacy-ihya")).toBe(false);
   });
 
-  it("يرفض المصادر المسجلة قيد التوثيق", () => {
+  it("لا يعامل فهرس ابن باز العام كمصدر مفهرس؛ يستخدم الكتاب المحدد فقط", () => {
     expect(isRetrievableSourceId("binbaz-books")).toBe(false);
+    expect(getActiveSourceBySlug("binbaz-books")).toBeUndefined();
+    expect(isRetrievableSourceId("binbaz-tawba-musaaib")).toBe(true);
+    expect(isRetrievableSourceId("binbaz-majmou-fatawa")).toBe(true);
+    expect(getActiveSourceBySlug("wujub-al-tawba-ind-al-musaaib")).toBeDefined();
+    expect(getActiveSourceBySlug("majmou-fatawa-wa-maqalat")).toBeDefined();
+    expect(CHUNKS.filter((chunk) => chunk.sourceId === "binbaz-tawba-musaaib")).toHaveLength(6);
+    const majmouChunks = CHUNKS.filter((chunk) => chunk.sourceId === "binbaz-majmou-fatawa");
+    expect(majmouChunks).toHaveLength(11);
+    expect(CHUNKS.filter((chunk) => chunk.sourceId.startsWith("binbaz-"))).toHaveLength(17);
+    for (const chunk of majmouChunks) {
+      expect(chunk.citationStatus).toBe("verified-page");
+      expect(chunk.excerptType).toBe("literal");
+      expect(chunk.page).toMatch(/^مجموع الفتاوى \d+\/\d+$/);
+      expect(chunk.sourceUrl).toMatch(/^https:\/\/binbaz\.org\.sa\/fatwas\//);
+    }
+  });
+
+  it("كل مصدر ظاهر للمستخدم فعّال وله مقاطع مفهرسة فعلية", () => {
+    expect(ACTIVE_SOURCES.length).toBeGreaterThan(0);
+    for (const source of ACTIVE_SOURCES) {
+      expect(source.status).toBe("active");
+      expect(CHUNKS.some((chunk) => chunk.sourceId === source.id)).toBe(true);
+    }
   });
 
   it("يقبل المصدر الفعال المعتمد فقط", () => {

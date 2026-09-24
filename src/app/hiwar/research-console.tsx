@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CornerFrame, OrnamentDivider } from "@/components/ornaments";
+import { OrnamentDivider } from "@/components/ornaments";
 import { ResearchResultView } from "@/components/research-result";
 import type { ResearchResult } from "@/lib/types";
 import { Loader2, Search, ShieldCheck } from "lucide-react";
@@ -54,8 +54,7 @@ export function ResearchConsole() {
 
   return (
     <div className="space-y-10">
-      <CornerFrame>
-        <div className="card-manuscript rounded-2xl p-6 sm:p-8">
+      <div className="card-manuscript rounded-2xl p-6 sm:p-8">
           <label htmlFor="research-query" className="block text-sm font-bold text-ink-700">
             صِف موضوع بحثك
           </label>
@@ -109,7 +108,6 @@ export function ResearchConsole() {
             </div>
           </div>
         </div>
-      </CornerFrame>
 
       {loading && (
         <div className="flex flex-col items-center gap-4 py-8" role="status" aria-live="polite">

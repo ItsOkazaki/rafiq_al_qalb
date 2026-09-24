@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Compass, KeyRound, RotateCcw } from "lucide-react";
-import { CornerFrame, OrnamentDivider } from "@/components/ornaments";
+import { OrnamentDivider } from "@/components/ornaments";
 import {
   QUESTIONNAIRE_AREAS,
   REFINEMENT_QUESTIONS,
@@ -34,8 +34,7 @@ export function Questionnaire() {
   };
 
   return (
-    <CornerFrame>
-      <div className="card-manuscript rounded-2xl p-6 sm:p-8">
+    <div className="card-manuscript rounded-2xl p-6 sm:p-8">
         {/* مؤشر الخطوات */}
         <div className="flex items-center justify-center gap-2 text-[11px] font-semibold text-ink-500">
           {["المجال", "التضييق", "المسار"].map((label, i) => (
@@ -197,6 +196,5 @@ export function Questionnaire() {
           </div>
         )}
       </div>
-    </CornerFrame>
   );
 }

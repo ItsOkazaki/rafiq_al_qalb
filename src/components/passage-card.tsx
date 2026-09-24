@@ -18,7 +18,16 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
           </span>
         )}
         <ApprovalStamp />
-        <span className="ms-auto text-[11px] font-medium text-ink-500">{passage.chapter}</span>
+        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
+          passage.excerptType === "literal"
+            ? "border-forest-600/40 bg-forest-50 text-forest-700"
+            : "border-brass-400/50 bg-brass-100/70 text-brass-600"
+        }`}>
+          {passage.excerptType === "literal" ? "نص موثق من الأصل" : "عرض بحثي موجّه للموضع"}
+        </span>
+        <span className="ms-auto text-[11px] font-medium text-ink-500">
+          {passage.chapter}{passage.page ? ` — ${passage.page}` : ""}
+        </span>
       </header>
 
       <p className="passage-text mt-4 text-ink-800">{passage.text}</p>
@@ -65,6 +74,17 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
             <ExternalLink className="size-3.5" strokeWidth={2} />
             فتح المصدر الأصلي
           </Link>
+          {passage.source.verificationUrl && (
+            <Link
+              href={passage.source.verificationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-brass inline-flex items-center gap-1 text-xs font-medium"
+            >
+              <ExternalLink className="size-3" strokeWidth={2} />
+              {passage.source.verificationLabel ?? "فتح النسخة الرسمية للتحقق"}
+            </Link>
+          )}
           <Link href={`/maktaba/kutub/${passage.source.slug}`} className="link-brass text-xs font-medium">
             بطاقة المصدر في المكتبة
           </Link>

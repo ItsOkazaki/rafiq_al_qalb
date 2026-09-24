@@ -14,8 +14,8 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { TOPICS } from "@/lib/rag/topics";
-import { APPROVED_SOURCES } from "@/lib/sources/registry";
-import { CornerFrame, OrnamentDivider, ApprovalStamp } from "@/components/ornaments";
+import { ACTIVE_SOURCES } from "@/lib/sources/registry";
+import { OrnamentDivider, ApprovalStamp } from "@/components/ornaments";
 
 export default function HomePage() {
   return (
@@ -65,8 +65,7 @@ export default function HomePage() {
           </div>
 
           {/* مقتطف موثق من المادة المعتمدة */}
-          <CornerFrame>
-            <figure className="card-manuscript relative mx-auto mt-14 max-w-3xl rounded-2xl p-7 text-center sm:p-8">
+          <figure className="card-manuscript relative mx-auto mt-14 max-w-3xl rounded-2xl p-7 text-center sm:p-8">
               <blockquote className="passage-text text-ink-800">
                 «فقد أثّر هذا الدواء في هذا الداء وأزاله حتى كأن لم يكن، وهو أسهل دواء
                 وأيسره؛ ولو أحسن العبد التداوي بالفاتحة لرأى لها تأثيراً عجيباً…»
@@ -78,7 +77,6 @@ export default function HomePage() {
                 <ApprovalStamp />
               </figcaption>
             </figure>
-          </CornerFrame>
         </div>
       </section>
 
@@ -98,8 +96,8 @@ export default function HomePage() {
             },
             {
               icon: Compass,
-              title: "مسار وموضوعات",
-              desc: "يحدد موضوعات البحث المناسبة (كقسوة القلب، الغفلة، الخشوع) ويعرضها لك بشفافية كاملة.",
+              title: "مسار وأبواب",
+              desc: "يحدد أبواب البحث المناسبة (كقسوة القلب، الغفلة، الخشوع) ويعرضها لك بشفافية كاملة.",
             },
             {
               icon: BookOpenText,
@@ -186,10 +184,12 @@ export default function HomePage() {
             <Link
               key={t.id}
               href={`/maktaba/${t.slug}`}
-              className="card-manuscript group relative rounded-2xl p-5 transition-all hover:-translate-y-1 hover:border-brass-400/60 hover:shadow-lift"
+              className="card-manuscript group rounded-2xl p-5 transition-all hover:-translate-y-1 hover:border-brass-400/60 hover:shadow-lift"
             >
-              <span className="font-ornament absolute left-4 top-3 text-lg text-brass-400/60">{t.order}</span>
-              <h3 className="heading-display text-lg font-bold leading-8 text-ink-800 group-hover:text-forest-700">
+              <span className="inline-flex size-8 items-center justify-center rounded-full border border-brass-400/50 bg-brass-100 font-ornament text-sm font-bold text-brass-600">
+                {t.order}
+              </span>
+              <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-ink-800 group-hover:text-forest-700">
                 {t.title}
               </h3>
               <p className="mt-1.5 line-clamp-3 text-xs leading-6 text-ink-500">{t.description}</p>
@@ -206,22 +206,22 @@ export default function HomePage() {
       <section className="bg-forest-900 bg-arabesque-dark py-20 text-parchment-100">
         <div className="mx-auto max-w-6xl px-5">
           <header className="text-center">
-            <h2 className="heading-display text-3xl font-bold text-parchment-50">المصادر المعتمدة فحسب</h2>
+            <h2 className="heading-display text-3xl font-bold text-parchment-50">المصادر الفعّالة في الاسترجاع</h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-8 text-parchment-200/80">
-              الاسترجاع لا يتجاوز هذا السجل. كل مصدر مسجّل صراحة، مرتبط بجهة موثوقة،
-              وقابل للتتبع — والكتب غير المعتمدة لا تظهر في المكتبة ولا يُسترجع منها.
+              لا يظهر هنا إلا مصدر موثّق ومفهرس تُسترجع منه مقاطع فعلية. الاسترجاع لا
+              يتجاوز هذه المصادر، والكتب غير المعتمدة لا تظهر في المكتبة ولا يُسترجع منها.
             </p>
             <div className="mx-auto mt-5 max-w-xs"><OrnamentDivider tone="gold" /></div>
           </header>
           <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
-            {APPROVED_SOURCES.map((s) => (
+            {ACTIVE_SOURCES.map((s) => (
               <Link
                 key={s.id}
                 href={`/maktaba/kutub/${s.slug}`}
                 className="card-manuscript-deep group rounded-2xl p-6 transition-all hover:-translate-y-1 hover:border-brass-300/50"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <ApprovalStamp label={s.status === "active" ? "مصدر معتمد — فعّال" : "مسجّل — قيد التوثيق"} />
+                  <ApprovalStamp />
                   <span className="text-[11px] text-parchment-200/60">{s.category}</span>
                 </div>
                 <h3 className="heading-display mt-4 text-xl font-bold leading-9 text-parchment-50 group-hover:text-brass-200">
@@ -231,7 +231,7 @@ export default function HomePage() {
                 <p className="mt-3 text-xs leading-6 text-parchment-200/70">{s.publisher}</p>
                 <p className="mt-4 flex items-center gap-1.5 border-t border-parchment-50/10 pt-3 text-[11px] text-parchment-200/60">
                   <BadgeCheck className="size-3.5 text-brass-300" strokeWidth={2} />
-                  اعتمده: {s.approvedBy} — {s.approvedAt}
+                  الاسترجاع منه مفعّل بعد فحص الموضع والمصدر
                 </p>
               </Link>
             ))}

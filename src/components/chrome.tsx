@@ -72,7 +72,7 @@ export function SiteFooter() {
           <div>
             <p className="heading-display text-2xl font-bold text-parchment-50">رفيق القلوب</p>
             <p className="mt-3 text-sm leading-7 text-parchment-200/85">
-              مساعد بحث علمي يساعد على تحديد موضوعات البحث، واقتراح الكلمات المفتاحية،
+              مساعد بحث علمي يساعد على تحديد أبواب البحث، واقتراح الكلمات المفتاحية،
               واسترجاع المادة من المصادر المعتمدة فحسب — مع عرض المصدر والموضع ورابط الأصل.
             </p>
           </div>
@@ -89,7 +89,7 @@ export function SiteFooter() {
             <p className="mb-3 text-sm font-semibold tracking-wide text-brass-200">سياسة المصادر</p>
             <p className="text-sm leading-7 text-parchment-200/85">
               الاسترجاع مقصور على المصادر المسجلة في{" "}
-              <Link href="/maktaba" className="link-brass">سجل المصادر المعتمدة</Link>.
+              <Link href="/maktaba" className="link-brass">المكتبة المعتمدة</Link>.
               لا تُضاف مادة إلا بعد تسجيل المصدر وتوثيق موضعه، ولا تُعرض الكتب غير المعتمدة في المكتبة.
             </p>
           </div>
