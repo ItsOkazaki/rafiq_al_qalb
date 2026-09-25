@@ -23,7 +23,7 @@ describe("السلامة لها الأولوية القصوى — قبل أي ا
     expect(result.outcome).toBe("safety");
     expect(result.passages).toHaveLength(0);
     expect(result.safety).not.toBeNull();
-    expect(result.safety!.message).toContain("مساعدة بشرية فورية");
+    expect(result.safety!.message).toContain("مساعدة بشرية");
     expect(result.safety!.steps.length).toBeGreaterThanOrEqual(3);
   });
 

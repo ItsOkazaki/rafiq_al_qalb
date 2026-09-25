@@ -59,7 +59,7 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 rounded-full border border-parchment-100/30 px-7 py-3 text-sm font-semibold text-parchment-100 transition-colors hover:border-brass-300/60 hover:text-brass-200"
               >
                 <Compass className="size-4.5" strokeWidth={2} />
-                الاستبانة البحثية
+                لمحة بحثية
               </Link>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function HomePage() {
             },
             {
               icon: SlidersHorizontal,
-              title: "تنظيم مستند",
+              title: "نظّم ووثّق",
               desc: "ينظّم المسترجَع تنظيماً علمياً: تلخيص مقيَّد بالمقاطع نفسها، ويمتنع صراحة حين لا تكفي المادة المعتمدة.",
             },
           ].map(({ icon: Icon, title, desc }, i) => (
@@ -142,7 +142,7 @@ export default function HomePage() {
                   سجل المصادر المعتمدة
                 </Link>
                 <Link href="/wasfa" className="link-brass mt-2.5 text-sm font-medium">
-                  ماذا عن صفحة «الوصفة»؟
+                  لماذا لا نصف علاجاً؟
                 </Link>
               </div>
             </div>

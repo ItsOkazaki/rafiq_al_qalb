@@ -4,9 +4,9 @@ import { BookOpenText, Compass, MessagesSquare, OctagonX } from "lucide-react";
 import { OrnamentDivider } from "@/components/ornaments";
 
 export const metadata: Metadata = {
-  title: "الوصفة — مسار موقوف نهائياً",
+  title: "سياسة عدم الوصف",
   description:
-    "صفحة سابقة لم تعد جزءاً من رفيق القلوب؛ لا توفر وصفة ولا برنامجاً ولا علاجاً شخصياً.",
+    "رفيق القلوب أداة بحث علمي؛ لا توفر وصفة ولا برنامجاً ولا علاجاً شخصياً.",
 };
 
 const RETIRED_FEATURES = [
@@ -26,15 +26,15 @@ export default function WasfaPage() {
               <OctagonX className="size-7" strokeWidth={1.7} />
             </span>
             <h1 className="heading-display mt-6 text-3xl font-bold text-ink-800 sm:text-4xl">
-              هذا المسار مُوقف نهائياً ولا توجد وصفة هنا
+              سياسة عدم الوصف العلاجي
             </h1>
             <div className="mx-auto mt-5 max-w-xs"><OrnamentDivider /></div>
           </div>
 
           <div className="mt-8 rounded-xl border border-parchment-300 bg-parchment-200/50 p-5 text-[13px] leading-8 text-ink-600">
-            كانت هذه الصفحة ترتبط بسلوك قديم لا يتوافق مع سياسة الأداة الحالية.
-            أُلغي المسار حمايةً للمستخدم من أي افتراض أن البحث العلمي يتحول تلقائياً إلى
-            توصية شخصية. أبقينا هذه الصفحة فقط رسالة توضيحية للروابط القديمة.
+            رفيق القلوب أداة بحث علمي محض، تهدف للمساعدة في الوصول إلى مادة علمية موثقة من المصادر المعتمدة. 
+            التزاماً بالأمانة العلمية والشرعية، فإن الأداة لا تقدم أي وصفات علاجية، برامج شخصية، أو خطط "روحية". 
+            نحن نؤمن أن التوجيه الشخصي والفتوى هما ولاية العلماء والمختصين المؤهلين حصراً.
           </div>
 
           <div className="mt-8">

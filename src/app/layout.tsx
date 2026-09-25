@@ -18,6 +18,23 @@ export const metadata: Metadata = {
   },
   description:
     "رفيق القلوب مساعد بحث علمي: يحدد أبواب البحث والكلمات المفتاحية، ويسترجع المادة من المصادر المعتمدة فحسب ويعرضها مع مصدرها وموضعها. لا يشخّص ولا يُفتي ولا يصف علاجاً.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "رفيق القلوب — مساعد بحث علمي",
+    description: "يسترجع المادة العلمية من المصادر المعتمدة — لا تشخيص ولا فتوى ولا وصفات.",
+    images: [{ url: "/logo.png", width: 1080, height: 1080, alt: "شعار رفيق القلوب" }],
+    locale: "ar_SA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "رفيق القلوب",
+    description: "مساعد بحث علمي — مادة موثقة من مصادر معتمدة",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

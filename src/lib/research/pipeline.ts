@@ -8,10 +8,12 @@
 import { generateGroundedSummary } from "@/lib/ai/provider";
 import { buildResearchBrief } from "@/lib/ai/fallback";
 import { detectFatwaRequest, FATWA_REFERRAL_MESSAGE } from "@/lib/policy/fatwa";
+import { detectPrescriptionRequest, PRESCRIPTION_REFERRAL_MESSAGE } from "@/lib/policy/prescription";
 import { extractKeywords } from "@/lib/rag/keywords";
 import { identifyTopics, retrievePassages } from "@/lib/rag/retrieve";
 import { TOPICS } from "@/lib/rag/topics";
 import { detectSafetyRisk, SAFETY_RESPONSE } from "@/lib/safety";
+import { normalizeDialect } from "@/lib/text/arabic";
 import { ABSTAIN_MESSAGE, REQUIRED_DISCLAIMER } from "@/lib/terminology";
 import type { ResearchResult } from "@/lib/types";
 
@@ -41,15 +43,18 @@ export async function runResearch(rawQuery: string): Promise<ResearchResult> {
     return { ...base, outcome: "invalid", message: "اكتب موضوع البحث الذي تريده." };
   }
 
+  // تطبيع العامية/الدارجة قبل كل الفحوصات.
+  const normalizedQuery = normalizeDialect(query);
+
   // ١) السلامة قبل الاسترجاع.
-  if (detectSafetyRisk(query)) {
+  if (detectSafetyRisk(normalizedQuery)) {
     return { ...base, outcome: "safety", safety: SAFETY_RESPONSE };
   }
 
   // ٢) لا فتاوى: إحالة على أهل العلم + تحويل اختياري إلى مسار بحث.
-  const fatwa = detectFatwaRequest(query);
+  const fatwa = detectFatwaRequest(normalizedQuery);
   if (fatwa.isFatwa) {
-    const related = identifyTopics(query)
+    const related = identifyTopics(normalizedQuery)
       .slice(0, 2)
       .map((m) => ({ slug: m.topic.slug, title: m.topic.title }));
     return {
@@ -65,12 +70,25 @@ export async function runResearch(rawQuery: string): Promise<ResearchResult> {
     };
   }
 
-  // ٣–٤) فهم الموضوع والكلمات المفتاحية.
-  const topics = identifyTopics(query);
-  const prelimKeywords = extractKeywords(query, topics, []);
+  // ٢ب) لا وصفات شخصية: إحالة لأهل الاختصاص وعرض المادة البحثية.
+  if (detectPrescriptionRequest(normalizedQuery)) {
+    const related = identifyTopics(normalizedQuery)
+      .slice(0, 2)
+      .map((m) => ({ slug: m.topic.slug, title: m.topic.title }));
+    return {
+      ...base,
+      outcome: "abstained",
+      message: PRESCRIPTION_REFERRAL_MESSAGE,
+      suggestions: related.length > 0 ? related : BROWSE_SUGGESTIONS,
+    };
+  }
+
+  // ٣–٤) فهم الموضوع والكلمات المفتاحية (يستخدم الاستعلام المعيَّر).
+  const topics = identifyTopics(normalizedQuery);
+  const prelimKeywords = extractKeywords(normalizedQuery, topics, []);
 
   // ٥) الاسترجاع المضبوط من المصادر المعتمدة فقط.
-  const passages = retrievePassages(query, { matchedTopics: topics });
+  const passages = retrievePassages(normalizedQuery, { matchedTopics: topics });
 
   if (passages.length === 0) {
     return {
@@ -85,7 +103,7 @@ export async function runResearch(rawQuery: string): Promise<ResearchResult> {
     };
   }
 
-  const keywords = extractKeywords(query, topics, passages);
+  const keywords = extractKeywords(normalizedQuery, topics, passages);
 
   // ٦) التنظيم الآلي: مقيَّد بالمادة إن وُجد مزود، وإلا التنظيم الحتمي.
   const grounded = await generateGroundedSummary(query, passages);

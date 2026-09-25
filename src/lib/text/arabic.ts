@@ -63,3 +63,51 @@ export function includesNormalized(haystack: string, needle: string): boolean {
   if (!n) return false;
   return normalizeArabic(haystack).includes(n);
 }
+
+/**
+ * ترجمة مصطلحات عامية/دارجة إلى مقابلاتها الفصحى قبل البحث.
+ * يدعم العربية المغربية/الجزائرية والخليجية والمصرية.
+ */
+const DIALECT_MAP: [RegExp, string][] = [
+  [/\bواعر\b/g, "قاسٍ"],
+  [/\bواعره\b/g, "قاسية"],
+  [/\bبزاف\b/g, "كثير"],
+  [/\bبزاف\b/g, "كثيرة"],
+  [/\bكفاه\b/g, "كيف"],
+  [/\bنديرو?\b/g, "نفعل"],
+  [/\bغالطتني\b/g, "أخطأت"],
+  [/\bمقصر\b/g, "مقصر"],
+  [/\bقلقان\b/g, "قلق"],
+  [/\bزهقت\b/g, "سئمت"],
+  [/\bعايز\b/g, "أريد"],
+  [/\bماشي\b/g, "ذاهب"],
+  [/\bكده\b/g, "هكذا"],
+  [/\bاللي\b/g, "الذي"],
+  [/\bمش\b/g, "ليس"],
+  [/\bمو\b/g, "ليس"],
+  [/\bيبه\b/g, "يا أبي"],
+  [/\bشلون\b/g, "كيف"],
+  [/\bشو\b/g, "ما"],
+  [/\bليش\b/g, "لماذا"],
+  [/\bدلوقتي\b/g, "الآن"],
+  [/\bكيف نقدر\b/g, "كيف نستطيع"],
+  [/\bهواجيس\b/g, "وساوس"],
+  [/\bهواجس\b/g, "وساوس"],
+  [/\bيقلقني\b/g, "يقلقني"],
+  [/\bمقلق\b/g, "مقلق"],
+  [/\bمتضايق\b/g, "منزعج"],
+  [/\bزهجت\b/g, "سئمت"],
+  [/\bتعبان\b/g, "متعب"],
+  [/\bزعلان\b/g, "حزين"],
+];
+
+/**
+ * توحيد الكلمات العامية إلى فصحى قبل المطابقة البحثية.
+ */
+export function normalizeDialect(input: string): string {
+  let out = input;
+  for (const [pattern, replacement] of DIALECT_MAP) {
+    out = out.replace(pattern, replacement);
+  }
+  return out;
+}
