@@ -28,7 +28,7 @@ export function SiteHeader() {
           <span className="leading-tight">
             <span className="heading-display block text-xl font-bold text-forest-800">رفيق القلوب</span>
             <span className="block text-[11px] font-medium tracking-wide text-ink-500">
-              مساعد بحث علمي — مادة موثقة من مصادر معتمدة
+              أداة حوارية — مادة مفهرسة موثقة المصدر والصفحة
             </span>
           </span>
         </Link>
@@ -75,7 +75,7 @@ export function SiteFooter() {
           <div>
             <p className="heading-display text-2xl font-bold text-parchment-50">رفيق القلوب</p>
             <p className="mt-3 text-sm leading-7 text-parchment-200/85">
-              مساعد بحث علمي يساعد على تحديد أبواب البحث، واقتراح الكلمات المفتاحية،
+              أداة حوارية تساعد على تحديد أبواب البحث، واقتراح الكلمات المفتاحية،
               واسترجاع المادة من المصادر المعتمدة فحسب — مع عرض المصدر والموضع ورابط الأصل.
             </p>
           </div>
