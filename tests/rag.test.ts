@@ -67,6 +67,17 @@ describe("مطابقة الموضوعات (تفسير بحثي لا تشخيصي
     expect(ids).toContain("khushu-tadabbur");
   });
 
+  it("يفهم صيغة «لماذا يقسو القلب» كباب قسوة القلب", () => {
+    const matches = identifyTopics("لماذا يقسو القلب؟");
+    expect(matches.map((m) => m.topic.id)).toContain("qaswat-al-qalb");
+  });
+
+  it("يفهم «أشعر أنني بعيد عن ربي» كباب الغفلة أو الذكر", () => {
+    const matches = identifyTopics("أشعر أنني بعيد عن ربي بشكل غريب مؤخرا ولا أعرف لماذا");
+    const ids = matches.map((m) => m.topic.id);
+    expect(ids.some((id) => id === "al-ghafla" || id === "dhikr-athar")).toBe(true);
+  });
+
   it("يحدد موضوع الهم والقلق", () => {
     const matches = identifyTopics("أبحث في الهم وضيق الصدر");
     expect(matches.map((m) => m.topic.id)).toContain("al-hamm-wal-qalaq");
