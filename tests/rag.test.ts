@@ -12,6 +12,7 @@ import {
 } from "@/lib/questionnaire";
 import { extractKeywords } from "@/lib/rag/keywords";
 import { identifyTopics, retrievePassages, MAX_PASSAGES } from "@/lib/rag/retrieve";
+import { normalizeDialect } from "@/lib/text/arabic";
 import { TOPICS } from "@/lib/rag/topics";
 import {
   ACTIVE_SOURCES,
@@ -72,6 +73,39 @@ describe("مطابقة الموضوعات (تفسير بحثي لا تشخيصي
     expect(matches.map((m) => m.topic.id)).toContain("qaswat-al-qalb");
   });
 
+  it("يفهم صيغ التأثر بالقرآن الطبيعية حتى مع اختلاف ترتيب الكلمات", () => {
+    const queries = [
+      "لماذا لا يؤثر فيّ القرآن رغم أني أقرأه باستمرار؟",
+      "أقرأ القرآن ولا أتأثر",
+      "قلبي لم يعد يشعر عندما أقرأ القرآن",
+    ];
+    for (const query of queries) {
+      expect(identifyTopics(query).map((m) => m.topic.id)).toContain("khushu-tadabbur");
+    }
+  });
+
+  it("يفهم تعبير الدارجة «ما عادش يحس كي نقرأ القرآن»", () => {
+    const matches = identifyTopics(
+      normalizeDialect("علاش قلبي ما عادش يحس كي نقرأ القرآن؟"),
+    );
+    expect(matches.map((m) => m.topic.id)).toContain("khushu-tadabbur");
+  });
+
+  it("يفهم سؤال حضور القلب بصيغة «كيف أحضر قلبي في الصلاة؟»", () => {
+    const matches = identifyTopics("كيف أحضر قلبي في الصلاة؟");
+    expect(matches.map((m) => m.topic.id)).toContain("hudur-al-qalb");
+  });
+
+  it("يفهم صيغة آثار الذنوب على القلب والطاعة", () => {
+    const matches = identifyTopics("ما أسباب الذنوب وما آثارها على القلب والطاعة؟");
+    expect(matches.map((m) => m.topic.id)).toContain("athar-al-dhunub");
+  });
+
+  it("لا يخلط كلمة «رغم» مع باب الهم والغم", () => {
+    const matches = identifyTopics("لماذا لا يؤثر فيّ القرآن رغم أني أقرأه باستمرار؟");
+    expect(matches.map((m) => m.topic.id)).not.toContain("al-hamm-wal-qalaq");
+  });
+
   it("يفهم «أشعر أنني بعيد عن ربي» كباب الغفلة أو الذكر", () => {
     const matches = identifyTopics("أشعر أنني بعيد عن ربي بشكل غريب مؤخرا ولا أعرف لماذا");
     const ids = matches.map((m) => m.topic.id);
@@ -111,6 +145,21 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
     expect(passages.length).toBeGreaterThan(0);
     for (const p of passages) {
       expect(p.text.length).toBeGreaterThan(40);
+    }
+  });
+
+  it("لا يمتنع عن أمثلة العرض الطبيعي المعروفة ضمن نطاق المكتبة", () => {
+    const queries = [
+      "علاش قلبي ما عادش يحس كي نقرأ القرآن؟",
+      "لماذا لا يؤثر فيّ القرآن رغم أني أقرأه باستمرار؟",
+      "كيف أحضر قلبي في الصلاة؟",
+      "ما أسباب الذنوب وما آثارها على القلب والطاعة؟",
+    ];
+    for (const query of queries) {
+      const normalized = normalizeDialect(query);
+      const topics = identifyTopics(normalized);
+      const passages = retrievePassages(normalized, { matchedTopics: topics });
+      expect(passages.length, query).toBeGreaterThan(0);
     }
   });
 

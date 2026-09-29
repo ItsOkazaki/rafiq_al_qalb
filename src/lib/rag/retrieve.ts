@@ -16,6 +16,14 @@ export const MAX_PASSAGES = 4;
 /** العتبة الدنيا لقبول المقطع — دونها يُمتنع عن العرض. */
 export const MIN_PASSAGE_SCORE = 3;
 
+function matchesSearchTerm(normQuery: string, normalizedTerm: string): boolean {
+  if (!normalizedTerm) return false;
+  // العبارات متعددة الكلمات تحتاج تطابقاً متصلاً؛ الكلمة المفردة يجب أن
+  // تطابق وحدة مستقلة حتى لا تتحول «رغم» إلى تطابق مع «غم».
+  if (normalizedTerm.includes(" ")) return normQuery.includes(normalizedTerm);
+  return normQuery.split(" ").includes(normalizedTerm);
+}
+
 export function identifyTopics(query: string, topics = TOPICS): TopicMatch[] {
   const norm = normalizeArabic(query);
   if (!norm) return [];
@@ -24,11 +32,11 @@ export function identifyTopics(query: string, topics = TOPICS): TopicMatch[] {
     let score = 0;
     for (const syn of topic.synonyms) {
       const n = normalizeArabic(syn);
-      if (n && norm.includes(n)) score += 2;
+      if (matchesSearchTerm(norm, n)) score += 2;
     }
     for (const kw of topic.keywords) {
       const n = normalizeArabic(kw);
-      if (n && norm.includes(n)) score += 1;
+      if (matchesSearchTerm(norm, n)) score += 1;
     }
     if (score > 0) matches.push({ topic, score });
   }
