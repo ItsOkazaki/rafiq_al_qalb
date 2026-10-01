@@ -1,33 +1,51 @@
-# رفيق القلوب — Deployment / النشر
+# نشر رفيق القلوب — Vercel + Neon + OpenAI
 
-البنية الوحيدة المعتمدة: **خادم Node كامل** (الحوار البحثي عبر `/api/research`).
-لا توجد نسخة ثابتة — النشر المقصود هو Vercel (أو أي مضيف Node).
+## 1) Neon
 
-## Vercel (الموصى به)
-1. أنشئ حساباً مجانياً في https://vercel.com ثم Token من Account Settings → Tokens.
-2. أضفه هنا كسرّ بيئة باسم `VERCEL_TOKEN` وأخبر الوكيل — سيشغّل:
-   `npx vercel deploy --prod --yes --token "$VERCEL_TOKEN"`
-3. أو من طرفك: `npm i -g vercel && vercel --prod` من جذر المشروع.
+افتح مشروع Neon المرتبط بفريقك وشغّل `database-setup.sql` مرة واحدة. استخدم connection string pool/SSL في Vercel كمتغير `DATABASE_URL`.
 
-### قاعدة البيانات (اختيارية لكن موصى بها)
-سجل تتبع جلسات البحث يحتاج PostgreSQL:
-1. أنشئ قاعدة مجانية في https://neon.tech (أو Supabase).
-2. عيّن `DATABASE_URL` في متغيرات مشروع Vercel.
-3. شغّل مرة واحدة: `DATABASE_URL=... npx drizzle-kit push`.
-ملاحظة: بدون قاعدة يعمل البحث كاملاً؛ يتوقف التسجيل التتبعي فقط (فشل صامت مقصود).
+## 2) Vercel Environment Variables
 
-## المتغيرات البيئية
-| المتغير | الوظيفة | إلزامي؟ |
-|---|---|---|
-| `DATABASE_URL` | سجل تتبع الجلسات (PostgreSQL) | لا — عملي فقط |
-| `OPENAI_API_KEY` | تفعيل التنظيم الآلي المقيَّد بالمادة المسترجعة | لا |
-| `OPENAI_BASE_URL` | نقطة نهاية متوافقة مع OpenAI | لا |
-| `OPENAI_MODEL` | اسم النموذج (افتراضي gpt-4o-mini) | لا |
+لـProduction وPreview: 
 
-بدون مفتاح AI يعمل **التنظيم الحتمي** — وهو مسار تصميمي مقصود وليس وضعاً منقوصاً:
-يجمع المقاطع المسترجعة حرفياً دون أي توليد خارجي.
-
-## التحقق قبل النشر
-```bash
-npx next typegen && npx tsc --noEmit && npm run build && npx vitest run
+```text
+DATABASE_URL=...
+OPENAI_API_KEY=...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+AI_TIMEOUT_MS=20000
+AI_RERANK_CANDIDATES=10
+AI_FINAL_PASSAGES=4
 ```
+
+يمكن استخدام أسماء `AI_*` البديلة؛ النظام يدعم `OPENAI_*` للتشغيل المباشر. لا تضع المفتاح في GitHub.
+
+## 3) Preview first
+
+انشر branch معاينة، ثم افتح:
+
+```text
+/api/health
+/hiwar
+/lab
+```
+
+يجب أن يظهر `aiConfigured: true`, نموذج embedding صحيح، و`database: configured`.
+
+## 4) Benchmark
+
+من جهاز الفريق:
+
+```bash
+npm install
+npm run test
+npm run typecheck
+npm run benchmark -- --url https://YOUR-PREVIEW.vercel.app
+```
+
+إذا لم يتم إعداد Neon محلياً للrunner، يبقى benchmark صالحاً ويُحفظ محلياً فقط؛ إذا توفر `DATABASE_URL` فسيُحفظ أيضاً في جداول `benchmark_runs` و`benchmark_results`.
+
+## 5) Production
+
+بعد مراجعة النتائج الفعلية، انقل النسخة المستقرة إلى Production. احتفظ بـcommit/branch واضح يميز عمل التحدي عن حالة ما قبل التحدي وفق قواعد المسابقة.

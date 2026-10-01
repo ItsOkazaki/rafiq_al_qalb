@@ -6,6 +6,9 @@ export const dynamic = "force-dynamic";
 
 interface ResearchRequestBody {
   query?: unknown;
+  /** Benchmark comparator only. Public UI never selects baseline. */
+  mode?: unknown;
+  audience?: unknown;
 }
 
 export async function POST(request: Request) {
@@ -17,9 +20,16 @@ export async function POST(request: Request) {
   }
 
   const query = typeof body.query === "string" ? body.query : "";
-  const result = await runResearch(query);
+  const mode = body.mode === "baseline" ? "baseline" : "ai";
+  const audience = ["general", "student", "researcher", "preacher"].includes(String(body.audience))
+    ? (String(body.audience) as "general" | "student" | "researcher" | "preacher")
+    : "general";
 
-  // توثيق تشغيلي بأفضل جهد — لا يُسقِط الاستجابة عند فشله.
+  const result = await runResearch(query, { mode, audience });
+  const d = result.diagnostics;
+
+  // Neon is operational telemetry/evaluation storage; failure here must never
+  // change the research answer returned to the user.
   try {
     await db.insert(researchSessions).values({
       query: result.query,
@@ -30,9 +40,26 @@ export async function POST(request: Request) {
       passageCount: result.passages.length,
       aiMode: result.ai.mode,
       safetyTriggered: result.outcome === "safety" ? "yes" : "no",
+      provider: d.provider,
+      chatModel: d.chatModel,
+      embeddingModel: d.embeddingModel,
+      aiConfigured: d.aiConfigured,
+      candidateCount: d.candidateCount,
+      semanticRetrievalUsed: d.semanticRetrievalUsed,
+      baselineTopIds: d.baselineTopIds,
+      hybridTopIds: d.hybridTopIds,
+      reranked: d.reranked,
+      evidenceGate: d.evidenceGate,
+      claims: d.claims,
+      conflicts: d.conflicts,
+      verifiedClaimCount: d.verifiedClaimCount,
+      totalClaimCount: d.totalClaimCount,
+      latencyMs: d.latencyMs,
+      degradedReason: d.degradedReason,
+      plan: d.plan,
     });
   } catch {
-    // التسجيل تتبعي فقط؛ صحّة نتيجة البحث لا تعتمد عليه.
+    // Telemetry is best-effort; never block a correct/explicit abstention.
   }
 
   return Response.json(result);

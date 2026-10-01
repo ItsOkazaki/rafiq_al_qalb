@@ -20,6 +20,7 @@ export function ResearchConsole() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [audience, setAudience] = useState<"general" | "student" | "researcher" | "preacher">("general");
   const ranRef = useRef(false);
 
   const run = useCallback(async (q: string) => {
@@ -31,7 +32,7 @@ export function ResearchConsole() {
       const res = await fetch("/api/research", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ query: trimmed }),
+        body: JSON.stringify({ query: trimmed, audience }),
       });
       if (!res.ok) throw new Error("bad status");
       const data = (await res.json()) as ResearchResult;
@@ -41,7 +42,7 @@ export function ResearchConsole() {
     } finally {
       setLoading(false);
     }
-  }, [loading]);
+  }, [audience, loading]);
 
   useEffect(() => {
     const q = params.get("q");
@@ -59,8 +60,34 @@ export function ResearchConsole() {
             صِف موضوع بحثك
           </label>
           <p className="mt-1 text-xs leading-6 text-ink-500">
-            يُفهم وصفك مدخلاً لتحديد مسار بحث — لا يشخَّص ولا تُقيَّم حالة شخصية.
+            يُفهم وصفك مدخلاً لتحديد مسار بحث. يمكنك اختيار طريقة العرض؛ الأدلة والمصادر لا تتغير بتغير الجمهور.
           </p>
+
+          <div className="mt-4">
+            <p className="text-[11px] font-semibold text-ink-500">نوع المستفيد — لتكييف عرض الإجابة فقط:</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {[
+                ["general", "قارئ عام"],
+                ["student", "طالب علم"],
+                ["researcher", "باحث"],
+                ["preacher", "خطيب / واعظ"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setAudience(value as typeof audience)}
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                    audience === value
+                      ? "border-forest-600/40 bg-forest-700 text-parchment-50"
+                      : "border-parchment-300 bg-parchment-50 text-ink-600 hover:border-brass-400/60"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <textarea
             id="research-query"
             value={query}
@@ -81,11 +108,11 @@ export function ResearchConsole() {
               className="inline-flex items-center gap-2 rounded-full bg-forest-700 px-6 py-2.5 text-sm font-bold text-parchment-50 shadow-manuscript transition-all hover:bg-forest-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" strokeWidth={2.2} />}
-              استرجاع المادة البحثية
+              تشغيل البحث المدعوم بالذكاء الاصطناعي
             </button>
             <span className="flex items-center gap-1.5 text-[11px] text-ink-500">
               <ShieldCheck className="size-3.5 text-forest-600" strokeWidth={2} />
-              البحث مقصور على سجل المصادر المعتمدة — والامتناع مضمون عند غياب المادة
+              الذكاء الاصطناعي داخل حدود سجل المصادر — ولا إجابة قبل اجتياز بوابة الدليل
             </span>
           </div>
 
@@ -114,7 +141,7 @@ export function ResearchConsole() {
           <svg viewBox="0 0 24 24" className="animate-ornament size-8 stroke-brass-400" fill="none" strokeWidth="1.4">
             <path d="M12 3l2.2 5.4 5.8.6-4.4 3.8 1.3 5.7L12 15.4l-4.9 3.1 1.3-5.7L4 9l5.8-.6L12 3z" strokeLinejoin="round" />
           </svg>
-          <p className="text-sm text-ink-500">يحدد المسار، ويستخرج الكلمات، ويسترجع من المصدر المعتمد…</p>
+          <p className="text-sm text-ink-500">يفهم السؤال، ويبحث دلالياً، ويعيد ترتيب الأدلة، ثم يتحقق من الادعاءات قبل العرض…</p>
         </div>
       )}
 

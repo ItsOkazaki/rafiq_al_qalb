@@ -15,7 +15,7 @@ export default function HiwarPage() {
         <h1 className="heading-display text-4xl font-bold text-forest-800">الحوار البحثي</h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-8 text-ink-500">
           اكتب موضوعك بصيغة وصف بسيط. سيفهمه النظام بوصفه <strong className="text-ink-700">موضوع بحث</strong>،
-          يحدد الأبواب والكلمات المفتاحية، ثم يسترجع المادة الفعلية من المصادر المعتمدة.
+          يفهم السؤال بخطة بحث، ويجمع البحث اللفظي مع البحث الدلالي، ثم يعيد ترتيب الأدلة ويتحقق من الإسناد قبل عرض الإجابة.
         </p>
       </header>
       <div className="mt-10">
