@@ -188,7 +188,7 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
       topics,
       keywords: prelimKeywords,
       passages: baseline,
-      message: "المسار الحواري بالذكاء الاصطناعي غير مهيأ في بيئة التشغيل. شغّل مزوداً متوافقاً مع OpenAI أو استخدم إعداد Ollama المحلي ثم أعد المحاولة.",
+      message: "المسار الحواري بالذكاء الاصطناعي غير مهيأ في بيئة التشغيل. شغّل Gemini أو OpenRouter أو OpenAI عبر متغيرات البيئة ثم أعد المحاولة.",
       diagnostics: emptyDiagnostics({
         pipeline: ["policy", "ai:configuration-check", "fallback:evidence-browser"],
         baselineTopIds: baseline.map((p) => p.chunkId),

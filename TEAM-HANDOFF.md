@@ -12,10 +12,15 @@ Set the existing team environment variables:
 
 ```text
 DATABASE_URL=your-Neon-connection-string
-OPENAI_API_KEY=your-OpenAI-key
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4o-mini
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your-gemini-key
+GEMINI_CHAT_MODEL=gemini-3.1-flash-lite
+GEMINI_EMBEDDING_MODEL=gemini-embedding-2
+# Optional OpenRouter fallback:
+# OPENROUTER_API_KEY=...
+# OPENROUTER_MODEL=qwen/qwen3.8-27b:free
+# OPENROUTER_EMBEDDING_MODEL=liquid/lfm-2.5-embedding-350m:free
+# OpenAI remains supported when credits are available.
 AI_TIMEOUT_MS=20000
 AI_RERANK_CANDIDATES=10
 AI_FINAL_PASSAGES=4
@@ -63,6 +68,6 @@ The runner compares the fixed 40 questions in `benchmarks/questions.json` agains
 
 ## Important
 
-Do not commit `.env.local` or other secret-bearing environment files. The repository contains only placeholders. The existing Vercel/Neon/OpenAI secrets remain external to GitHub.
+Do not commit `.env.local` or other secret-bearing environment files. The repository contains only placeholders. The existing Vercel/Neon/provider secrets remain external to GitHub.
 
 Do not present the mocked runtime smoke figures as model benchmark results. Only the deployed real-model benchmark belongs in the hackathon presentation.

@@ -20,6 +20,12 @@ const questions = JSON.parse(await fs.readFile(new URL('./questions.json', impor
 const selected = limit > 0 ? questions.slice(0, limit) : questions;
 const datasetVersion = getArg('--dataset', 'v1-40');
 
+let healthMeta = {};
+try {
+  const healthResponse = await fetch(`${baseUrl}/api/health`);
+  if (healthResponse.ok) healthMeta = await healthResponse.json();
+} catch {}
+
 async function runCase(question, mode) {
   const response = await fetch(`${baseUrl}/api/research`, {
     method: 'POST',
@@ -63,6 +69,10 @@ const report = aggregate(rows, {
   questionCount: rows.length,
   generatedAt: new Date().toISOString(),
   conflictFixture: conflict,
+  provider: healthMeta.aiProvider ?? null,
+  chatModel: healthMeta.chatModel ?? null,
+  embeddingProvider: healthMeta.embeddingProvider ?? null,
+  embeddingModel: healthMeta.embeddingModel ?? null,
 });
 
 await fs.mkdir(new URL('./results/', import.meta.url), { recursive: true });
@@ -82,7 +92,7 @@ async function persistToNeon(report, version) {
   const runKey = `bench-${Date.now()}`;
   try {
     await pool.query(`insert into benchmark_runs (run_key, base_url, dataset_version, model, embedding_model, summary) values ($1,$2,$3,$4,$5,$6)`, [
-      runKey, report.baseUrl, version, null, null, JSON.stringify(report.summary),
+      runKey, report.baseUrl, version, report.chatModel ?? null, report.embeddingModel ?? null, JSON.stringify({ ...report.summary, provider: report.provider, embeddingProvider: report.embeddingProvider }),
     ]);
     for (const row of report.rows) {
       await pool.query(`insert into benchmark_results (run_key, case_id, baseline, ai) values ($1,$2,$3,$4)`, [

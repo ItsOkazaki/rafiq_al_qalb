@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// مزود الذكاء الاصطناعي — OpenAI-compatible
-// يدعم OpenAI وأي خدمة متوافقة، بما فيها خادم محلي مثل Ollama.
-// الذكاء الاصطناعي هنا جزء أساسي من مسار الإجابة: التخطيط، الدلالة،
-// إعادة الترتيب، فحص كفاية الدليل، صياغة الادعاءات، والتحقق منها.
+// مزود الذكاء الاصطناعي — Gemini / OpenRouter / OpenAI
+// AI جزء أساسي من مسار الإجابة: التخطيط، إعادة الترتيب، بوابة الدليل،
+// صياغة الادعاءات، التحقق منها، ورصد التباين بين المصادر.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
@@ -15,11 +14,19 @@ import type {
   VerifiedAnswer,
 } from "@/lib/types";
 
-const DEFAULT_BASE_URL = "http://localhost:11434/v1";
-const DEFAULT_CHAT_MODEL = "qwen3:8b";
-const DEFAULT_EMBEDDING_MODEL = "nomic-embed-text";
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+const OPENAI_DEFAULT_BASE_URL = "https://api.openai.com/v1";
+
+const DEFAULT_GEMINI_CHAT_MODEL = "gemini-3.1-flash-lite";
+const DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
+const DEFAULT_OPENROUTER_CHAT_MODEL = "qwen/qwen3.8-27b:free";
+const DEFAULT_OPENROUTER_EMBEDDING_MODEL = "liquid/lfm-2.5-embedding-350m:free";
+const DEFAULT_OPENAI_CHAT_MODEL = "gpt-4o-mini";
 const DEFAULT_OPENAI_EMBEDDING_MODEL = "text-embedding-3-small";
 const DEFAULT_TIMEOUT_MS = 20_000;
+
+export type AIProviderName = "Gemini" | "OpenRouter" | "OpenAI";
 
 function env(name: string): string | undefined {
   if (typeof process === "undefined" || !process.env) return undefined;
@@ -28,58 +35,178 @@ function env(name: string): string | undefined {
 }
 
 export interface AIConfig {
+  provider: AIProviderName;
   baseUrl: string;
   apiKey: string | undefined;
   chatModel: string;
   embeddingModel: string;
+  embeddingProvider: AIProviderName;
+  embeddingBaseUrl: string;
+  embeddingApiKey: string | undefined;
   timeoutMs: number;
   rerankCandidates: number;
   finalPassages: number;
-  provider: string;
+  freeTierCapable: boolean;
+}
+
+function normalizeProvider(value: string | undefined): AIProviderName | undefined {
+  if (!value) return undefined;
+  const normalized = value.toLowerCase();
+  if (normalized === "gemini" || normalized === "google") return "Gemini";
+  if (normalized === "openrouter" || normalized === "router") return "OpenRouter";
+  if (normalized === "openai") return "OpenAI";
+  return undefined;
+}
+
+function detectDefaultProvider(): AIProviderName {
+  const explicit = normalizeProvider(env("AI_PROVIDER"));
+  if (explicit) return explicit;
+  if (env("GEMINI_API_KEY")) return "Gemini";
+  if (env("OPENROUTER_API_KEY")) return "OpenRouter";
+  return "OpenAI";
+}
+
+function configForProvider(provider: AIProviderName) {
+  if (provider === "Gemini") {
+    return {
+      baseUrl: GEMINI_BASE_URL,
+      apiKey: env("GEMINI_API_KEY"),
+      chatModel: env("GEMINI_CHAT_MODEL") ?? DEFAULT_GEMINI_CHAT_MODEL,
+      embeddingModel: env("GEMINI_EMBEDDING_MODEL") ?? DEFAULT_GEMINI_EMBEDDING_MODEL,
+      embeddingProvider: normalizeProvider(env("EMBEDDING_PROVIDER")) ?? "Gemini",
+    };
+  }
+  if (provider === "OpenRouter") {
+    return {
+      baseUrl: env("OPENROUTER_BASE_URL") ?? OPENROUTER_BASE_URL,
+      apiKey: env("OPENROUTER_API_KEY"),
+      chatModel: env("OPENROUTER_MODEL") ?? DEFAULT_OPENROUTER_CHAT_MODEL,
+      embeddingModel: env("OPENROUTER_EMBEDDING_MODEL") ?? DEFAULT_OPENROUTER_EMBEDDING_MODEL,
+      embeddingProvider: normalizeProvider(env("EMBEDDING_PROVIDER")) ?? "OpenRouter",
+    };
+  }
+  return {
+    baseUrl: env("OPENAI_BASE_URL") ?? env("AI_BASE_URL") ?? OPENAI_DEFAULT_BASE_URL,
+    apiKey: env("OPENAI_API_KEY") ?? env("AI_API_KEY"),
+    chatModel: env("OPENAI_MODEL") ?? env("AI_CHAT_MODEL") ?? DEFAULT_OPENAI_CHAT_MODEL,
+    embeddingModel: env("OPENAI_EMBEDDING_MODEL") ?? env("AI_EMBEDDING_MODEL") ?? DEFAULT_OPENAI_EMBEDDING_MODEL,
+    embeddingProvider: normalizeProvider(env("EMBEDDING_PROVIDER")) ?? "OpenAI",
+  };
+}
+
+function isFreeTierCapable(provider: AIProviderName, chatModel: string, embeddingProvider: AIProviderName, embeddingModel: string): boolean {
+  if (provider === "Gemini") {
+    return chatModel === DEFAULT_GEMINI_CHAT_MODEL && (embeddingProvider !== "Gemini" || embeddingModel === DEFAULT_GEMINI_EMBEDDING_MODEL);
+  }
+  if (provider === "OpenRouter") {
+    return chatModel.endsWith(":free") && (embeddingProvider !== "OpenRouter" || embeddingModel.endsWith(":free"));
+  }
+  return false;
 }
 
 export function getAIConfig(): AIConfig {
-  // Keep the original project's OPENAI_* variables authoritative so an existing
-  // Vercel deployment keeps working unchanged. Generic AI_* variables are aliases.
-  const baseUrl = env("OPENAI_BASE_URL") ?? env("AI_BASE_URL") ?? (env("OPENAI_API_KEY") ? "https://api.openai.com/v1" : DEFAULT_BASE_URL);
-  const apiKey = env("OPENAI_API_KEY") ?? env("AI_API_KEY");
-  const chatModel = env("OPENAI_MODEL") ?? env("AI_CHAT_MODEL") ?? DEFAULT_CHAT_MODEL;
-  const embeddingModel = env("OPENAI_EMBEDDING_MODEL") ?? env("AI_EMBEDDING_MODEL") ??
-    (baseUrl.includes("api.openai.com") ? DEFAULT_OPENAI_EMBEDDING_MODEL : DEFAULT_EMBEDDING_MODEL);
+  const provider = detectDefaultProvider();
+  const selected = configForProvider(provider);
+  const embeddingProvider = selected.embeddingProvider;
+  const embeddingSelected = configForProvider(embeddingProvider);
+  const embeddingBaseUrl = embeddingProvider === provider ? selected.baseUrl : embeddingSelected.baseUrl;
+  const embeddingApiKey = embeddingProvider === provider ? selected.apiKey : embeddingSelected.apiKey;
+  const embeddingModel = embeddingProvider === provider ? selected.embeddingModel : (
+    embeddingProvider === "Gemini"
+      ? env("GEMINI_EMBEDDING_MODEL") ?? DEFAULT_GEMINI_EMBEDDING_MODEL
+      : embeddingProvider === "OpenRouter"
+        ? env("OPENROUTER_EMBEDDING_MODEL") ?? DEFAULT_OPENROUTER_EMBEDDING_MODEL
+        : env("OPENAI_EMBEDDING_MODEL") ?? env("AI_EMBEDDING_MODEL") ?? DEFAULT_OPENAI_EMBEDDING_MODEL
+  );
+
   const timeoutMs = Math.max(3_000, Number(env("AI_TIMEOUT_MS") ?? DEFAULT_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS);
   const rerankCandidates = Math.min(16, Math.max(6, Number(env("AI_RERANK_CANDIDATES") ?? 10) || 10));
   const finalPassages = Math.min(6, Math.max(2, Number(env("AI_FINAL_PASSAGES") ?? 4) || 4));
-  const provider = baseUrl.includes("api.openai.com") ? "OpenAI" : baseUrl.includes("11434") ? "Local OpenAI-compatible" : "OpenAI-compatible";
-  return { baseUrl: baseUrl.replace(/\/$/, ""), apiKey, chatModel, embeddingModel, timeoutMs, rerankCandidates, finalPassages, provider };
+
+  return {
+    provider,
+    baseUrl: selected.baseUrl.replace(/\/$/, ""),
+    apiKey: selected.apiKey,
+    chatModel: selected.chatModel,
+    embeddingModel,
+    embeddingProvider,
+    embeddingBaseUrl: embeddingBaseUrl.replace(/\/$/, ""),
+    embeddingApiKey,
+    timeoutMs,
+    rerankCandidates,
+    finalPassages,
+    freeTierCapable: isFreeTierCapable(provider, selected.chatModel, embeddingProvider, embeddingModel),
+  };
 }
 
 export function isAIConfigured(): boolean {
-  const explicitBase = env("OPENAI_BASE_URL") ?? env("AI_BASE_URL");
   const cfg = getAIConfig();
-  const localExplicit = Boolean(explicitBase) && (cfg.baseUrl.includes("localhost") || cfg.baseUrl.includes("127.0.0.1") || cfg.baseUrl.includes("11434"));
-  return Boolean(cfg.apiKey) || localExplicit;
+  return Boolean(cfg.apiKey);
 }
 
-function authHeaders(config: AIConfig): Record<string, string> {
-  return config.apiKey ? { authorization: `Bearer ${config.apiKey}` } : {};
+function headersFor(provider: AIProviderName, apiKey?: string): Record<string, string> {
+  if (provider === "Gemini") return apiKey ? { "x-goog-api-key": apiKey } : {};
+  return apiKey ? { authorization: `Bearer ${apiKey}` } : {};
 }
 
-async function postJson(path: string, body: unknown): Promise<unknown> {
+async function postOpenAICompatible(path: string, body: unknown, provider: "OpenAI" | "OpenRouter"): Promise<unknown> {
   const config = getAIConfig();
+  const baseUrl = provider === config.provider ? config.baseUrl : configForProvider(provider).baseUrl;
+  const apiKey = provider === config.provider ? config.apiKey : configForProvider(provider).apiKey;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
   try {
-    const response = await fetch(`${config.baseUrl}${path}`, {
+    const response = await fetch(`${baseUrl}${path}`, {
       method: "POST",
-      headers: { "content-type": "application/json", ...authHeaders(config) },
+      headers: {
+        "content-type": "application/json",
+        ...headersFor(provider, apiKey),
+        ...(provider === "OpenRouter" ? {
+          "HTTP-Referer": env("OPENROUTER_SITE_URL") ?? "https://rafiq-alqulub.vercel.app",
+          "X-Title": env("OPENROUTER_SITE_NAME") ?? "Rafiq Al-Qulub",
+        } : {}),
+      },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      throw new Error(`AI ${response.status}: ${detail.slice(0, 300)}`);
+      throw new Error(`AI ${provider} ${response.status}: ${detail.slice(0, 360)}`);
     }
     return await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function postGemini(system: string, user: string): Promise<string> {
+  const config = getAIConfig();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+  try {
+    const response = await fetch(`${config.baseUrl}/models/${encodeURIComponent(config.chatModel)}:generateContent`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...headersFor("Gemini", config.apiKey) },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: "user", parts: [{ text: user }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          maxOutputTokens: 4096,
+        },
+      }),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new Error(`AI Gemini ${response.status}: ${detail.slice(0, 360)}`);
+    }
+    const data = (await response.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const content = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
+    if (!content) throw new Error("Gemini returned no content");
+    return content;
   } finally {
     clearTimeout(timeout);
   }
@@ -102,28 +229,54 @@ function extractJson<T>(value: string): T {
 
 async function completeJson<T>(system: string, user: string): Promise<T> {
   const config = getAIConfig();
+  if (!isAIConfigured()) throw new Error("AI provider is not configured");
+
+  if (config.provider === "Gemini") {
+    return extractJson<T>(await postGemini(system, user));
+  }
+
   const messages = [
     { role: "system", content: system },
     { role: "user", content: user },
   ];
-  const attempts = [
-    { model: config.chatModel, temperature: 0, messages, response_format: { type: "json_object" } },
-    { model: config.chatModel, temperature: 0, messages },
-  ];
-  let lastError: unknown = null;
-  for (const body of attempts) {
-    try {
-      const data = (await postJson("/chat/completions", body)) as {
-        choices?: { message?: { content?: string | null } }[];
-      };
-      const content = data.choices?.[0]?.message?.content?.trim();
-      if (!content) throw new Error("AI returned no content");
-      return extractJson<T>(content);
-    } catch (error) {
-      lastError = error;
-    }
+  const firstBody = {
+    model: config.chatModel,
+    temperature: 0,
+    messages,
+    response_format: { type: "json_object" },
+  };
+  try {
+    const data = (await postOpenAICompatible("/chat/completions", firstBody, config.provider)) as {
+      choices?: { message?: { content?: string | null } }[];
+    };
+    const content = data.choices?.[0]?.message?.content?.trim();
+    if (!content) throw new Error("AI returned no content");
+    return extractJson<T>(content);
+  } catch (error) {
+    // Some OpenRouter free endpoints accept chat completions but reject
+    // response_format. Retry once without it only for a transport/HTTP failure.
+    if (config.provider !== "OpenRouter") throw error;
+    const data = (await postOpenAICompatible("/chat/completions", {
+      model: config.chatModel,
+      temperature: 0,
+      messages,
+    }, config.provider)) as { choices?: { message?: { content?: string | null } }[] };
+    const content = data.choices?.[0]?.message?.content?.trim();
+    if (!content) throw new Error("AI returned no content");
+    return extractJson<T>(content);
   }
-  throw lastError instanceof Error ? lastError : new Error("AI JSON completion failed");
+}
+
+export async function probeChat(): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await completeJson<{ ok: boolean }>(
+      "أعد JSON فقط بالمفتاح ok، ولا تضف أي معلومة.",
+      "أعد {\"ok\":true}",
+    );
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message.slice(0, 220) : "CHAT_PROBE_FAILED" };
+  }
 }
 
 export async function planResearch(query: string, audienceHint?: ResearchPlan["audience"]): Promise<ResearchPlan> {
@@ -193,7 +346,7 @@ export async function rerankPassages(
       "لا تعتبر وجود الكلمات المتشابهة دليلاً كافياً وحده.",
       "أعد JSON فقط.",
     ].join("\n"),
-    JSON.stringify({ plan, candidates: compact }, ensureJsonUnicode()),
+    JSON.stringify({ plan, candidates: compact }),
   );
 
   const allowedIds = new Set(candidates.map((p) => p.chunkId));
@@ -249,7 +402,7 @@ export async function generateClaimAnswer(
       "عند نقص الدليل، لا تملأ الفراغ؛ ضع الحد في limits.",
       "أعد JSON فقط بالمفاتيح claims, limits.",
     ].join("\n"),
-    JSON.stringify({ query, plan, evidence }, ensureJsonUnicode()),
+    JSON.stringify({ query, plan, evidence }),
   );
 
   const allowed = new Set(passages.map((p) => p.chunkId));
@@ -270,7 +423,6 @@ export async function generateClaimAnswer(
       : [],
   };
 }
-
 
 export async function detectSourceConflicts(
   query: string,
@@ -355,7 +507,7 @@ export async function verifyClaims(
       "ارصد التباين بين المصادر فقط، ويمكن وصفه بـ different-emphasis أو apparent-tension أو explicit-contradiction.",
       "أعد JSON فقط.",
     ].join("\n"),
-    JSON.stringify({ query, claims: payload }, ensureJsonUnicode()),
+    JSON.stringify({ query, claims: payload }),
   );
 
   const byId = new Map((raw.claims ?? []).map((x) => [x.id, x]));
@@ -396,8 +548,4 @@ function clamp01(n: number): number {
   if (!Number.isFinite(n)) return 0;
   if (n > 1 && n <= 100) return n / 100;
   return Math.max(0, Math.min(1, n));
-}
-
-function ensureJsonUnicode() {
-  return (_key: string, value: unknown) => value;
 }

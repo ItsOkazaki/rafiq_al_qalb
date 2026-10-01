@@ -18,7 +18,7 @@ The upgraded path is `mode=ai`: AI research planning → semantic embeddings →
 - All **40 benchmark cases** executed through baseline + AI paths in the runtime smoke: **0 crashes**.
 - Safety, fatwa referral, AI degradation, claim verification and synthetic conflict handling were exercised: **PASS**.
 
-These are engineering checks, not competition benchmark results. They do not replace a real run against the team's deployed OpenAI configuration.
+These are engineering checks, not competition benchmark results. They do not replace a real run against the team's deployed Gemini/OpenRouter/OpenAI configuration.
 
 ## Real evaluation loop for the team
 

@@ -304,7 +304,7 @@ function AIUnavailableView({ result }: { result: ResearchResult }) {
           </div>
         </div>
         <div className="mt-5 rounded-xl border border-parchment-50/10 bg-forest-800/65 p-4 text-xs leading-6 text-parchment-200/80">
-          <strong className="text-brass-200">تشغيل بلا مفتاح سري:</strong> اضبط مزوداً متوافقاً مع OpenAI محلياً مثل Ollama، أو ضع مفتاحاً عبر متغيرات البيئة في بيئة النشر. لا تضف المفتاح إلى GitHub.
+          <strong className="text-brass-200">تشغيل بلا مفتاح سري:</strong> اضبط Gemini أو OpenRouter أو OpenAI عبر متغيرات البيئة في بيئة النشر. لا تضف المفتاح إلى GitHub.
         </div>
       </div>
       {result.diagnostics.degradedReason && (

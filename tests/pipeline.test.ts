@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runResearch } from "@/lib/research/pipeline";
+import { embedTexts } from "@/lib/ai/embeddings";
 import {
   detectSourceConflicts,
   getAIConfig,
+  planResearch,
   verifyClaims,
 } from "@/lib/ai/provider";
 import type { RetrievedPassage } from "@/lib/types";
@@ -202,6 +204,106 @@ describe("AI-first Evidence-Gated pipeline", () => {
     expect(config.embeddingModel).toBe("text-embedding-3-small");
   });
 });
+
+
+describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
+  const previous: Record<string, string | undefined> = {};
+  for (const key of [
+    "AI_PROVIDER", "GEMINI_API_KEY", "GEMINI_CHAT_MODEL", "GEMINI_EMBEDDING_MODEL",
+    "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "OPENROUTER_EMBEDDING_MODEL", "EMBEDDING_PROVIDER",
+  ]) previous[key] = process.env[key];
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+
+  it("يستخدم Gemini مباشرة مع generateContent وbatchEmbedContents", async () => {
+    process.env.AI_PROVIDER = "gemini";
+    process.env.GEMINI_API_KEY = "test-gemini";
+    process.env.GEMINI_CHAT_MODEL = "gemini-3.1-flash-lite";
+    process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
+    delete process.env.OPENROUTER_API_KEY;
+    delete process.env.EMBEDDING_PROVIDER;
+
+    vi.stubGlobal("fetch", vi.fn(async (input: string | URL, init?: RequestInit) => {
+      const url = String(input);
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      if (url.includes(":generateContent")) {
+        const system = String(body.systemInstruction?.parts?.[0]?.text ?? "");
+        let payload: unknown;
+        if (system.includes("مخطط استعلام")) payload = {
+          intent: "research", audience: "general", semanticQuery: SAMPLE_QUERY,
+          subquestions: [SAMPLE_QUERY], searchTerms: ["قسوة القلب", "القرآن", "التأثر"],
+        };
+        else payload = { ok: true };
+        return new Response(JSON.stringify({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(payload) }] } }],
+        }), { status: 200 });
+      }
+      if (url.includes(":batchEmbedContents")) {
+        const requests = Array.isArray(body.requests) ? body.requests : [];
+        return new Response(JSON.stringify({
+          embeddings: requests.map(() => ({ values: [1, 0, 0, 0] })),
+        }), { status: 200 });
+      }
+      throw new Error(`unexpected url ${url}`);
+    }));
+
+    const config = getAIConfig();
+    expect(config.provider).toBe("Gemini");
+    expect(config.chatModel).toBe("gemini-3.1-flash-lite");
+    expect(config.embeddingModel).toBe("gemini-embedding-2");
+    expect(config.freeTierCapable).toBe(true);
+
+    const plan = await planResearch(SAMPLE_QUERY);
+    expect(plan.semanticQuery).toBe(SAMPLE_QUERY);
+    const vectors = await embedTexts(["نص عربي للاختبار", "نص ثانٍ"]);
+    expect(vectors).toHaveLength(2);
+    expect(vectors?.[0]).toEqual([1, 0, 0, 0]);
+  });
+
+  it("يستخدم OpenRouter مع معرفات مجانية للمحادثة والتضمين", async () => {
+    process.env.AI_PROVIDER = "openrouter";
+    process.env.OPENROUTER_API_KEY = "test-router";
+    process.env.OPENROUTER_MODEL = "qwen/qwen3.8-27b:free";
+    process.env.OPENROUTER_EMBEDDING_MODEL = "liquid/lfm-2.5-embedding-350m:free";
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.EMBEDDING_PROVIDER;
+
+    vi.stubGlobal("fetch", vi.fn(async (input: string | URL, init?: RequestInit) => {
+      const url = String(input);
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      if (url.endsWith("/chat/completions")) {
+        const system = String(body.messages?.[0]?.content ?? "");
+        const payload = system.includes("مخطط استعلام")
+          ? { intent: "research", audience: "general", semanticQuery: SAMPLE_QUERY, subquestions: [SAMPLE_QUERY], searchTerms: ["قسوة القلب"] }
+          : { ok: true };
+        return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(payload) } }] }), { status: 200 });
+      }
+      if (url.endsWith("/embeddings")) {
+        const inputs = Array.isArray(body.input) ? body.input : [];
+        return new Response(JSON.stringify({ data: inputs.map((_: unknown, index: number) => ({ index, embedding: [0, 1, 0, 0] })) }), { status: 200 });
+      }
+      throw new Error(`unexpected url ${url}`);
+    }));
+
+    const config = getAIConfig();
+    expect(config.provider).toBe("OpenRouter");
+    expect(config.chatModel).toMatch(/:free$/);
+    expect(config.embeddingModel).toMatch(/:free$/);
+    expect(config.freeTierCapable).toBe(true);
+
+    const plan = await planResearch(SAMPLE_QUERY);
+    expect(plan.intent).toBe("research");
+    const vectors = await embedTexts(["نص عربي"]);
+    expect(vectors?.[0]).toEqual([0, 1, 0, 0]);
+  });
+});
+
 
 describe("Claim verification and conflicts", () => {
   beforeEach(() => {

@@ -81,6 +81,26 @@ const { detectSourceConflicts } = require(path.join(srcRoot,'lib/ai/provider.ts'
   if(baseline.outcome!=='ok' || baseline.ai.mode!=='baseline') throw new Error('baseline smoke failed');
   const safe=await runResearch('أفكر في الانتحار');
   if(safe.outcome!=='safety') throw new Error('safety smoke failed');
+  // Provider routing smoke: Gemini and OpenRouter use their native/compatible REST shapes.
+  const competitionFetch=global.fetch;
+  const originalEnv={};
+  for(const key of ['AI_PROVIDER','GEMINI_API_KEY','GEMINI_CHAT_MODEL','GEMINI_EMBEDDING_MODEL','OPENROUTER_API_KEY','OPENROUTER_MODEL','OPENROUTER_EMBEDDING_MODEL','EMBEDDING_PROVIDER']) originalEnv[key]=process.env[key];
+  process.env.AI_PROVIDER='gemini';
+  process.env.GEMINI_API_KEY='smoke-gemini';
+  process.env.GEMINI_CHAT_MODEL='gemini-3.1-flash-lite';
+  process.env.GEMINI_EMBEDDING_MODEL='gemini-embedding-2';
+  global.fetch=async (input, init={})=>{
+    const url=String(input);
+    const body=JSON.parse(String(init.body||'{}'));
+    if(url.includes(':batchEmbedContents')) return new Response(JSON.stringify({embeddings:(body.requests||[]).map(()=>({values:[1,0,0,0]}))}),{status:200});
+    if(url.includes(':generateContent')) return new Response(JSON.stringify({candidates:[{content:{parts:[{text:JSON.stringify({ok:true, intent:'research', audience:'general', semanticQuery:q, subquestions:[q], searchTerms:['اختبار']})}]}}]}),{status:200});
+    throw new Error('unexpected Gemini smoke URL');
+  };
+  const cfgGemini=require(path.join(srcRoot,'lib/ai/provider.ts')).getAIConfig();
+  if(cfgGemini.provider!=='Gemini' || !cfgGemini.freeTierCapable) throw new Error('Gemini provider smoke failed');
+  for(const key of Object.keys(originalEnv)){ if(originalEnv[key]===undefined) delete process.env[key]; else process.env[key]=originalEnv[key]; }
+  global.fetch=competitionFetch;
+
   const oldFetch=global.fetch;
   global.fetch=async()=>{throw new Error('network down')};
   const degraded=await runResearch(q,{mode:'ai'});

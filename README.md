@@ -36,7 +36,7 @@ Neon (private operational/evaluation telemetry)
 
 1. انسخ `.env.example` إلى `.env.local`.
 2. ضع `DATABASE_URL` الخاص بـ Neon.
-3. ضع `OPENAI_API_KEY` الخاص بالمشروع، مع `OPENAI_MODEL` و`OPENAI_EMBEDDING_MODEL`.
+3. اختر مزود AI عبر `AI_PROVIDER` ثم ضع مفتاح Gemini أو OpenRouter؛ OpenAI يبقى خياراً متاحاً عند توفر رصيد.
 4. نفّذ `database-setup.sql` مرة واحدة في Neon.
 5. ثبّت الاعتمادات ثم شغّل: `npm run dev`.
 
@@ -45,9 +45,15 @@ Neon (private operational/evaluation telemetry)
 | المتغير | الاستخدام |
 |---|---|
 | `DATABASE_URL` | Neon للـtelemetry والتقييم |
-| `OPENAI_API_KEY` | مزود AI الرئيسي |
-| `OPENAI_MODEL` | نموذج التخطيط/إعادة الترتيب/التحقق |
-| `OPENAI_EMBEDDING_MODEL` | embedding semantic retrieval؛ الافتراضي OpenAI `text-embedding-3-small` |
+| `AI_PROVIDER` | `gemini` أو `openrouter` أو `openai` |
+| `GEMINI_API_KEY` | مفتاح Gemini Developer API |
+| `GEMINI_CHAT_MODEL` | الافتراضي `gemini-3.1-flash-lite` |
+| `GEMINI_EMBEDDING_MODEL` | الافتراضي `gemini-embedding-2` |
+| `OPENROUTER_API_KEY` | مفتاح OpenRouter |
+| `OPENROUTER_MODEL` | الافتراضي `qwen/qwen3.8-27b:free` |
+| `OPENROUTER_EMBEDDING_MODEL` | الافتراضي `liquid/lfm-2.5-embedding-350m:free` |
+| `EMBEDDING_PROVIDER` | لتخصيص مزود الـembedding بشكل مستقل عن chat |
+| `OPENAI_API_KEY` | خيار OpenAI عند توفر الرصيد |
 | `AI_RERANK_CANDIDATES` | عدد المرشحين قبل إعادة الترتيب |
 | `AI_FINAL_PASSAGES` | الحد النهائي للمقاطع |
 
