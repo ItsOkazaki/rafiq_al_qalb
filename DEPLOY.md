@@ -4,7 +4,7 @@
 
 مسار الذكاء الاصطناعي لم يعد مربوطاً بـ OpenAI. يمكنك تشغيل نفس Evidence-Gated RAG باستخدام Gemini أو OpenRouter، مع إبقاء OpenAI كخيار للبيئات التي تتوفر فيها اعتمادات مدفوعة.
 
-Gemini لديه نماذج ذات سعر Free Tier، ومنها `gemini-3.1-flash-lite`، كما أن `gemini-embedding-2` مدرج بسعر Free Tier للنص. الحدود الفعلية تعتمد على المشروع والحساب وتُفرض كـ RPM/TPM/RPD. راجع صفحة Rate Limits في Google AI Studio إذا ظهرت 429. 
+Gemini لديه نماذج ذات سعر Free Tier، ومنها `gemini-3.5-flash-lite`، كما أن `gemini-embedding-2` مدرج بسعر Free Tier للنص. الحدود الفعلية تعتمد على المشروع والحساب وتُفرض كـ RPM/TPM/RPD. راجع صفحة Rate Limits في Google AI Studio إذا ظهرت 429. 
 
 OpenRouter لديه خطة مجانية مع نماذج مجانية، وحالياً يذكر 50 طلباً يومياً للخطة المجانية. لا تجعل benchmark الكامل يعتمد عليه وحده إذا تجاوز حد الطلبات اليومي. 
 
@@ -19,7 +19,7 @@ OpenRouter لديه خطة مجانية مع نماذج مجانية، وحال�
 ```text
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
-GEMINI_CHAT_MODEL=gemini-3.1-flash-lite
+GEMINI_CHAT_MODEL=gemini-3.5-flash-lite
 GEMINI_EMBEDDING_MODEL=gemini-embedding-2
 DATABASE_URL=...
 AI_TIMEOUT_MS=20000
@@ -100,3 +100,7 @@ Gemini هو الأنسب لتجربة benchmark موسعة ضمن free tier، ل
 
 ### Gemini reliability note
 The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+
+GEMINI_CHAT_FALLBACK_MODEL=gemini-3.1-flash-lite
+
+في حال ظهور 503/429 عابر من Gemini، يعيد التطبيق المحاولة بتأخير متزايد ثم ينتقل تلقائياً إلى نموذج محادثة احتياطي مضبوط. لا يتم تجاوز بوابة الدليل بسبب هذا الاسترداد.

@@ -14,7 +14,7 @@ Set the existing team environment variables:
 DATABASE_URL=your-Neon-connection-string
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your-gemini-key
-GEMINI_CHAT_MODEL=gemini-3.1-flash-lite
+GEMINI_CHAT_MODEL=gemini-3.5-flash-lite
 GEMINI_EMBEDDING_MODEL=gemini-embedding-2
 # Optional OpenRouter fallback:
 # OPENROUTER_API_KEY=...
@@ -75,3 +75,7 @@ Do not present the mocked runtime smoke figures as model benchmark results. Only
 
 ### Gemini reliability note
 The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+
+GEMINI_CHAT_FALLBACK_MODEL=gemini-3.1-flash-lite
+
+في حال ظهور 503/429 عابر من Gemini، يعيد التطبيق المحاولة بتأخير متزايد ثم ينتقل تلقائياً إلى نموذج محادثة احتياطي مضبوط. لا يتم تجاوز بوابة الدليل بسبب هذا الاسترداد.

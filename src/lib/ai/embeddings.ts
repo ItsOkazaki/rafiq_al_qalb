@@ -10,6 +10,7 @@ import { getAIConfig } from "@/lib/ai/provider";
 const cache = new Map<string, number[]>();
 const MAX_EMBED_CHARS = 1400;
 const GEMINI_BATCH_SIZE = 10;
+const GEMINI_EMBED_MAX_RETRIES = 2;
 
 interface OpenAIEmbeddingResponse {
   data?: { index?: number; embedding?: number[] }[];
@@ -36,41 +37,68 @@ function geminiText(text: string, role: "query" | "document" | "neutral"): strin
   return prepared;
 }
 
+function isRetryableEmbeddingStatus(status: number): boolean {
+  return status === 408 || status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function embeddingRetryDelayMs(attempt: number, retryAfterHeader?: string | null): number {
+  const retryAfter = Number(retryAfterHeader ?? 0);
+  if (Number.isFinite(retryAfter) && retryAfter > 0) return Math.min(20_000, retryAfter * 1000);
+  return Math.min(6_000, 600 * (2 ** attempt) + Math.floor(Math.random() * 250));
+}
+
 async function embedGeminiBatch(texts: string[]): Promise<number[][]> {
   const config = getAIConfig();
   const requests = texts.map((text) => ({
     model: `models/${config.embeddingModel}`,
     content: { parts: [{ text }] },
   }));
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
-  try {
-    const response = await fetch(`${config.embeddingBaseUrl}/models/${encodeURIComponent(config.embeddingModel)}:batchEmbedContents`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...(config.embeddingApiKey ? { "x-goog-api-key": config.embeddingApiKey } : {}),
-      },
-      body: JSON.stringify({ requests }),
-      signal: controller.signal,
-    });
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      throw new Error(`Embedding Gemini ${response.status}: ${detail.slice(0, 420)}`);
+
+  let lastError: Error | undefined;
+  for (let attempt = 0; attempt <= GEMINI_EMBED_MAX_RETRIES; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+    try {
+      const response = await fetch(`${config.embeddingBaseUrl}/models/${encodeURIComponent(config.embeddingModel)}:batchEmbedContents`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          ...(config.embeddingApiKey ? { "x-goog-api-key": config.embeddingApiKey } : {}),
+        },
+        body: JSON.stringify({ requests }),
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        lastError = new Error(`Embedding Gemini ${response.status}: ${detail.slice(0, 420)}`);
+        if (isRetryableEmbeddingStatus(response.status) && attempt < GEMINI_EMBED_MAX_RETRIES) {
+          await new Promise((resolve) => setTimeout(resolve, embeddingRetryDelayMs(attempt, response.headers.get("retry-after"))));
+          continue;
+        }
+        throw lastError;
+      }
+      const data = (await response.json()) as GeminiEmbeddingResponse;
+      if (!Array.isArray(data.embeddings)) throw new Error("Gemini embedding response missing embeddings");
+      if (data.embeddings.length !== texts.length) {
+        throw new Error(`Gemini embedding count mismatch: requested ${texts.length}, received ${data.embeddings.length}`);
+      }
+      const vectors = data.embeddings.map((item) => item.values);
+      if (vectors.some((vector) => !Array.isArray(vector) || vector.length === 0)) {
+        throw new Error("Gemini embedding response contained an empty vector");
+      }
+      return vectors as number[][];
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt < GEMINI_EMBED_MAX_RETRIES && (lastError.message.includes("fetch failed") || lastError.name === "AbortError")) {
+        await new Promise((resolve) => setTimeout(resolve, embeddingRetryDelayMs(attempt)));
+        continue;
+      }
+      throw lastError;
+    } finally {
+      clearTimeout(timeout);
     }
-    const data = (await response.json()) as GeminiEmbeddingResponse;
-    if (!Array.isArray(data.embeddings)) throw new Error("Gemini embedding response missing embeddings");
-    if (data.embeddings.length !== texts.length) {
-      throw new Error(`Gemini embedding count mismatch: requested ${texts.length}, received ${data.embeddings.length}`);
-    }
-    const vectors = data.embeddings.map((item) => item.values);
-    if (vectors.some((vector) => !Array.isArray(vector) || vector.length === 0)) {
-      throw new Error("Gemini embedding response contained an empty vector");
-    }
-    return vectors as number[][];
-  } finally {
-    clearTimeout(timeout);
   }
+  throw lastError ?? new Error("Gemini embedding request failed");
 }
 
 async function embedGemini(texts: string[]): Promise<number[][]> {

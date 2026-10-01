@@ -224,7 +224,7 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
   it("يستخدم Gemini مباشرة مع generateContent وbatchEmbedContents", async () => {
     process.env.AI_PROVIDER = "gemini";
     process.env.GEMINI_API_KEY = "test-gemini";
-    process.env.GEMINI_CHAT_MODEL = "gemini-3.1-flash-lite";
+    process.env.GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
     process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
     delete process.env.OPENROUTER_API_KEY;
     delete process.env.EMBEDDING_PROVIDER;
@@ -255,7 +255,7 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
 
     const config = getAIConfig();
     expect(config.provider).toBe("Gemini");
-    expect(config.chatModel).toBe("gemini-3.1-flash-lite");
+    expect(config.chatModel).toBe("gemini-3.5-flash-lite");
     expect(config.embeddingModel).toBe("gemini-embedding-2");
     expect(config.freeTierCapable).toBe(true);
 
@@ -264,6 +264,31 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
     const vectors = await embedTexts(["نص عربي للاختبار", "نص ثانٍ"]);
     expect(vectors).toHaveLength(2);
     expect(vectors?.[0]).toEqual([1, 0, 0, 0]);
+  });
+
+  it("يتعامل مع 503 مؤقتاً عبر إعادة المحاولة ثم نموذج Gemini احتياطي", async () => {
+    process.env.AI_PROVIDER = "gemini";
+    process.env.GEMINI_API_KEY = "test-gemini";
+    process.env.GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
+    process.env.GEMINI_CHAT_FALLBACK_MODEL = "gemini-3.1-flash-lite";
+    process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
+
+    let calls = 0;
+    vi.stubGlobal("fetch", vi.fn(async (input: string | URL) => {
+      const url = String(input);
+      if (!url.includes(":generateContent")) throw new Error(`unexpected url ${url}`);
+      calls += 1;
+      if (calls <= 3) {
+        return new Response(JSON.stringify({ error: { code: 503, status: "UNAVAILABLE", message: "temporarily busy" } }), { status: 503 });
+      }
+      return new Response(JSON.stringify({
+        candidates: [{ content: { parts: [{ text: JSON.stringify({ ok: true }) }] } }],
+      }), { status: 200 });
+    }));
+
+    const result = await probeChat();
+    expect(result.ok).toBe(true);
+    expect(calls).toBe(4);
   });
 
   it("يستخدم OpenRouter مع معرفات مجانية للمحادثة والتضمين", async () => {

@@ -47,7 +47,7 @@ Neon (private operational/evaluation telemetry)
 | `DATABASE_URL` | Neon للـtelemetry والتقييم |
 | `AI_PROVIDER` | `gemini` أو `openrouter` أو `openai` |
 | `GEMINI_API_KEY` | مفتاح Gemini Developer API |
-| `GEMINI_CHAT_MODEL` | الافتراضي `gemini-3.1-flash-lite` |
+| `GEMINI_CHAT_MODEL` | الافتراضي `gemini-3.5-flash-lite` |
 | `GEMINI_EMBEDDING_MODEL` | الافتراضي `gemini-embedding-2` |
 | `OPENROUTER_API_KEY` | مفتاح OpenRouter |
 | `OPENROUTER_MODEL` | الافتراضي `qwen/qwen3.8-27b:free` |
@@ -106,3 +106,6 @@ npm run benchmark -- --url https://YOUR-VERCEL-URL
 
 ### Gemini reliability note
 The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+
+### Gemini capacity resilience
+The Gemini chat client retries transient 408/429/5xx failures with exponential backoff and falls back from `gemini-3.5-flash-lite` to `gemini-3.1-flash-lite` when the primary model is temporarily unavailable.

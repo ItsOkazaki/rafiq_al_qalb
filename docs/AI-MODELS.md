@@ -15,7 +15,7 @@
 
 The application supports three provider families through one interface:
 
-- **Gemini Developer API** — recommended free-tier capable setup. Default chat: `gemini-3.1-flash-lite`; default embedding: `gemini-embedding-2`.
+- **Gemini Developer API** — recommended free-tier capable setup. Primary chat: `gemini-3.5-flash-lite`; automatic fallback: `gemini-3.1-flash-lite`; default embedding: `gemini-embedding-2`.
 - **OpenRouter** — optional free setup. Default chat: `qwen/qwen3.8-27b:free`; default embedding: `liquid/lfm-2.5-embedding-350m:free`.
 - **OpenAI** — retained as a direct/competition deployment option when API credit is available.
 
@@ -32,3 +32,5 @@ Some OpenRouter free endpoints document that prompts/outputs or embeddings may b
 
 ### Gemini reliability note
 The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+
+- Gemini 503/429/5xx responses are retried with exponential backoff and then may fall back to the secondary chat model. This handles transient provider congestion without weakening the evidence gate.

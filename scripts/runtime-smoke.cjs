@@ -87,7 +87,7 @@ const { detectSourceConflicts } = require(path.join(srcRoot,'lib/ai/provider.ts'
   for(const key of ['AI_PROVIDER','GEMINI_API_KEY','GEMINI_CHAT_MODEL','GEMINI_EMBEDDING_MODEL','OPENROUTER_API_KEY','OPENROUTER_MODEL','OPENROUTER_EMBEDDING_MODEL','EMBEDDING_PROVIDER']) originalEnv[key]=process.env[key];
   process.env.AI_PROVIDER='gemini';
   process.env.GEMINI_API_KEY='smoke-gemini';
-  process.env.GEMINI_CHAT_MODEL='gemini-3.1-flash-lite';
+  process.env.GEMINI_CHAT_MODEL='gemini-3.5-flash-lite';
   process.env.GEMINI_EMBEDDING_MODEL='gemini-embedding-2';
   global.fetch=async (input, init={})=>{
     const url=String(input);

@@ -18,7 +18,9 @@ const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const OPENAI_DEFAULT_BASE_URL = "https://api.openai.com/v1";
 
-const DEFAULT_GEMINI_CHAT_MODEL = "gemini-3.1-flash-lite";
+const DEFAULT_GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
+const DEFAULT_GEMINI_CHAT_FALLBACK_MODEL = "gemini-3.1-flash-lite";
+const GEMINI_MAX_RETRIES = 2;
 const DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
 const DEFAULT_OPENROUTER_CHAT_MODEL = "qwen/qwen3.8-27b:free";
 const DEFAULT_OPENROUTER_EMBEDDING_MODEL = "liquid/lfm-2.5-embedding-350m:free";
@@ -179,37 +181,78 @@ async function postOpenAICompatible(path: string, body: unknown, provider: "Open
   }
 }
 
+function isRetryableGeminiStatus(status: number): boolean {
+  return status === 408 || status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function retryDelayMs(attempt: number, retryAfterHeader?: string | null): number {
+  const retryAfter = Number(retryAfterHeader ?? 0);
+  if (Number.isFinite(retryAfter) && retryAfter > 0) {
+    return Math.min(30_000, retryAfter * 1000);
+  }
+  const base = 700 * (2 ** attempt);
+  const jitter = Math.floor(Math.random() * 300);
+  return Math.min(8_000, base + jitter);
+}
+
 async function postGemini(system: string, user: string): Promise<string> {
   const config = getAIConfig();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
-  try {
-    const response = await fetch(`${config.baseUrl}/models/${encodeURIComponent(config.chatModel)}:generateContent`, {
-      method: "POST",
-      headers: { "content-type": "application/json", ...headersFor("Gemini", config.apiKey) },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          maxOutputTokens: 4096,
-        },
-      }),
-      signal: controller.signal,
-    });
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      throw new Error(`AI Gemini ${response.status}: ${detail.slice(0, 360)}`);
+  const models = [config.chatModel];
+  const fallbackModel = env("GEMINI_CHAT_FALLBACK_MODEL") ?? DEFAULT_GEMINI_CHAT_FALLBACK_MODEL;
+  if (fallbackModel && fallbackModel !== config.chatModel) models.push(fallbackModel);
+
+  let lastError: Error | undefined;
+  for (let modelIndex = 0; modelIndex < models.length; modelIndex += 1) {
+    const model = models[modelIndex]!;
+    for (let attempt = 0; attempt <= GEMINI_MAX_RETRIES; attempt += 1) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+      try {
+        const response = await fetch(`${config.baseUrl}/models/${encodeURIComponent(model)}:generateContent`, {
+          method: "POST",
+          headers: { "content-type": "application/json", ...headersFor("Gemini", config.apiKey) },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: system }] },
+            contents: [{ role: "user", parts: [{ text: user }] }],
+            generationConfig: {
+              responseMimeType: "application/json",
+              maxOutputTokens: 4096,
+            },
+          }),
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          const detail = await response.text().catch(() => "");
+          const error = new Error(`AI Gemini ${response.status}: ${detail.slice(0, 360)}`);
+          lastError = error;
+          if (isRetryableGeminiStatus(response.status) && attempt < GEMINI_MAX_RETRIES) {
+            await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt, response.headers.get("retry-after"))));
+            continue;
+          }
+          // Capacity/rate-limit failures are safe candidates for the alternate
+          // free-tier model. Permanent client/auth errors are not.
+          if (isRetryableGeminiStatus(response.status) && modelIndex < models.length - 1) break;
+          throw error;
+        }
+        const data = (await response.json()) as {
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
+        };
+        const content = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
+        if (!content) throw new Error(`Gemini model ${model} returned no content`);
+        return content;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        if (attempt < GEMINI_MAX_RETRIES && (lastError.message.includes("fetch failed") || lastError.name === "AbortError")) {
+          await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt)));
+          continue;
+        }
+        throw lastError;
+      } finally {
+        clearTimeout(timeout);
+      }
     }
-    const data = (await response.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] } }[];
-    };
-    const content = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
-    if (!content) throw new Error("Gemini returned no content");
-    return content;
-  } finally {
-    clearTimeout(timeout);
   }
+  throw lastError ?? new Error("Gemini request failed");
 }
 
 function extractJson<T>(value: string): T {
