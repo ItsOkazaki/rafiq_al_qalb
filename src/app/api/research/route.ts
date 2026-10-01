@@ -3,6 +3,7 @@ import { researchSessions } from "@/db/schema";
 import { runResearch } from "@/lib/research/pipeline";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 interface ResearchRequestBody {
   query?: unknown;

@@ -45,9 +45,12 @@ export async function embedTexts(texts: string[]): Promise<number[][] | null> {
         }),
         signal: controller.signal,
       });
-      if (!response.ok) return null;
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        throw new Error(`Embedding ${response.status}: ${detail.slice(0, 240)}`);
+      }
       const data = (await response.json()) as EmbeddingResponse;
-      if (!Array.isArray(data.data)) return null;
+      if (!Array.isArray(data.data)) throw new Error("Embedding response missing data");
       for (const item of data.data) {
         const idx = Number(item.index);
         const vector = item.embedding;
@@ -56,8 +59,8 @@ export async function embedTexts(texts: string[]): Promise<number[][] | null> {
         cache.set(target.key, vector);
         result[target.index] = vector;
       }
-    } catch {
-      return null;
+    } catch (error) {
+      throw error instanceof Error ? error : new Error("Embedding request failed");
     } finally {
       clearTimeout(timeout);
     }

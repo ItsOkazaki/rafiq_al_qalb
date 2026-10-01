@@ -307,6 +307,13 @@ function AIUnavailableView({ result }: { result: ResearchResult }) {
           <strong className="text-brass-200">تشغيل بلا مفتاح سري:</strong> اضبط مزوداً متوافقاً مع OpenAI محلياً مثل Ollama، أو ضع مفتاحاً عبر متغيرات البيئة في بيئة النشر. لا تضف المفتاح إلى GitHub.
         </div>
       </div>
+      {result.diagnostics.degradedReason && (
+        <details className="card-manuscript rounded-2xl p-5">
+          <summary className="cursor-pointer text-sm font-bold text-ink-700">تفاصيل فنية لمسار AI (للفريق)</summary>
+          <p className="mt-3 break-words font-mono text-xs leading-6 text-ink-500">{result.diagnostics.degradedReason}</p>
+          <p className="mt-2 text-xs text-ink-500">لا يتم عرض مفاتيح API أو قيم الأسرار هنا.</p>
+        </details>
+      )}
       {result.passages.length > 0 && (
         <section className="space-y-4">
           <SectionTitle icon={ScrollText}>أدلة baseline المتاحة للمراجعة</SectionTitle>

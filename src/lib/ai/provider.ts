@@ -39,10 +39,12 @@ export interface AIConfig {
 }
 
 export function getAIConfig(): AIConfig {
-  const baseUrl = env("AI_BASE_URL") ?? (env("OPENAI_API_KEY") ? "https://api.openai.com/v1" : DEFAULT_BASE_URL);
-  const apiKey = env("AI_API_KEY") ?? env("OPENAI_API_KEY");
-  const chatModel = env("AI_CHAT_MODEL") ?? env("OPENAI_MODEL") ?? DEFAULT_CHAT_MODEL;
-  const embeddingModel = env("AI_EMBEDDING_MODEL") ?? env("OPENAI_EMBEDDING_MODEL") ??
+  // Keep the original project's OPENAI_* variables authoritative so an existing
+  // Vercel deployment keeps working unchanged. Generic AI_* variables are aliases.
+  const baseUrl = env("OPENAI_BASE_URL") ?? env("AI_BASE_URL") ?? (env("OPENAI_API_KEY") ? "https://api.openai.com/v1" : DEFAULT_BASE_URL);
+  const apiKey = env("OPENAI_API_KEY") ?? env("AI_API_KEY");
+  const chatModel = env("OPENAI_MODEL") ?? env("AI_CHAT_MODEL") ?? DEFAULT_CHAT_MODEL;
+  const embeddingModel = env("OPENAI_EMBEDDING_MODEL") ?? env("AI_EMBEDDING_MODEL") ??
     (baseUrl.includes("api.openai.com") ? DEFAULT_OPENAI_EMBEDDING_MODEL : DEFAULT_EMBEDDING_MODEL);
   const timeoutMs = Math.max(3_000, Number(env("AI_TIMEOUT_MS") ?? DEFAULT_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS);
   const rerankCandidates = Math.min(16, Math.max(6, Number(env("AI_RERANK_CANDIDATES") ?? 10) || 10));
@@ -52,7 +54,7 @@ export function getAIConfig(): AIConfig {
 }
 
 export function isAIConfigured(): boolean {
-  const explicitBase = env("AI_BASE_URL");
+  const explicitBase = env("OPENAI_BASE_URL") ?? env("AI_BASE_URL");
   const cfg = getAIConfig();
   const localExplicit = Boolean(explicitBase) && (cfg.baseUrl.includes("localhost") || cfg.baseUrl.includes("127.0.0.1") || cfg.baseUrl.includes("11434"));
   return Boolean(cfg.apiKey) || localExplicit;
