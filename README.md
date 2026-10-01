@@ -102,3 +102,7 @@ npm run benchmark -- --url https://YOUR-VERCEL-URL
 ## المصادر والحقوق
 
 راجِع `docs/SOURCES-AND-LICENSES.md` و`docs/RIGHTS-AND-RELEASE-CHECK.md` قبل النشر. ميّز دائماً بين `literal` و`curated-summary` ولا تقدّم الأخيرة على أنها نقل حرفي.
+
+
+### Gemini reliability note
+The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.

@@ -8,14 +8,25 @@ import { CHUNKS } from "@/lib/corpus/chunks";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-async function probeEmbedding(): Promise<{ ok: boolean; error?: string }> {
+async function probeEmbedding(): Promise<{ ok: boolean; vectorDimensions?: number; batchVectors?: number; error?: string }> {
   const cfg = getAIConfig();
   if (!cfg.embeddingApiKey) return { ok: false, error: "EMBEDDING_NOT_CONFIGURED" };
   try {
-    const vectors = await embedTexts(["اختبار صحة الاتصال بالبحث الدلالي"]);
-    return { ok: Boolean(vectors?.[0]?.length) };
+    // Probe a small batch as well as one vector. The production retrieval path
+    // intentionally batches Gemini requests to avoid oversized payload failures.
+    const vectors = await embedTexts([
+      "اختبار صحة الاتصال بالبحث الدلالي",
+      "اختبار ثانٍ للبحث الدلالي",
+      "اختبار ثالث للبحث الدلالي",
+    ]);
+    const dimensions = vectors?.[0]?.length;
+    return {
+      ok: Boolean(vectors?.length === 3 && dimensions),
+      vectorDimensions: dimensions,
+      batchVectors: vectors?.length,
+    };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message.slice(0, 220) : "EMBEDDING_PROBE_FAILED" };
+    return { ok: false, error: error instanceof Error ? error.message.slice(0, 320) : "EMBEDDING_PROBE_FAILED" };
   }
 }
 

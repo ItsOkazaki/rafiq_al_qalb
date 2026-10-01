@@ -1,11 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Embedding client with Gemini / OpenRouter / OpenAI support.
+// Gemini retrieval is batched in small groups so one Vercel request does not
+// depend on a very large batch succeeding. Query/document prefixes follow the
+// Gemini Embedding 2 retrieval guidance.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getAIConfig } from "@/lib/ai/provider";
 
 const cache = new Map<string, number[]>();
 const MAX_EMBED_CHARS = 1400;
+const GEMINI_BATCH_SIZE = 10;
 
 interface OpenAIEmbeddingResponse {
   data?: { index?: number; embedding?: number[] }[];
@@ -16,19 +20,27 @@ interface GeminiEmbeddingResponse {
 }
 
 function stableKey(text: string): string {
+  const config = getAIConfig();
   const clipped = text.slice(0, MAX_EMBED_CHARS);
-  return `${clipped.length}:${clipped.slice(0, 90)}:${clipped.slice(-90)}`;
+  return `${config.embeddingProvider}:${config.embeddingModel}:${clipped.length}:${clipped.slice(0, 90)}:${clipped.slice(-90)}`;
 }
 
 function prepareText(text: string): string {
   return text.trim().slice(0, MAX_EMBED_CHARS);
 }
 
-async function embedGemini(texts: string[]): Promise<number[][]> {
+function geminiText(text: string, role: "query" | "document" | "neutral"): string {
+  const prepared = prepareText(text);
+  if (role === "query") return `task: question answering | query: ${prepared}`;
+  if (role === "document") return `title: none | text: ${prepared}`;
+  return prepared;
+}
+
+async function embedGeminiBatch(texts: string[]): Promise<number[][]> {
   const config = getAIConfig();
   const requests = texts.map((text) => ({
     model: `models/${config.embeddingModel}`,
-    content: { parts: [{ text: prepareText(text) }] },
+    content: { parts: [{ text }] },
   }));
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
@@ -44,10 +56,13 @@ async function embedGemini(texts: string[]): Promise<number[][]> {
     });
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      throw new Error(`Embedding Gemini ${response.status}: ${detail.slice(0, 300)}`);
+      throw new Error(`Embedding Gemini ${response.status}: ${detail.slice(0, 420)}`);
     }
     const data = (await response.json()) as GeminiEmbeddingResponse;
     if (!Array.isArray(data.embeddings)) throw new Error("Gemini embedding response missing embeddings");
+    if (data.embeddings.length !== texts.length) {
+      throw new Error(`Gemini embedding count mismatch: requested ${texts.length}, received ${data.embeddings.length}`);
+    }
     const vectors = data.embeddings.map((item) => item.values);
     if (vectors.some((vector) => !Array.isArray(vector) || vector.length === 0)) {
       throw new Error("Gemini embedding response contained an empty vector");
@@ -56,6 +71,16 @@ async function embedGemini(texts: string[]): Promise<number[][]> {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function embedGemini(texts: string[]): Promise<number[][]> {
+  const vectors: number[][] = [];
+  for (let start = 0; start < texts.length; start += GEMINI_BATCH_SIZE) {
+    const batch = texts.slice(start, start + GEMINI_BATCH_SIZE);
+    const batchVectors = await embedGeminiBatch(batch);
+    vectors.push(...batchVectors);
+  }
+  return vectors;
 }
 
 async function embedOpenAICompatible(texts: string[]): Promise<number[][]> {
@@ -84,7 +109,7 @@ async function embedOpenAICompatible(texts: string[]): Promise<number[][]> {
     });
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      throw new Error(`Embedding ${provider} ${response.status}: ${detail.slice(0, 300)}`);
+      throw new Error(`Embedding ${provider} ${response.status}: ${detail.slice(0, 420)}`);
     }
     const data = (await response.json()) as OpenAIEmbeddingResponse;
     if (!Array.isArray(data.data)) throw new Error("Embedding response missing data");
@@ -102,7 +127,37 @@ async function embedOpenAICompatible(texts: string[]): Promise<number[][]> {
   }
 }
 
-export async function embedTexts(texts: string[]): Promise<number[][] | null> {
+export interface RetrievalEmbeddingInputs {
+  query: string;
+  documents: { text: string; title?: string }[];
+}
+
+/**
+ * Embeds one retrieval query and a list of documents. Gemini Embedding 2 uses
+ * asymmetric retrieval formatting as recommended by Google's current docs.
+ */
+export async function embedRetrievalInputs(inputs: RetrievalEmbeddingInputs): Promise<{ query: number[]; documents: number[][] }> {
+  const config = getAIConfig();
+  const queryText = config.embeddingProvider === "Gemini"
+    ? geminiText(inputs.query, "query")
+    : prepareText(inputs.query);
+  const documentTexts = inputs.documents.map((doc) => config.embeddingProvider === "Gemini"
+    ? `title: ${(doc.title ?? "none").trim().slice(0, 180)} | text: ${prepareText(doc.text)}`
+    : prepareText(doc.text));
+
+  const all = [queryText, ...documentTexts];
+  const vectors = await embedTexts(all);
+  if (!vectors || vectors.length !== all.length) {
+    throw new Error(`Embedding result mismatch: expected ${all.length}, received ${vectors?.length ?? 0}`);
+  }
+  return { query: vectors[0], documents: vectors.slice(1) };
+}
+
+export interface EmbedOptions {
+  role?: "query" | "document" | "neutral";
+}
+
+export async function embedTexts(texts: string[], options: EmbedOptions = {}): Promise<number[][] | null> {
   if (texts.length === 0) return [];
 
   const config = getAIConfig();
@@ -110,7 +165,11 @@ export async function embedTexts(texts: string[]): Promise<number[][] | null> {
   const missing: { index: number; text: string; key: string }[] = [];
 
   texts.forEach((text, index) => {
-    const prepared = prepareText(text);
+    const prepared = options.role === "query"
+      ? (config.embeddingProvider === "Gemini" ? geminiText(text, "query") : prepareText(text))
+      : options.role === "document"
+        ? (config.embeddingProvider === "Gemini" ? geminiText(text, "document") : prepareText(text))
+        : prepareText(text);
     const key = stableKey(prepared);
     const cached = cache.get(key);
     if (cached) result[index] = cached;
@@ -118,13 +177,14 @@ export async function embedTexts(texts: string[]): Promise<number[][] | null> {
   });
 
   if (missing.length > 0) {
-    // Gemini supports batchEmbedContents; OpenAI-compatible providers accept a
-    // single array in /embeddings. Both paths keep the request count to one batch.
     const inputs = missing.map((m) => m.text);
     const vectors = config.embeddingProvider === "Gemini"
       ? await embedGemini(inputs)
       : await embedOpenAICompatible(inputs);
 
+    if (vectors.length !== missing.length) {
+      throw new Error(`Embedding result mismatch: requested ${missing.length}, received ${vectors.length}`);
+    }
     vectors.forEach((vector, offset) => {
       const target = missing[offset];
       if (!target) return;

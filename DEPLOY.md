@@ -96,3 +96,7 @@ Gemini هو الأنسب لتجربة benchmark موسعة ضمن free tier، ل
 ## 8) إطلاق الإنتاج
 
 ثبت commit واضحاً، شغّل `npm run release:check`، ثم احفظ نتيجة benchmark الفعلية في `benchmarks/results/latest.json` وارفع النسخة المستقرة فقط.
+
+
+### Gemini reliability note
+The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.

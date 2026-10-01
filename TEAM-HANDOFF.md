@@ -71,3 +71,7 @@ The runner compares the fixed 40 questions in `benchmarks/questions.json` agains
 Do not commit `.env.local` or other secret-bearing environment files. The repository contains only placeholders. The existing Vercel/Neon/provider secrets remain external to GitHub.
 
 Do not present the mocked runtime smoke figures as model benchmark results. Only the deployed real-model benchmark belongs in the hackathon presentation.
+
+
+### Gemini reliability note
+The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.

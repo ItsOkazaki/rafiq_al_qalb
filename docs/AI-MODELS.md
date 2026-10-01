@@ -28,3 +28,7 @@ The RAG, evidence gate, claim schema, verification rules, and safety policies do
 ## Privacy note
 
 Some OpenRouter free endpoints document that prompts/outputs or embeddings may be retained or used to train the underlying provider model. Do not send secrets or unnecessary personal data through free providers. For the competition, keep the approved corpus and evaluation metadata controlled and use the provider whose data policy the team accepts.
+
+
+### Gemini reliability note
+The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.

@@ -41,5 +41,6 @@
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3"
   },
-  "description": "Evidence-gated Arabic RAG research assistant with Neon telemetry, hybrid retrieval, AI re-ranking and claim verification."
+  "description": "Evidence-gated Arabic RAG research assistant with Neon telemetry, hybrid retrieval, AI re-ranking and claim verification.",
+  "version": "2.0.4"
 }

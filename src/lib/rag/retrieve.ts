@@ -3,7 +3,7 @@
 // fusion + AI re-ranking + deterministic evidence coverage.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { embedTexts, cosineSimilarity } from "@/lib/ai/embeddings";
+import { embedTexts, embedRetrievalInputs, cosineSimilarity } from "@/lib/ai/embeddings";
 import { getAIConfig, isAIConfigured, rerankPassages } from "@/lib/ai/provider";
 import { CHUNKS } from "@/lib/corpus/chunks";
 import { TOPICS } from "@/lib/rag/topics";
@@ -202,25 +202,20 @@ export async function retrievePassagesHybrid(
     };
   }
 
-  // One batch serves both semantic ranking and, through cache, later subquestion checks.
-  const embeddingInputs = [plan.semanticQuery || originalQuery, ...approved.map((x) => x.text)];
-  const vectors = await embedTexts(embeddingInputs);
-  if (!vectors) {
-    return {
-      passages: [],
-      baselinePassages: baseline,
-      candidateCount: candidateCountBeforeUnion,
-      semanticUsed: false,
-      reranked: [],
-      evidenceGate: null,
-    };
-  }
-
-  const queryVector = vectors[0];
+  // Embed the query and approved documents using the provider's retrieval-optimized path.
+  // Gemini batches in small groups to reduce Vercel timeout/payload failures.
+  const embedded = await embedRetrievalInputs({
+    query: plan.semanticQuery || originalQuery,
+    documents: approved.map((x) => ({ text: x.text, title: getSourceById(x.sourceId)?.title })),
+  });
+  const queryVector = embedded.query;
+  const documentVectors = embedded.documents;
   const semanticRanked = approved
     .map((chunk, index) => {
       const parts = lexicalParts(originalQuery, chunk, matchedTopics);
-      const semantic = Math.max(0, (cosineSimilarity(queryVector, vectors[index + 1]) + 1) / 2);
+      const documentVector = documentVectors[index];
+      if (!documentVector) throw new Error(`Missing semantic vector for ${chunk.id}`);
+      const semantic = Math.max(0, (cosineSimilarity(queryVector, documentVector) + 1) / 2);
       return {
         chunk,
         ...parts,
@@ -305,7 +300,7 @@ export async function retrievePassagesHybrid(
 
   // Independent semantic coverage check across each planned subquestion.
   const subquestions = plan.subquestions.length > 0 ? plan.subquestions.slice(0, 4) : [originalQuery];
-  const subquestionVectors = await embedTexts(subquestions);
+  const subquestionVectors = await embedTexts(subquestions, { role: "query" });
   const coverageScores = subquestionVectors
     ? subquestionVectors.map((subVector) =>
         Math.max(
@@ -314,7 +309,8 @@ export async function retrievePassagesHybrid(
             const item = semanticRanked.find((x) => x.chunk.id === p.chunkId);
             if (!item) return 0;
             const fullIndex = approved.findIndex((c) => c.id === p.chunkId);
-            return fullIndex >= 0 ? Math.max(0, (cosineSimilarity(subVector, vectors[fullIndex + 1]) + 1) / 2) : 0;
+            const documentVector = fullIndex >= 0 ? documentVectors[fullIndex] : undefined;
+            return documentVector ? Math.max(0, (cosineSimilarity(subVector, documentVector) + 1) / 2) : 0;
           }),
         ),
       )
