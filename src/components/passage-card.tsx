@@ -5,7 +5,7 @@ import type { RetrievedPassage } from "@/lib/types";
 export function PassageCard({ passage, index }: { passage: RetrievedPassage; index?: number }) {
   const isLiteral = passage.excerptType === "literal";
   return (
-    <article className="card-manuscript relative overflow-hidden rounded-2xl p-6 sm:p-7">
+    <article className="card-manuscript relative overflow-hidden rounded-2xl p-6 text-parchment-100 sm:p-7">
       {/* Gold left bar */}
       <div
         className="absolute inset-y-0 right-0 w-1"
@@ -28,7 +28,7 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
           <FileText className="size-3" strokeWidth={2} />
           {isLiteral ? "نص موثق من الأصل" : "عرض بحثي موجّه للموضع"}
         </span>
-        <span className="ms-auto text-[11px] font-medium text-parchment-200/50">
+        <span className="ms-auto text-[11px] font-medium text-parchment-200/65">
           {passage.chapter}{passage.page ? ` — ${passage.page}` : ""}
         </span>
       </header>
@@ -44,7 +44,7 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
             <div>
               <dt className="font-semibold text-parchment-100/90">المصدر</dt>
               <dd>{passage.source.title}</dd>
-              <dd className="text-[11px] text-parchment-200/50">{passage.source.author}</dd>
+              <dd className="text-[11px] text-parchment-200/65">{passage.source.author}</dd>
             </div>
           </div>
           <div className="flex items-start gap-2">

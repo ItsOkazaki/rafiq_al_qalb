@@ -64,16 +64,16 @@ export default async function TopicPage({
 
   return (
     <div className="mx-auto max-w-4xl px-5 pb-24 pt-12">
-      <nav className="flex items-center gap-2 text-xs text-ink-500">
+      <nav className="flex items-center gap-2 text-xs text-parchment-200/65">
         <Link href="/maktaba" className="link-brass font-semibold">المكتبة المعتمدة</Link>
         <ArrowRight className="size-3" />
-        <span className="text-ink-700">{topic.title}</span>
+        <span className="text-parchment-200/82">{topic.title}</span>
       </nav>
 
       <header className="mt-6">
         <p className="text-xs font-semibold tracking-wide text-brass-600">الباب {topic.order} من ١٢</p>
-        <h1 className="heading-display mt-1 text-4xl font-bold text-forest-800">{topic.title}</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-8 text-ink-500">{topic.description}</p>
+        <h1 className="heading-display mt-1 text-4xl font-bold text-parchment-50">{topic.title}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-8 text-parchment-200/65">{topic.description}</p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <KeyRound className="size-3.5 text-brass-500" strokeWidth={2} />
           {topic.keywords.map((kw) => (
@@ -86,7 +86,7 @@ export default async function TopicPage({
       </header>
 
       <section className="mt-8 space-y-6">
-        <p className="text-sm font-semibold text-ink-700">
+        <p className="text-sm font-semibold text-parchment-200/82">
           المادة المسترجعة في هذا الباب — {passages.length} مقاطع من المصدر المعتمد:
         </p>
         {passages.map((p, i) => (

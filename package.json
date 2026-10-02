@@ -1,19 +1,12 @@
 {
-  "name": "rafiq-alqulub-evidence-gated-rag",
+  "name": "nextjs-postgresql-template",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "benchmark": "node benchmarks/run-benchmark.mjs",
-    "benchmark:help": "node benchmarks/run-benchmark.mjs --help",
-    "loop:check": "node scripts/loop-engineering.mjs",
-    "release:check": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "test": "vitest run",
-    "smoke": "node scripts/runtime-smoke.cjs",
-    "syntax-smoke": "node scripts/syntax-smoke.cjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fontsource/amiri": "^5.3.0",
@@ -42,9 +35,7 @@
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3"
   },
-  "description": "Evidence-gated Arabic RAG research assistant with Neon telemetry, hybrid retrieval, AI re-ranking and claim verification.",
-  "version": "2.0.4",
   "engines": {
-    "node": ">=20.9.0"
+    "node": "24.x"
   }
 }

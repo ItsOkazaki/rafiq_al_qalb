@@ -64,12 +64,12 @@ export default function HomePage() {
 
           {/* مقتطف موثق من المادة المعتمدة */}
           <figure className="card-manuscript relative mx-auto mt-14 max-w-3xl rounded-2xl p-7 text-center sm:p-8">
-              <blockquote className="passage-text text-ink-800">
+              <blockquote className="passage-text text-parchment-50">
                 «فقد أثّر هذا الدواء في هذا الداء وأزاله حتى كأن لم يكن، وهو أسهل دواء
                 وأيسره؛ ولو أحسن العبد التداوي بالفاتحة لرأى لها تأثيراً عجيباً…»
               </blockquote>
-              <figcaption className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-ink-500">
-                <span className="font-semibold text-ink-700">الداء والدواء — ابن قيم الجوزية</span>
+              <figcaption className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-parchment-200/70">
+                <span className="font-semibold text-parchment-100/90">الداء والدواء — ابن قيم الجوزية</span>
                 <span aria-hidden>•</span>
                 <span>الموضع: فصل في التداوي بالفاتحة والقرآن</span>
                 <ApprovalStamp />
@@ -81,8 +81,8 @@ export default function HomePage() {
       {/* ── كيف يعمل ──────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-5 py-20">
         <header className="text-center">
-          <h2 className="heading-display text-3xl font-bold text-forest-800 sm:text-4xl">كيف يعينك على البحث؟</h2>
-          <p className="mt-3 text-sm text-ink-500">أربع خطوات مضبوطة — من وصفك إلى المادة الموثقة</p>
+          <h2 className="heading-display text-3xl font-bold text-parchment-50 sm:text-4xl">كيف يعينك على البحث؟</h2>
+          <p className="mt-3 text-sm text-parchment-200/70">أربع خطوات مضبوطة — من وصفك إلى المادة الموثقة</p>
           <div className="mx-auto mt-5 max-w-xs"><OrnamentDivider /></div>
         </header>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -115,8 +115,8 @@ export default function HomePage() {
                 </span>
                 <span className="font-ornament text-2xl text-brass-400/70">{["١", "٢", "٣", "٤"][i]}</span>
               </div>
-              <h3 className="heading-display mt-4 text-xl font-bold text-ink-800">{title}</h3>
-              <p className="mt-2 text-[13px] leading-7 text-ink-600">{desc}</p>
+              <h3 className="heading-display mt-4 text-xl font-bold text-parchment-50">{title}</h3>
+              <p className="mt-2 text-[13px] leading-7 text-parchment-200/75">{desc}</p>
             </div>
           ))}
         </div>
@@ -170,8 +170,8 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-20">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="heading-display text-3xl font-bold text-forest-800">أبواب البحث الاثنا عشر</h2>
-            <p className="mt-2 text-sm text-ink-500">تصنيف موحّد مرتب — لكل باب صفحة تعرض مادته المسترجعة من المصدر المعتمد</p>
+            <h2 className="heading-display text-3xl font-bold text-parchment-50">أبواب البحث الاثنا عشر</h2>
+            <p className="mt-2 text-sm text-parchment-200/70">تصنيف موحّد مرتب — لكل باب صفحة تعرض مادته المسترجعة من المصدر المعتمد</p>
           </div>
           <Link href="/maktaba" className="link-brass flex items-center gap-1 text-sm font-semibold">
             المكتبة كاملة <ArrowLeft className="size-4" strokeWidth={2} />
@@ -187,10 +187,10 @@ export default function HomePage() {
               <span className="inline-flex size-8 items-center justify-center rounded-full border border-brass-400/50 bg-brass-100 font-ornament text-sm font-bold text-brass-600">
                 {t.order}
               </span>
-              <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-ink-800 group-hover:text-forest-700">
+              <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-parchment-50 group-hover:text-brass-300">
                 {t.title}
               </h3>
-              <p className="mt-1.5 line-clamp-3 text-xs leading-6 text-ink-500">{t.description}</p>
+              <p className="mt-1.5 line-clamp-3 text-xs leading-6 text-parchment-200/70">{t.description}</p>
               <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-brass-500">
                 <KeyRound className="size-3" strokeWidth={2} />
                 {t.keywords.slice(0, 2).join(" · ")}

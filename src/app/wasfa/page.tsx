@@ -25,7 +25,7 @@ export default function WasfaPage() {
             <span className="mx-auto grid size-16 place-items-center rounded-full border border-oxblood-700/30 bg-oxblood-100 text-oxblood-700">
               <OctagonX className="size-7" strokeWidth={1.7} />
             </span>
-            <h1 className="heading-display mt-6 text-3xl font-bold text-ink-800 sm:text-4xl">
+            <h1 className="heading-display mt-6 text-3xl font-bold text-parchment-50 sm:text-4xl">
               سياسة عدم الوصف العلاجي
             </h1>
             <div className="mx-auto mt-5 max-w-xs"><OrnamentDivider /></div>
@@ -38,10 +38,10 @@ export default function WasfaPage() {
           </div>
 
           <div className="mt-8">
-            <p className="mb-4 text-sm font-bold text-ink-700">ما الذي تضمنه حذف الوظيفة؟</p>
+            <p className="mb-4 text-sm font-bold text-parchment-100/90">ما الذي تضمنه حذف الوظيفة؟</p>
             <ul className="space-y-3">
               {RETIRED_FEATURES.map((item, index) => (
-                <li key={item} className="flex items-start gap-3 text-sm leading-7 text-ink-600">
+                <li key={item} className="flex items-start gap-3 text-sm leading-7 text-parchment-200/75">
                   <span className="grid size-6 shrink-0 place-items-center rounded-full border border-oxblood-700/30 bg-oxblood-100 text-[11px] font-bold text-oxblood-700">
                     {index + 1}
                   </span>
@@ -52,7 +52,7 @@ export default function WasfaPage() {
           </div>
 
           <div className="mt-10 text-center">
-            <p className="mb-4 text-sm font-bold text-ink-700">مساراتك المتاحة فقط</p>
+            <p className="mb-4 text-sm font-bold text-parchment-100/90">مساراتك المتاحة فقط</p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/hiwar"
@@ -78,7 +78,7 @@ export default function WasfaPage() {
             </div>
           </div>
 
-          <p className="mt-8 border-t border-parchment-300 pt-5 text-center text-xs leading-7 text-ink-500">
+          <p className="mt-8 border-t border-parchment-300 pt-5 text-center text-xs leading-7 text-parchment-200/70">
             إن كنت تبحث عن توجيه شخصي لحالتك، راجع عالماً موثوقاً أو مختصاً مؤهلاً —
             فالبحث العلمي لا يغني عنهما.
           </p>

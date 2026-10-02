@@ -58,19 +58,19 @@ export default async function BookPage({
 
   return (
     <div className="mx-auto max-w-4xl px-5 pb-24 pt-12">
-      <nav className="flex items-center gap-2 text-xs text-ink-500">
+      <nav className="flex items-center gap-2 text-xs text-parchment-200/65">
         <Link href="/maktaba" className="link-brass font-semibold">المكتبة المعتمدة</Link>
         <ArrowRight className="size-3" />
-        <span className="text-ink-700">{src.title}</span>
+        <span className="text-parchment-200/82">{src.title}</span>
       </nav>
 
       <header className="card-manuscript mt-6 rounded-2xl p-7">
         <div className="flex flex-wrap items-center gap-2">
           <ApprovalStamp />
-          <span className="rounded-full border border-parchment-300 px-3 py-1 text-[11px] text-ink-500">{src.category}</span>
+          <span className="rounded-full border border-parchment-300 px-3 py-1 text-[11px] text-parchment-200/65">{src.category}</span>
         </div>
-        <h1 className="heading-display mt-4 text-3xl font-bold leading-[1.6] text-forest-800">{src.title}</h1>
-        <p className="mt-2 text-sm text-ink-500">{src.author}</p>
+        <h1 className="heading-display mt-4 text-3xl font-bold leading-[1.6] text-parchment-50">{src.title}</h1>
+        <p className="mt-2 text-sm text-parchment-200/65">{src.author}</p>
 
         <dl className="mt-5 grid gap-3 rounded-xl border border-parchment-300 bg-parchment-200/50 p-5 text-[13px] leading-7 text-ink-600 sm:grid-cols-2">
           <div><dt className="font-bold text-ink-700">الناشر المعتمد</dt><dd>{src.publisher}</dd></div>
@@ -102,7 +102,7 @@ export default async function BookPage({
               {src.verificationLabel ?? "فتح النسخة الرسمية للتحقق"}
             </Link>
           )}
-          <span className="flex items-center gap-1.5 text-[11px] text-ink-500">
+          <span className="flex items-center gap-1.5 text-[11px] text-parchment-200/65">
             <BadgeCheck className="size-3.5 text-forest-600" />
             يُعرض كل مقطع مع اسمه وموضعه ورابط الأصل — لا إحالات مجهولة
           </span>
@@ -111,10 +111,10 @@ export default async function BookPage({
 
       <section className="mt-10 space-y-6">
         <OrnamentDivider />
-        <h2 className="heading-display text-2xl font-bold text-forest-800">
+        <h2 className="heading-display text-2xl font-bold text-parchment-50">
           المقاطع المفهرسة — {passages.length} مقطعاً
         </h2>
-        <p className="text-sm leading-7 text-ink-500">
+        <p className="text-sm leading-7 text-parchment-200/65">
           الأبواب التي تغطيها مادة هذا المصدر:
         </p>
         <div className="flex flex-wrap gap-2">

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { OrnamentDivider } from "@/components/ornaments";
+import { detectHealthQuery, HEALTH_WARNING } from "@/lib/policy/health";
+import { detectSafetyRisk } from "@/lib/safety";
 import { ResearchResultView } from "@/components/research-result";
 import type { ResearchResult } from "@/lib/types";
 import { Loader2, Search, ShieldCheck } from "lucide-react";
@@ -20,6 +22,8 @@ export function ResearchConsole() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const healthQuery = detectHealthQuery(query);
+  const safetyQuery = detectSafetyRisk(query);
   const ranRef = useRef(false);
 
   const run = useCallback(async (q: string) => {
@@ -73,6 +77,16 @@ export function ResearchConsole() {
             placeholder="مثال: أشعر أن قلبي قاسٍ ولا أتأثر بالموعظة، وأريد مادة علمية في هذا الموضوع…"
             className="research-input mt-4 w-full resize-y rounded-xl p-4 text-[15px] leading-8"
           />
+          {healthQuery && !safetyQuery && (
+            <div className="mt-3 rounded-xl border border-brass-400/30 bg-brass-400/10 px-4 py-3 text-xs leading-6 text-parchment-200/90" role="note">
+              {HEALTH_WARNING}
+            </div>
+          )}
+          {safetyQuery && (
+            <div className="mt-3 rounded-xl border border-oxblood-700/45 bg-oxblood-800/35 px-4 py-3 text-xs font-semibold leading-6 text-oxblood-100" role="alert">
+              إذا كان المقصود إيذاء النفس أو الانتحار، سيتوقف البحث ويعرض مسار السلامة بدلاً من المادة البحثية.
+            </div>
+          )}
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -83,14 +97,14 @@ export function ResearchConsole() {
               {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" strokeWidth={2.2} />}
               استرجاع المادة البحثية
             </button>
-            <span className="flex items-center gap-1.5 text-[11px] text-parchment-200/70">
+            <span className="flex items-center gap-1.5 text-[11px] text-parchment-200/50">
               <ShieldCheck className="size-3.5 text-brass-400/70" strokeWidth={2} />
               البحث مقصور على سجل المصادر المعتمدة
             </span>
           </div>
 
           <div className="mt-6 border-t border-white/8 pt-4">
-            <p className="mb-2 text-[11px] font-semibold tracking-wide text-parchment-200/70">أمثلة لمداخل بحثية:</p>
+            <p className="mb-2 text-[11px] font-semibold tracking-wide text-parchment-200/50">أمثلة لمداخل بحثية:</p>
             <div className="flex flex-wrap gap-2">
               {EXAMPLES.map((ex) => (
                 <button
@@ -114,7 +128,7 @@ export function ResearchConsole() {
           <svg viewBox="0 0 24 24" className="animate-ornament size-10 stroke-brass-400" fill="none" strokeWidth="1.2">
             <path d="M12 3l2.2 5.4 5.8.6-4.4 3.8 1.3 5.7L12 15.4l-4.9 3.1 1.3-5.7L4 9l5.8-.6L12 3z" strokeLinejoin="round" />
           </svg>
-          <p className="text-sm text-parchment-200/60">يفهم السؤال، ويعيد ترتيب الأدلة، ويتحقق من الإسناد قبل العرض…</p>
+          <p className="text-sm text-parchment-200/60">يحدد الباب البحثي، ويستخرج الكلمات، ويستدعي Gemini لتنظيم المادة…</p>
         </div>
       )}
 

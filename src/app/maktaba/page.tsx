@@ -16,8 +16,8 @@ export default function MaktabaPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 pb-24 pt-12">
       <header className="text-center">
-        <h1 className="heading-display text-4xl font-bold text-forest-800">المكتبة المعتمدة</h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-8 text-ink-500">
+        <h1 className="heading-display text-4xl font-bold text-parchment-50">المكتبة المعتمدة</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-8 text-parchment-200/75">
           كل ما يظهر في هذه الصفحة مسجّل في سجل المصادر المعتمدة. الكتب غير المعتمدة —
           وأي بيانات قديمة لغير المسجل — لا تُعرض ولا يُسترجع منها إطلاقاً.
         </p>
@@ -26,11 +26,11 @@ export default function MaktabaPage() {
 
       {/* سياسة الاعتماد */}
       <section className="card-manuscript mx-auto mt-10 max-w-4xl rounded-2xl p-6 sm:p-7">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-forest-700">
+          <h2 className="flex items-center gap-2 text-sm font-bold text-brass-300">
             <ShieldCheck className="size-4.5" strokeWidth={2} />
             سياسة اعتماد المصادر
           </h2>
-          <ul className="mt-3 grid gap-2 text-[13px] leading-7 text-ink-600 sm:grid-cols-2">
+          <ul className="mt-3 grid gap-2 text-[13px] leading-7 text-parchment-200/78 sm:grid-cols-2">
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> تسجيل صريح في السجل قبل أي استرجاع.</li>
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> ارتباط بجهة رسمية أو موثوقة يمكن الرجوع إليها.</li>
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> وفهرسة على مستوى المواضع — لا أرقام صفحات بلا تحقق.</li>
@@ -40,7 +40,7 @@ export default function MaktabaPage() {
 
       {/* سجل المصادر */}
       <section className="mt-14">
-        <h2 className="heading-display flex items-center gap-2 text-2xl font-bold text-forest-800">
+        <h2 className="heading-display flex items-center gap-2 text-2xl font-bold text-parchment-50">
           <Library className="size-5.5" strokeWidth={1.8} />
           سجل المصادر
         </h2>
@@ -51,15 +51,15 @@ export default function MaktabaPage() {
               <div key={s.id} className="card-manuscript flex flex-col rounded-2xl p-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <ApprovalStamp />
-                  <span className="text-[11px] text-ink-500">{s.category}</span>
+                  <span className="text-[11px] text-parchment-200/60">{s.category}</span>
                 </div>
-                <h3 className="heading-display mt-3 text-xl font-bold leading-9 text-ink-800">{s.title}</h3>
-                <p className="mt-1 text-xs text-ink-500">{s.author}</p>
+                <h3 className="heading-display mt-3 text-xl font-bold leading-9 text-parchment-50">{s.title}</h3>
+                <p className="mt-1 text-xs text-parchment-200/65">{s.author}</p>
                 <dl className="mt-4 space-y-1.5 rounded-xl border border-parchment-300 bg-parchment-200/50 p-4 text-xs leading-6 text-ink-600">
                   <div className="flex gap-2"><dt className="font-semibold text-ink-700">الناشر المعتمد:</dt><dd>{s.publisher}</dd></div>
                   <div className="flex gap-2"><dt className="font-semibold text-ink-700">المقاطع المفهرسة:</dt><dd>{count} مقطعاً مستخدماً في الاسترجاع</dd></div>
                 </dl>
-                <p className="mt-3 text-[11px] leading-6 text-ink-500">{s.notes}</p>
+                <p className="mt-3 text-[11px] leading-6 text-parchment-200/55">{s.notes}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-parchment-300 pt-4">
                   <Link href={`/maktaba/kutub/${s.slug}`} className="inline-flex items-center gap-1.5 rounded-full bg-forest-700 px-4 py-1.5 text-xs font-semibold text-parchment-50 hover:bg-forest-800">
                     <BookMarked className="size-3.5" />
@@ -77,8 +77,8 @@ export default function MaktabaPage() {
 
       {/* أبواب البحث — التصنيف الاثني عشر */}
       <section className="mt-16">
-        <h2 className="heading-display text-2xl font-bold text-forest-800">أبواب البحث — التصنيف الاثني عشر</h2>
-        <p className="mt-2 text-sm text-ink-500">
+        <h2 className="heading-display text-2xl font-bold text-parchment-50">أبواب البحث — التصنيف الاثني عشر</h2>
+        <p className="mt-2 text-sm text-parchment-200/70">
           تصنيف موحّد بلا تكرار ولا تداخل؛ كل باب صفحة تعرض مادته المسترجعة من المصدر المعتمد
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -96,9 +96,9 @@ export default function MaktabaPage() {
                   {getChunksByTopic(t.id).length} مقاطع
                 </span>
               </div>
-              <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-ink-800 group-hover:text-forest-700">{t.title}</h3>
-              <p className="mt-2 line-clamp-2 text-xs leading-6 text-ink-500">{t.description}</p>
-              <p className="mt-2 line-clamp-2 text-xs leading-6 text-ink-500">{t.description}</p>
+              <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-parchment-50 group-hover:text-brass-200">{t.title}</h3>
+              <p className="mt-2 line-clamp-2 text-xs leading-6 text-parchment-200/65">{t.description}</p>
+              <p className="mt-2 line-clamp-2 text-xs leading-6 text-parchment-200/65">{t.description}</p>
             </Link>
           ))}
         </div>

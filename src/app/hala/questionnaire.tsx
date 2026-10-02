@@ -36,7 +36,7 @@ export function Questionnaire() {
   return (
     <div className="card-manuscript rounded-2xl p-6 sm:p-8">
         {/* مؤشر الخطوات */}
-        <div className="flex items-center justify-center gap-2 text-[11px] font-semibold text-ink-500">
+        <div className="flex items-center justify-center gap-2 text-[11px] font-semibold text-parchment-200/70">
           {["المجال", "التضييق", "المسار"].map((label, i) => (
             <span key={label} className="flex items-center gap-2">
               <span
@@ -59,7 +59,7 @@ export function Questionnaire() {
         {/* الخطوة ١: المجال */}
         {step === 1 && (
           <div className="animate-rise mt-8 space-y-3">
-            <p className="text-center text-sm font-bold text-ink-700">
+            <p className="text-center text-sm font-bold text-parchment-100/90">
               الخطوة الأولى — في أي مجال تريد أن تبحث؟
             </p>
             {QUESTIONNAIRE_AREAS.map((area) => (
@@ -79,7 +79,7 @@ export function Questionnaire() {
                 <ArrowLeft className="size-4 shrink-0 text-brass-500 transition-transform group-hover:-translate-x-1" strokeWidth={2} />
               </button>
             ))}
-            <p className="pt-2 text-center text-[11px] leading-6 text-ink-500">
+            <p className="pt-2 text-center text-[11px] leading-6 text-parchment-200/70">
               لاحظ: كل الأسئلة ملاحية للبحث («هل تريد البحث في…؟») — لا يوجد هنا أي سؤال عن شدة حالة أو وصف شخصي.
             </p>
           </div>
@@ -88,7 +88,7 @@ export function Questionnaire() {
         {/* الخطوة ٢: التضييق */}
         {step === 2 && (
           <div className="animate-rise mt-8 space-y-3">
-            <p className="text-center text-sm font-bold text-ink-700">
+            <p className="text-center text-sm font-bold text-parchment-100/90">
               الخطوة الثانية — ضيّق موضوع البحث (اختر ما ينطبق على بحثك)
             </p>
             {refinements.map((q) => {
@@ -120,7 +120,7 @@ export function Questionnaire() {
               );
             })}
             <div className="flex items-center justify-between pt-4">
-              <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 hover:text-forest-700">
+              <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 text-xs font-semibold text-parchment-200/70 hover:text-brass-300">
                 <ArrowRight className="size-3.5" /> السابق
               </button>
               <button
@@ -138,12 +138,12 @@ export function Questionnaire() {
         {/* الخطوة ٣: النتيجة */}
         {step === 3 && result && (
           <div className="animate-rise mt-8 space-y-7">
-            <p className="text-center text-sm font-bold text-ink-700">
+            <p className="text-center text-sm font-bold text-parchment-100/90">
               مسار البحث المقترح — أبواب وكلمات مفتاحية (وليس تقييماً لأي حالة)
             </p>
 
             <section>
-              <h3 className="flex items-center gap-2 text-xs font-bold tracking-wide text-forest-700">
+              <h3 className="flex items-center gap-2 text-xs font-bold tracking-wide text-brass-300">
                 <Compass className="size-4" strokeWidth={2} /> أبواب البحث
               </h3>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -160,7 +160,7 @@ export function Questionnaire() {
             </section>
 
             <section>
-              <h3 className="flex items-center gap-2 text-xs font-bold tracking-wide text-forest-700">
+              <h3 className="flex items-center gap-2 text-xs font-bold tracking-wide text-brass-300">
                 <KeyRound className="size-4" strokeWidth={2} /> الكلمات المفتاحية المقترحة
               </h3>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -178,7 +178,7 @@ export function Questionnaire() {
             </section>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-parchment-300 pt-5">
-              <button type="button" onClick={reset} className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 hover:text-forest-700">
+              <button type="button" onClick={reset} className="inline-flex items-center gap-1.5 text-xs font-semibold text-parchment-200/70 hover:text-brass-300">
                 <RotateCcw className="size-3.5" /> إعادة الاستبانة
               </button>
               <Link
@@ -190,7 +190,7 @@ export function Questionnaire() {
               </Link>
             </div>
 
-            <p className="text-center text-[11px] leading-6 text-ink-500">
+            <p className="text-center text-[11px] leading-6 text-parchment-200/70">
               هذه مادة وتوجيه للبحث والدراسة — وليست تشخيصاً ولا فتوى ولا خطة علاجية.
             </p>
           </div>

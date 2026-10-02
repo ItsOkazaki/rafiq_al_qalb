@@ -11,36 +11,58 @@ const FATWA_MARKERS: string[] = [
   "هل يجوز",
   "هل يحرم",
   "هل هذا حلال",
+  "هل هذا حرام",
   "حلال ام حرام",
-  "حلال",
-  "حرام",
+  "حلال أم حرام",
   "افتني",
+  "افتي",
+  "اطلب فتوى",
   "اطلب فتوي",
+  "اريد فتوى",
   "اريد فتوي",
+  "أريد فتوى",
+  "فتوى",
   "فتوي",
   "فتواكم",
   "هل علي اثم",
+  "هل علي إثم",
   "هل ااثم",
-  "ما ذنبي",
   "هل ذنبي يغفر",
   "هل ذنبي هذا يغفر لي",
   "هل يغفر الله لي بعد",
+  "ماذا افعل شرعا",
+  "ماذا أفعل شرعاً",
+  "ما الواجب علي شرعا",
+  "ما الواجب علي شرعاً",
+  "هل يصح صيامي",
+  "هل يصح حجي",
+  "ما كفارة",
+  "الفتوى في",
+  "ما هي الفتوى في",
+  "ما هو حكم",
+  "حكم هذا",
+  "حكم ذلك",
+];
+
+const PERSONAL_CASE_MARKERS: string[] = [
   "طلقت زوجتي",
+  "طلقتها فما الحكم",
+  "وقع الطلاق فما الحكم",
   "وقع الطلاق",
-  "الطلاق",
-  "الميراث",
-  "تركه الميت",
   "ارث الميت",
-  "الزكاه",
+  "إرث الميت",
+  "تركة الميت",
+  "تركه الميت",
+  "زكاة مالي",
   "زكاه مالي",
-  "الربا",
-  "النذر",
+  "أتعامل بالربا",
+  "اتعامل بالربا",
   "نذرت",
-  "كفاره",
-  "كفارة اليمين",
   "حلفت",
-  "العده",
-  "الرضاع",
+  "انتهت عدتي",
+  "انتهت عدتي",
+  "أرضعت",
+  "ارضعت",
   "صيامي",
   "حجي",
 ];
@@ -67,8 +89,9 @@ export interface FatwaDetection {
 export function detectFatwaRequest(query: string): FatwaDetection {
   const norm = normalizeArabic(query);
   if (!norm) return { isFatwa: false, matter: null };
-  const hit = FATWA_MARKERS.some((m) => norm.includes(normalizeArabic(m)));
-  if (!hit) return { isFatwa: false, matter: null };
+  const explicit = FATWA_MARKERS.some((m) => norm.includes(normalizeArabic(m)));
+  const personalCase = PERSONAL_CASE_MARKERS.some((m) => norm.includes(normalizeArabic(m)));
+  if (!explicit && !personalCase) return { isFatwa: false, matter: null };
   let matter: string | null = null;
   for (const [needle, label] of MATTER_MAP) {
     if (norm.includes(normalizeArabic(needle))) {
@@ -80,4 +103,4 @@ export function detectFatwaRequest(query: string): FatwaDetection {
 }
 
 export const FATWA_REFERRAL_MESSAGE =
-  "هذا من مسائل الفتوى والأحكام الشرعية، ورفيق القلوب أداة بحث علمي لا تصدر حكماً شرعياً ولا تُفتي. يُرجى عرض مسألتك على عالِم مؤهل موثوق أو على دار إفتاء معتمدة في بلدك.";
+  "لا فتوى: هذا من مسائل الأحكام الشرعية، ورفيق القلوب أداة بحث علمي لا تصدر حكماً شرعياً ولا تمارس الإفتاء. يُرجى عرض المسألة على عالِم مؤهل موثوق أو على دار إفتاء معتمدة في بلدك.";
