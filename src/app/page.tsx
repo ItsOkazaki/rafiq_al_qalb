@@ -123,12 +123,12 @@ export default function HomePage() {
       </section>
 
       {/* ── حدود الأداة ────────────────────────────────────────── */}
-      <section className="border-y border-parchment-300 bg-parchment-200/60">
+      <section className="border-y border-parchment-300 bg-parchment-100/95 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-5 py-16">
           <div className="grid items-start gap-10 lg:grid-cols-2">
             <div>
-              <h2 className="heading-display text-3xl font-bold text-forest-800">حدود واضحة لا تُتجاوز</h2>
-              <p className="mt-4 text-sm leading-8 text-ink-600">
+              <h2 className="heading-display text-3xl font-bold text-forest-900">حدود واضحة لا تُتجاوز</h2>
+              <p className="mt-4 text-sm leading-8 text-ink-700">
                 صُمم رفيق القلوب ليكون أداة بحث أمينة محدودة السلطة. الدقة أولى من الكم:
                 إن تعذّر توثيق مادة فلا تُستخدم، وإن فشل الاسترجاع فلا يُخترع جواب، وإن
                 كان السؤال فتوى فالإحالة إلى أهل العلم، وإن كان هناك خطر على السلامة
@@ -238,11 +238,11 @@ export default function HomePage() {
       </section>
 
       {/* ── البنية التقنية — لجنة التحكيم ─────────────────────────── */}
-      <section className="relative overflow-hidden border-t border-white/20 bg-white/30 py-24 backdrop-blur-md">
+      <section className="relative overflow-hidden border-t border-parchment-300 bg-parchment-100/95 py-24 backdrop-blur-md">
         <div className="mx-auto max-w-5xl px-5">
           <header className="text-center">
-            <h2 className="heading-display text-3xl font-bold text-forest-800">البنية التقنية الفعلية</h2>
-            <p className="mt-2 text-sm text-ink-500">الأدوات والتقنيات المستخدمة فعلياً في الكود — لا وصف تسويقي</p>
+            <h2 className="heading-display text-3xl font-bold text-forest-900">البنية التقنية الفعلية</h2>
+            <p className="mt-2 text-sm text-ink-700">الأدوات والتقنيات المستخدمة فعلياً في الكود — لا وصف تسويقي</p>
             <div className="mx-auto mt-4 max-w-xs"><OrnamentDivider /></div>
           </header>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -278,10 +278,10 @@ export default function HomePage() {
                 note: "الخطوط المستخدمة: Amiri + IBM Plex Sans Arabic + Aref Ruqaa، وجميعها مرخّصة بموجب SIL Open Font License (OFL).",
               },
             ].map(({ label, value, note }) => (
-              <div key={label} className="card-manuscript rounded-2xl p-6">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-brass-600">{label}</p>
-                <p className="mt-2 text-sm font-semibold leading-7 text-ink-800">{value}</p>
-                <p className="mt-1 text-[11px] leading-5 text-ink-500">{note}</p>
+              <div key={label} className="rounded-2xl border border-parchment-300 bg-parchment-50/95 p-6 shadow-manuscript">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-brass-700">{label}</p>
+                <p className="mt-2 text-sm font-semibold leading-7 text-ink-900">{value}</p>
+                <p className="mt-1 text-[11px] leading-5 text-ink-700">{note}</p>
               </div>
             ))}
           </div>

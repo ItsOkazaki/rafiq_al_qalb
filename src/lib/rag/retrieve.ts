@@ -13,8 +13,72 @@ import type { CorpusChunk, RetrievedPassage, TopicMatch } from "@/lib/types";
 /** الحد الأقصى لعدد المقاطع المسترجعة في النتيجة الواحدة (RAG limit). */
 export const MAX_PASSAGES = 4;
 
-/** العتبة الدنيا لقبول المقطع — دونها يُمتنع عن العرض. */
+/** العتبة الدنيا لقبول المقطع — لكن القبول يتطلب أيضاً صلة مباشرة أو موضوعية واضحة. */
 export const MIN_PASSAGE_SCORE = 3;
+
+const GENERIC_QUERY_TOKENS = new Set([
+  "الله", "الناس", "العبد", "العباد", "الدنيا", "الاخره", "شيء", "امر", "امور",
+  "موضوع", "موضوعات", "بحث", "ماده", "مادة", "العلم", "العلمية", "الحديث", "السؤال",
+]);
+
+function canonicalSearchToken(token: string): string {
+  let t = normalizeArabic(token);
+  if (!t) return "";
+
+  for (const prefix of ["وال", "فال", "بال", "كال", "لل", "ال", "و", "ف", "ب", "ك", "ل"]) {
+    if (t.startsWith(prefix) && t.length - prefix.length >= 3) {
+      t = t.slice(prefix.length);
+      break;
+    }
+  }
+
+  for (const suffix of ["هما", "هم", "هن", "كما", "كم", "كن", "نا", "ها", "ه", "ي", "ك", "ين", "ون", "ان", "ات"]) {
+    if (t.endsWith(suffix) && t.length - suffix.length >= 3) {
+      t = t.slice(0, -suffix.length);
+      break;
+    }
+  }
+
+  // أفعال شائعة: «يموت/تموت/أموت» ← «موت»؛ مع إبقاء الاسم الأصلي قبلها.
+  if (t.length >= 4 && /^[يتان]/.test(t)) {
+    const verbStem = t.slice(1);
+    if (verbStem.length >= 3) t = verbStem;
+  }
+
+  return t;
+}
+
+function tokenVariants(token: string): string[] {
+  const normalized = normalizeArabic(token);
+  const canonical = canonicalSearchToken(normalized);
+  return [...new Set([normalized, canonical].filter(Boolean))];
+}
+
+function buildDocumentFrequency(corpus: CorpusChunk[]): Map<string, number> {
+  const freq = new Map<string, number>();
+  for (const chunk of corpus) {
+    const seen = new Set<string>();
+    for (const token of tokenizeArabic(chunk.text)) {
+      for (const variant of tokenVariants(token)) {
+        if (!seen.has(variant)) {
+          seen.add(variant);
+          freq.set(variant, (freq.get(variant) ?? 0) + 1);
+        }
+      }
+    }
+    for (const kw of chunk.keywords) {
+      for (const token of tokenizeArabic(kw)) {
+        for (const variant of tokenVariants(token)) {
+          if (!seen.has(variant)) {
+            seen.add(variant);
+            freq.set(variant, (freq.get(variant) ?? 0) + 1);
+          }
+        }
+      }
+    }
+  }
+  return freq;
+}
 
 export function identifyTopics(query: string, topics = TOPICS): TopicMatch[] {
   const norm = normalizeArabic(query);
@@ -65,26 +129,83 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   );
 
   const approved = filterApproved(opts.corpus ?? CHUNKS);
+  const docFreq = buildDocumentFrequency(approved);
+  const corpusSize = Math.max(approved.length, 1);
+  const queryTokens = [...tokens].map((t) => ({ original: t, variants: tokenVariants(t) }));
 
   const scored = approved
     .map((chunk) => {
       let score = 0;
+      let directMatch = false;
+      let strongLexicalMatch = false;
+
       for (const t of chunk.topics) {
-        if (matchedTopicIds.has(t)) score += 3;
+        if (matchedTopicIds.has(t)) {
+          score += 3;
+          directMatch = true;
+        }
       }
+
+      const chunkNorm = normalizeArabic(chunk.text);
+      if (norm.length >= 6 && chunkNorm.includes(norm)) {
+        score += 7;
+        strongLexicalMatch = true;
+      }
+
+      const keywordTokens = new Set(
+        chunk.keywords.flatMap((kw) => tokenVariants(kw)),
+      );
       for (const kw of chunk.keywords) {
-        const n = normalizeArabic(kw);
-        if (n && norm.includes(n)) score += 2;
+        const k = normalizeArabic(kw);
+        if (k && norm.includes(k)) {
+          score += 3.5;
+          directMatch = true;
+          strongLexicalMatch = true;
+        }
       }
-      const chunkTokens = new Set(tokenizeArabic(chunk.text));
-      let hits = 0;
-      for (const tk of tokens) {
-        if (chunkTokens.has(tk)) hits += 1;
+
+      const chunkTokens = new Set(
+        [...tokenizeArabic(chunk.text), ...chunk.keywords.flatMap((kw) => tokenizeArabic(kw))]
+          .flatMap((tk) => tokenVariants(tk)),
+      );
+
+      let weightedHits = 0;
+      for (const { variants } of queryTokens) {
+        let exact = false;
+        let similar = false;
+        let bestWeight = 0;
+        for (const variant of variants) {
+          if (keywordTokens.has(variant)) {
+            exact = true;
+            bestWeight = Math.max(bestWeight, 3.5);
+          }
+          if (chunkTokens.has(variant)) {
+            exact = true;
+            const df = Math.max(docFreq.get(variant) ?? 1, 1);
+            const rarity = Math.min(6, 1 + Math.log2((corpusSize + 1) / df));
+            bestWeight = Math.max(bestWeight, rarity);
+          }
+          const canonical = canonicalSearchToken(variant);
+          if (canonical && chunkTokens.has(canonical)) {
+            similar = true;
+            bestWeight = Math.max(bestWeight, 2.5);
+          }
+        }
+        if (exact || similar) {
+          directMatch = true;
+          weightedHits += bestWeight;
+          if (!GENERIC_QUERY_TOKENS.has(variants[0]) && bestWeight >= 3.5) {
+            strongLexicalMatch = true;
+          }
+        }
       }
-      score += Math.min(hits, 6);
-      return { chunk, score };
+      score += Math.min(weightedHits, 8);
+
+      // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عامة عابرة.
+      const relevance = matchedTopicIds.size > 0 || strongLexicalMatch;
+      return { chunk, score, directMatch, relevance };
     })
-    .filter((x) => x.score >= MIN_PASSAGE_SCORE)
+    .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.directMatch)
     .sort((a, b) => b.score - a.score);
 
   const limit = Math.min(opts.limit ?? MAX_PASSAGES, MAX_PASSAGES);

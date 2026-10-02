@@ -17,6 +17,7 @@ import {
 import type { ResearchResult } from "@/lib/types";
 import { PassageCard } from "@/components/passage-card";
 import { OrnamentDivider } from "@/components/ornaments";
+import { detectHealthQuery, HEALTH_WARNING } from "@/lib/policy/health";
 
 /** عارض نتيجة البحث الكامل — يعكس بنية الاستجابة حرفياً. */
 export function ResearchResultView({ result }: { result: ResearchResult }) {
@@ -159,7 +160,16 @@ function AbstainView({ result }: { result: ResearchResult }) {
       <span className="mx-auto grid size-14 place-items-center rounded-full border border-brass-400/50 bg-brass-100 text-brass-500">
         <BookOpenText className="size-6" strokeWidth={1.8} />
       </span>
-      <h3 className="heading-display mt-5 text-2xl font-bold text-parchment-50">{result.message?.startsWith("لا تشخيص") ? "لا تشخيص" : result.message?.startsWith("لا علاج شخصي") ? "لا علاج شخصي" : "لا مادة كافية"}</h3>
+      <h3 className="heading-display mt-5 text-2xl font-bold text-parchment-50">{
+        result.message?.startsWith("لا تشخيص") ? "لا تشخيص"
+          : result.message?.startsWith("لا علاج شخصي") ? "لا علاج شخصي"
+            : "لا مادة كافية"
+      }</h3>
+      {detectHealthQuery(result.query) && !result.message?.startsWith("لا تشخيص") && !result.message?.startsWith("لا علاج شخصي") && (
+        <div className="mx-auto mt-4 max-w-xl rounded-xl border border-brass-400/35 bg-brass-400/10 px-4 py-3 text-xs leading-6 text-brass-200" role="note">
+          {HEALTH_WARNING}
+        </div>
+      )}
       <p className="mx-auto mt-2 max-w-xl text-sm leading-8 text-parchment-200/82">
         {result.message ?? "لم نجد مادة كافية من المصادر المعتمدة لهذا الموضوع."}
         {" "}لا يستحدث النظام جواباً من خارج المصادر المعتمدة. جرّب إعادة صياغة موضوع
