@@ -13,7 +13,7 @@ const NAV = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40">
-      <div className="glass-dark border-b border-white/8 px-5 py-3.5">
+      <div className="glass-dark border-b border-white/8 px-5 py-2">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
           <Link href="/" className="group flex items-center gap-2.5 shrink-0">
             <Image
@@ -21,7 +21,7 @@ export function SiteHeader() {
               alt="شعار رفيق القلوب"
               width={597}
               height={528}
-              className="h-[74px] w-[84px] shrink-0 rounded-none border-0 bg-transparent object-contain p-0 shadow-none sm:h-[80px] sm:w-[91px]"
+              className="h-11 w-[56px] shrink-0 rounded-none border-0 bg-transparent object-contain p-0 shadow-none sm:h-12 sm:w-[60px]"
               priority
             />
             <span className="hidden leading-tight sm:block">
