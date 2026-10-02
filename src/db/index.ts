@@ -1,20 +1,25 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL?.trim();
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
 };
 
-// قاعدة البيانات اختيارية — النظام يعمل بالكامل بدونها.
-// إذا لم يتوفر DATABASE_URL، يبقى db = null ولا يحدث أي خطأ.
+// PostgreSQL is telemetry/evaluation infrastructure, not a prerequisite for /hiwar.
+// Reuse the pool across warm Vercel/Node invocations to avoid needless connection churn.
 export const pool = databaseUrl
   ? (globalForDb.__arenaNextJsPostgresqlPool ??
-    new Pool({ connectionString: databaseUrl }))
+    new Pool({
+      connectionString: databaseUrl,
+      max: 1,
+      connectionTimeoutMillis: 3_000,
+      idleTimeoutMillis: 10_000,
+    }))
   : null;
 
-if (pool && process.env.NODE_ENV !== "production") {
+if (pool) {
   globalForDb.__arenaNextJsPostgresqlPool = pool;
 }
 

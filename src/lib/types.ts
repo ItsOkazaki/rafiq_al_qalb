@@ -1,11 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// رفيق القلوب — أنواع النواة
-// أداة بحث علمي: لا تشخيص، لا فتوى، لا وصفات. استرجاع من مصادر معتمدة فقط.
+// رفيق القلوب — الأنواع العامة
+// Evidence-Gated AI Research: فهم → استرجاع → إعادة ترتيب → بوابة دليل → تحقق.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type SourceStatus = "active" | "registered-pending";
 
-/** مصدر معتمد في سجل المصادر. لا يُسترجع إلا من مصدر status = active. */
 export interface RegisteredSource {
   id: string;
   slug: string;
@@ -15,46 +14,39 @@ export interface RegisteredSource {
   publisher: string;
   registryUrl: string;
   originalUrl: string;
-  /** نسخة نصية رسمية إضافية للتحقق من النقل، إن توفرت. */
   verificationUrl?: string;
   verificationLabel?: string;
   status: SourceStatus;
   approvedBy: string;
-  approvedAt: string; // ISO date
+  approvedAt: string;
   notes: string;
 }
 
-/** مقطع نصي من المصدر المعتمد مع بيانات الموضع (إحالة على مستوى الفصل). */
 export type CitationStatus = "verified-page" | "chapter-only" | "page-pending";
 export type ExcerptType = "literal" | "curated-summary";
 
 export interface CorpusChunk {
   id: string;
   sourceId: string;
-  chapter: string; // الموضع داخل الكتاب
-  page?: string; // إحالة الجزء/الصفحة المعتمدة والموافقة للمطبوع
-  /** رابط الصفحة الرسمية الخاصة بهذا المقطع، إن كان أدق من رابط الكتاب العام. */
+  chapter: string;
+  page?: string;
   sourceUrl?: string;
   citationStatus?: CitationStatus;
-  /** literal = مطابق لأصل موثق؛ curated-summary = عرض بحثي موجّه للأصل. */
   excerptType: ExcerptType;
   topics: string[];
   keywords: string[];
   text: string;
 }
 
-/** باب بحثي في التصنيف الهرمي الموحّد (اثنا عشر باباً). */
 export interface Topic {
   id: string;
   slug: string;
-  /** رقم الباب في الترتيب المنطقي (١–١٢). */
   order: number;
   title: string;
   description: string;
   synonyms: string[];
   keywords: string[];
   related: string[];
-  /** أسئلة بحث ذات صلة بالباب (تُعرض كمداخل جاهزة للحوار البحثي). */
   relatedQuestions: string[];
 }
 
@@ -75,7 +67,15 @@ export interface PassageSourceMeta {
   verificationLabel?: string;
 }
 
-/** مقطع مسترجع فعلي من المادة المعتمدة مع بيانات المصدر والموضع. */
+export interface RetrievalBreakdown {
+  lexical: number;
+  semantic: number | null;
+  topic: number;
+  hybrid: number;
+  rerank: number | null;
+  sourceDiversity: number;
+}
+
 export interface RetrievedPassage {
   chunkId: string;
   text: string;
@@ -86,6 +86,7 @@ export interface RetrievedPassage {
   keywords: string[];
   score: number;
   source: PassageSourceMeta;
+  retrieval?: RetrievalBreakdown;
 }
 
 export interface SafetyInfo {
@@ -100,9 +101,80 @@ export interface FatwaInfo {
   suggestedTopics: { slug: string; title: string }[];
 }
 
-export type ResearchOutcome = "ok" | "abstained" | "safety" | "fatwa" | "invalid";
+export type ResearchOutcome = "ok" | "abstained" | "safety" | "fatwa" | "invalid" | "ai-unavailable";
+export type AiMode = "evidence-gated" | "baseline" | null;
 
-export type AiMode = "model" | "deterministic" | null;
+export interface ResearchPlan {
+  intent: "research" | "definition" | "comparison" | "source-lookup" | "other";
+  audience: "general" | "student" | "researcher" | "preacher";
+  semanticQuery: string;
+  subquestions: string[];
+  searchTerms: string[];
+}
+
+export interface RerankedPassage {
+  chunkId: string;
+  relevance: number;
+  supports: string[];
+  reason: string;
+}
+
+export interface EvidenceGate {
+  sufficient: boolean;
+  confidence: number;
+  aiConfidence?: number;
+  semanticCoverage?: number;
+  coveredSubquestions: number;
+  totalSubquestions: number;
+  missingSubquestions: string[];
+  notes: string;
+}
+
+export type ClaimVerification = "supported" | "partial" | "unsupported" | "conflicting";
+
+export interface AnswerClaim {
+  id: string;
+  text: string;
+  evidenceIds: string[];
+  status?: ClaimVerification;
+  verifierNote?: string;
+}
+
+export interface SourceConflict {
+  sourceIds: string[];
+  passageIds: string[];
+  type: "apparent-tension" | "different-emphasis" | "explicit-contradiction";
+  summary: string;
+}
+
+export interface VerifiedAnswer {
+  claims: AnswerClaim[];
+  limits: string[];
+}
+
+export interface AIDiagnostics {
+  provider: string;
+  chatModel: string | null;
+  embeddingModel: string | null;
+  aiConfigured: boolean;
+  pipeline: string[];
+  plan: ResearchPlan | null;
+  candidateCount: number;
+  semanticRetrievalUsed: boolean;
+  baselineTopIds: string[];
+  hybridTopIds: string[];
+  reranked: RerankedPassage[];
+  evidenceGate: EvidenceGate | null;
+  claims: AnswerClaim[];
+  conflicts: SourceConflict[];
+  verifiedClaimCount: number;
+  totalClaimCount: number;
+  latencyMs: number | null;
+  degradedReason: string | null;
+  semanticError: string | null;
+  rerankError: string | null;
+  usedDeterministicFallback: boolean;
+}
 
 export interface ResearchResult {
   outcome: ResearchOutcome;
@@ -111,6 +183,7 @@ export interface ResearchResult {
   keywords: string[];
   passages: RetrievedPassage[];
   ai: { mode: AiMode; text: string | null };
+  diagnostics: AIDiagnostics;
   disclaimer: string;
   message: string | null;
   safety: SafetyInfo | null;

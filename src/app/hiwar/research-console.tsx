@@ -83,14 +83,14 @@ export function ResearchConsole() {
               {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" strokeWidth={2.2} />}
               استرجاع المادة البحثية
             </button>
-            <span className="flex items-center gap-1.5 text-[11px] text-parchment-200/50">
+            <span className="flex items-center gap-1.5 text-[11px] text-parchment-200/70">
               <ShieldCheck className="size-3.5 text-brass-400/70" strokeWidth={2} />
               البحث مقصور على سجل المصادر المعتمدة
             </span>
           </div>
 
           <div className="mt-6 border-t border-white/8 pt-4">
-            <p className="mb-2 text-[11px] font-semibold tracking-wide text-parchment-200/50">أمثلة لمداخل بحثية:</p>
+            <p className="mb-2 text-[11px] font-semibold tracking-wide text-parchment-200/70">أمثلة لمداخل بحثية:</p>
             <div className="flex flex-wrap gap-2">
               {EXAMPLES.map((ex) => (
                 <button
@@ -114,7 +114,7 @@ export function ResearchConsole() {
           <svg viewBox="0 0 24 24" className="animate-ornament size-10 stroke-brass-400" fill="none" strokeWidth="1.2">
             <path d="M12 3l2.2 5.4 5.8.6-4.4 3.8 1.3 5.7L12 15.4l-4.9 3.1 1.3-5.7L4 9l5.8-.6L12 3z" strokeLinejoin="round" />
           </svg>
-          <p className="text-sm text-parchment-200/60">يحدد الباب البحثي، ويستخرج الكلمات، ويستدعي Gemini لتنظيم المادة…</p>
+          <p className="text-sm text-parchment-200/60">يفهم السؤال، ويعيد ترتيب الأدلة، ويتحقق من الإسناد قبل العرض…</p>
         </div>
       )}
 
