@@ -88,6 +88,11 @@ describe("مطابقة الموضوعات (تفسير بحثي لا تشخيصي
     expect(matches.map((m) => m.topic.id)).toContain("takrar-al-dhanb");
   });
 
+  it("يفهم أيضاً صيغة الرجوع إلى نفس الذنب", () => {
+    const matches = identifyTopics("أرجع لنفس الذنب كل مرة");
+    expect(matches.map((m) => m.topic.id)).toContain("takrar-al-dhanb");
+  });
+
   it("لا يوصم المستخدم: المخرجات عناوين موضوعات فقط", () => {
     const matches = identifyTopics(SAMPLE_QUERY);
     for (const m of matches) {
@@ -135,6 +140,11 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
     const passages = retrievePassages(BROAD_QUERY);
     expect(passages.length).toBeGreaterThan(2);
     expect(passages.length).toBeLessThanOrEqual(MAX_PASSAGES);
+  });
+
+  it("يعطي موضوع تكرار الذنب مقاطع بحثية مخصصة", () => {
+    const passages = retrievePassages("تكرار الذنب والانتكاس");
+    expect(passages.map((p) => p.chunkId)).toEqual(expect.arrayContaining(["dd-004"]));
   });
 
   it("المادة المفهرسة كلها من المصدر الوحيد الفعّال", () => {

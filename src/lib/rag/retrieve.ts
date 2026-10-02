@@ -201,12 +201,26 @@ function selectSemanticPool(
   };
   for (const item of lexicalRanked.slice(0, HYBRID_LEXICAL_CANDIDATES)) add(item.chunk);
 
-  const matchedTopicIds = new Set(matchedTopics.map((m) => m.topic.id));
-  const topicRanked = approved
-    .filter((chunk) => chunk.topics.some((id) => matchedTopicIds.has(id)))
+  // Search the matched topics plus one hop of explicitly related topics. This
+  // matters for queries such as “أرجع لنفس الذنب” where the primary topic is
+  // recurrence, but the supporting evidence also lives under التوبة.
+  const primaryTopicIds = new Set(matchedTopics.map((m) => m.topic.id));
+  const relatedTopicIds = new Set<string>();
+  for (const match of matchedTopics) for (const relatedId of match.topic.related) relatedTopicIds.add(relatedId);
+
+  const primaryTopicRanked = approved
+    .filter((chunk) => chunk.topics.some((id) => primaryTopicIds.has(id)))
     .map((chunk) => ({ chunk, score: lexicalParts(originalQuery, chunk, matchedTopics).raw }))
     .sort((a, b) => b.score - a.score);
-  for (const item of topicRanked) add(item.chunk);
+  for (const item of primaryTopicRanked.slice(0, 5)) add(item.chunk);
+
+  // Give related topics their own quota instead of allowing many primary-topic
+  // chunks to consume the entire 20-item pool before the related evidence is seen.
+  const relatedTopicRanked = approved
+    .filter((chunk) => chunk.topics.some((id) => relatedTopicIds.has(id)))
+    .map((chunk) => ({ chunk, score: lexicalParts(originalQuery, chunk, matchedTopics).raw }))
+    .sort((a, b) => b.score - a.score);
+  for (const item of relatedTopicRanked.slice(0, 5)) add(item.chunk);
 
   for (const term of plan.searchTerms.slice(0, 6)) {
     const termRanked = approved
@@ -307,9 +321,27 @@ export async function retrievePassagesHybrid(
   }));
   const poolRanked = semanticUsed ? semanticRanked : lexicalFallback;
   const combined = new Map<string, typeof poolRanked[number]>();
-  for (const item of [...poolRanked, ...lexicalFallback]) combined.set(item.chunk.id, item);
-  let candidates = [...combined.values()].filter((x) => x.hybrid >= MIN_HYBRID_SCORE).sort((a, b) => b.hybrid - a.hybrid).slice(0, Math.max(configuredRerankCandidates(), HYBRID_LEXICAL_CANDIDATES));
-  if (candidates.length === 0) candidates = [...combined.values()].sort((a, b) => b.hybrid - a.hybrid).slice(0, Math.max(4, configuredRerankCandidates()));
+  // Preserve the richer semantic item when a chunk appears in both pools. The
+  // previous implementation let lexicalFallback overwrite it, silently discarding
+  // its semantic score and weakening hybrid retrieval.
+  for (const item of poolRanked) combined.set(item.chunk.id, item);
+  for (const item of lexicalFallback) if (!combined.has(item.chunk.id)) combined.set(item.chunk.id, item);
+  const candidateLimit = Math.max(configuredRerankCandidates(), HYBRID_LEXICAL_CANDIDATES);
+  const sortedCombined = [...combined.values()].sort((a, b) => b.hybrid - a.hybrid);
+  const topicScopeIds = new Set<string>();
+  for (const match of matchedTopics) {
+    topicScopeIds.add(match.topic.id);
+    for (const relatedId of match.topic.related) topicScopeIds.add(relatedId);
+  }
+  const topicPriority = matchedTopics.length > 0
+    ? sortedCombined.filter((x) => x.chunk.topics.some((id) => topicScopeIds.has(id))).slice(0, Math.min(4, candidateLimit))
+    : [];
+  const seenCandidateIds = new Set(topicPriority.map((x) => x.chunk.id));
+  let candidates = [
+    ...topicPriority,
+    ...sortedCombined.filter((x) => !seenCandidateIds.has(x.chunk.id) && x.hybrid >= MIN_HYBRID_SCORE),
+  ].slice(0, candidateLimit);
+  if (candidates.length === 0) candidates = sortedCombined.slice(0, Math.max(4, configuredRerankCandidates()));
 
   const candidatePassages = candidates.map((x) => toRetrieved(x.chunk, x.hybrid, { lexical: x.lexical, semantic: semanticUsed ? x.semantic : null, topic: x.topic, hybrid: x.hybrid, rerank: null, sourceDiversity: 0 })).filter((x): x is RetrievedPassage => Boolean(x));
   if (candidatePassages.length === 0) return emptyResult({ semanticUsed, semanticError, usedDeterministicFallback: true });
@@ -358,13 +390,38 @@ export async function retrievePassagesHybrid(
   const coverage = coverageScores.length ? covered / coverageScores.length : 0;
   const topRerank = ranked[0]?.relevance ?? 0;
   const aiConfidence = clamp01(aiGate.confidence);
-  const deterministicConfidence = Math.max(0, Math.min(1, coverageScores.length ? (coverageScores.reduce((a, b) => a + b, 0) / coverageScores.length) * 0.55 + topRerank * 0.45 : topRerank));
-  const modelCoveragePass = aiGate.coveredSubquestions >= subquestions.length;
-  const deterministicPass = (covered >= subquestions.length || modelCoveragePass) && topRerank >= 0.50 && deterministicConfidence >= 0.48;
+  const lexicalCoverageAverage = coverageScores.length
+    ? coverageScores.reduce((a, b) => a + b, 0) / coverageScores.length
+    : 0;
+  const topicEvidence = matchedTopics.length > 0
+    ? Math.max(0, ...candidatePassages.map((p) => p.retrieval?.topic ?? 0))
+    : 0;
+  const deterministicConfidence = Math.max(
+    lexicalCoverageAverage * 0.55 + topRerank * 0.45,
+    topicEvidence > 0 ? Math.max(topRerank, aiConfidence) * 0.45 + topicEvidence * 0.55 : 0,
+  );
+  const modelCovered = Math.max(0, Math.min(subquestions.length, aiGate.coveredSubquestions));
+  const modelCoveragePass = modelCovered >= subquestions.length;
+  const effectiveCovered = Math.max(covered, modelCovered);
+  const topicAnchored = matchedTopics.length > 0 && topicEvidence >= 0.5;
+  // Rerank scores are ranking signals, not calibrated probabilities. A registered
+  // topic with actual topic-tagged corpus evidence should reach claim verification
+  // when the model also reports full subquestion coverage, even at a conservative score.
+  const relevanceFloorPass = topRerank >= (topicAnchored ? 0.35 : 0.50);
+  const confidencePass = deterministicConfidence >= 0.48 || (topicAnchored && deterministicConfidence >= 0.35);
+  const coveragePass = covered >= subquestions.length || modelCoveragePass;
+  const deterministicPass = coveragePass && relevanceFloorPass && confidencePass;
+  // A known topic may override an overly conservative model gate because its corpus
+  // anchor is independently verifiable. Without a topic anchor, require real lexical
+  // evidence too; an AI gate by itself must never turn an unrelated question into an answer.
+  const corpusEvidenceAnchorPass = topicAnchored || lexicalCoverageAverage >= 0.25;
+  const aiGateAdvisoryPass = corpusEvidenceAnchorPass && (Boolean(aiGate.sufficient) || topicAnchored);
   const evidenceGate: EvidenceGate = {
-    sufficient: Boolean(aiGate.sufficient) && deterministicPass, confidence: deterministicConfidence, aiConfidence, semanticCoverage: coverage,
-    coveredSubquestions: covered, totalSubquestions: subquestions.length,
-    missingSubquestions: coverageScores.map((score, i) => score >= 0.25 ? null : subquestions[i]).filter((x): x is string => Boolean(x)),
+    sufficient: aiGateAdvisoryPass && deterministicPass, confidence: Math.min(1, deterministicConfidence), aiConfidence, semanticCoverage: coverage,
+    coveredSubquestions: effectiveCovered, totalSubquestions: subquestions.length,
+    missingSubquestions: effectiveCovered >= subquestions.length
+      ? []
+      : coverageScores.map((score, i) => score >= 0.25 ? null : subquestions[i]).filter((x): x is string => Boolean(x)),
     notes: [aiGate.notes, `AI gate: ${aiGate.sufficient ? "pass" : "fail"}`, `Coverage: ${covered}/${subquestions.length}`, `Top rerank: ${topRerank.toFixed(2)}`,
       semanticError ? `Semantic fallback: ${semanticError}` : "Semantic retrieval: ready", rerankError ? `Rerank fallback: ${rerankError}` : "Rerank: ready"].filter(Boolean).join(" | ").slice(0, 700),
   };

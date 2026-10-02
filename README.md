@@ -77,10 +77,10 @@ npm run benchmark -- --url https://YOUR-VERCEL-URL
 ## اختبارات loop engineering
 
 ```bash
-npm run test
-npm run typecheck
 npm run loop:check
 ```
+
+هذا الأمر يشغّل أولاً فحص syntax واختبار regression محلياً على كامل مجموعة الـ40 سؤالاً مع مزوّد AI وهمي ثابت، بما فيها حالات الامتناع والسلامة والهلوسة وحالة الثقة المنخفضة في «تكرار الذنب والانتكاس». إذا كانت `node_modules` مثبتة، يكمل تلقائياً بـ`test` و`typecheck` و`build`. هذه الدورة المحلية لا تحتاج إلى نشر Vercel في كل تعديل.
 
 ثم بعد نشر نسخة معاينة:
 

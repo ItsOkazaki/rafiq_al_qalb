@@ -28,25 +28,29 @@ Module._extensions['.ts'] = function(module, filename) {
 };
 
 function chatResponse(system, user) {
-  if (system.includes('مخطط استعلام')) return {
-    intent:'research', audience:'general', semanticQuery:'أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن',
-    subquestions:['أثر قسوة القلب والتأثر بالقرآن'], searchTerms:['قسوة القلب','القرآن','التأثر']
-  };
-  if (system.includes('مقيّم أدلة')) {
-    const p=JSON.parse(user); return {
-      ranked:p.candidates.map((x,i)=>({id:x.id,relevance:0.95-i*0.03,supports:['sub1'],reason:'يدعم الخطة'})),
-      gate:{sufficient:true,confidence:0.95,coveredSubquestions:1,totalSubquestions:1,missingSubquestions:[],notes:'كافٍ'}
+  if (system.includes('مخطط بحث عربي') || system.includes('مخطط استعلام')) {
+    const m=user.match(/السؤال:\s*(.+?)(?:\n|$)/);
+    const q=(m&&m[1]) || 'أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن';
+    return { intent:'research', audience:'general', semanticQuery:q, subquestions:[q], searchTerms:[q] };
+  }
+  if (system.includes('قيّم الأدلة') || system.includes('مقيّم أدلة')) {
+    const p=JSON.parse(user);
+    const q=String(p.plan?.subquestions?.[0] || p.plan?.q || '');
+    const low=q.includes('تكرار الذنب') || q.includes('الانتكاس');
+    return {
+      ranked:(p.candidates||[]).map((x,i)=>({id:x.id,relevance:low ? Math.max(0.39,0.44-i*0.02) : Math.max(0.62,0.92-i*0.03),supports:[q],reason:'يدعم الخطة'})),
+      gate:{sufficient:true,confidence:low ? 0.39 : 0.92,coveredSubquestions:1,totalSubquestions:1,missingSubquestions:[],notes:'اختبار بوابة الدليل'}
     };
   }
-  if (system.includes('مولّد إجابة')) {
+  if (system.includes('ولّد ادعاءات') || system.includes('مولّد إجابة')) {
     const p=JSON.parse(user); const es=(p.evidence||[]).slice(0,2); return {
       claims:es.map((e,i)=>({id:'c'+(i+1),text:'ادعاء مدعوم '+(i+1),evidenceIds:[e.id]})), limits:['حد تجريبي']
     };
   }
-  if (system.includes('مدقّق ادعاءات')) {
+  if (system.includes('تحقق هل كل claim')) {
     const p=JSON.parse(user); return {claims:(p.claims||[]).map(c=>({id:c.id,status:'supported',note:'مدعوم'})),conflicts:[]};
   }
-  if (system.includes('كاشف تباين')) return {conflicts:[{sourceIds:['synthetic-a','synthetic-b'],passageIds:['fixture-a','fixture-b'],type:'explicit-contradiction',summary:'تعارض اصطناعي للاختبار'}]};
+  if (system.includes('ارصد التباين')) return {conflicts:[{sourceIds:['synthetic-a','synthetic-b'],passageIds:['fixture-a','fixture-b'],type:'explicit-contradiction',summary:'تعارض اصطناعي للاختبار'}]};
   throw new Error('Unknown AI prompt');
 }
 
@@ -76,9 +80,20 @@ const { detectSourceConflicts } = require(path.join(srcRoot,'lib/ai/provider.ts'
 (async()=>{
   const q='أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن';
   const ai=await runResearch(q,{mode:'ai'});
-  if(ai.outcome!=='ok' || ai.ai.mode!=='evidence-gated' || !ai.diagnostics.semanticRetrievalUsed || ai.diagnostics.reranked.length===0 || !ai.diagnostics.evidenceGate?.sufficient || ai.diagnostics.verifiedClaimCount===0) throw new Error('AI smoke failed');
+  if(ai.outcome!=='ok' || ai.ai.mode!=='evidence-gated' || ai.diagnostics.reranked.length===0 || !ai.diagnostics.evidenceGate?.sufficient || ai.diagnostics.verifiedClaimCount===0) throw new Error('AI smoke failed');
+  if(ai.diagnostics.semanticRetrievalUsed && !ai.diagnostics.embeddingModel) throw new Error('semantic retrieval reported without an embedding model');
   const baseline=await runResearch(q,{mode:'baseline'});
   if(baseline.outcome!=='ok' || baseline.ai.mode!=='baseline') throw new Error('baseline smoke failed');
+
+  const previousSaver=process.env.AI_TOKEN_SAVER;
+  const previousEmbeddings=process.env.AI_USE_EMBEDDINGS;
+  process.env.AI_TOKEN_SAVER='false';
+  process.env.AI_USE_EMBEDDINGS='true';
+  const semantic=await runResearch(q,{mode:'ai'});
+  if(semantic.outcome!=='ok' || !semantic.diagnostics.semanticRetrievalUsed || !semantic.passages.some((p)=>p.retrieval?.semantic !== null)) throw new Error('semantic retrieval smoke failed');
+  if(previousSaver===undefined) delete process.env.AI_TOKEN_SAVER; else process.env.AI_TOKEN_SAVER=previousSaver;
+  if(previousEmbeddings===undefined) delete process.env.AI_USE_EMBEDDINGS; else process.env.AI_USE_EMBEDDINGS=previousEmbeddings;
+
   const safe=await runResearch('أفكر في الانتحار');
   if(safe.outcome!=='safety') throw new Error('safety smoke failed');
   // Provider routing smoke: Gemini and OpenRouter use their native/compatible REST shapes.
@@ -102,10 +117,13 @@ const { detectSourceConflicts } = require(path.join(srcRoot,'lib/ai/provider.ts'
   global.fetch=competitionFetch;
 
   const oldFetch=global.fetch;
+  const oldPlannerMode=process.env.AI_PLANNER_MODE;
+  process.env.AI_PLANNER_MODE='ai';
   global.fetch=async()=>{throw new Error('network down')};
   const degraded=await runResearch(q,{mode:'ai'});
   global.fetch=oldFetch;
-  if(degraded.outcome!=='ai-unavailable' || degraded.ai.text!==null) throw new Error('degraded smoke failed');
+  if(oldPlannerMode===undefined) delete process.env.AI_PLANNER_MODE; else process.env.AI_PLANNER_MODE=oldPlannerMode;
+  if(degraded.outcome!=='ai-unavailable' || degraded.ai.text!==null) throw new Error('provider outage smoke failed');
   const passages=[
     {chunkId:'fixture-a',text:'The item is permitted.',chapter:'fixture',page:'N/A',citationStatus:'chapter-only',excerptType:'curated-summary',keywords:[],score:0.9,source:{sourceId:'synthetic-a',slug:'a',title:'A',author:'Synthetic',publisher:'Benchmark',registryUrl:'https://example.invalid',originalUrl:'https://example.invalid'}},
     {chunkId:'fixture-b',text:'The item is not permitted.',chapter:'fixture',page:'N/A',citationStatus:'chapter-only',excerptType:'curated-summary',keywords:[],score:0.9,source:{sourceId:'synthetic-b',slug:'b',title:'B',author:'Synthetic',publisher:'Benchmark',registryUrl:'https://example.invalid',originalUrl:'https://example.invalid'}}
@@ -117,14 +135,24 @@ const { detectSourceConflicts } = require(path.join(srcRoot,'lib/ai/provider.ts'
   let caseErrors=0;
   for(const qcase of questions){
     try {
-      await runResearch(qcase.query,{mode:'baseline'});
-      await runResearch(qcase.query,{mode:'ai'});
+      const baseline=await runResearch(qcase.query,{mode:'baseline'});
+      const actual=await runResearch(qcase.query,{mode:'ai'});
+      if(actual.outcome!==qcase.expectedOutcome) throw new Error(`expected ${qcase.expectedOutcome}, got ${actual.outcome}`);
+      if(qcase.expectedOutcome==='ok' && (actual.passages.length===0 || actual.diagnostics.verifiedClaimCount===0)) throw new Error('ok case had no verified evidence');
+      if(qcase.expectedOutcome==='safety' && actual.diagnostics.pipeline[0]!=='policy:safety') throw new Error('safety policy did not short-circuit');
+      if(qcase.expectedOutcome==='fatwa' && !actual.diagnostics.pipeline.includes('policy:fatwa-referral')) throw new Error('fatwa policy did not short-circuit');
+      if(baseline.outcome==='ok' && qcase.expectedOutcome!=='ok' && qcase.type==='out-of-scope') throw new Error('baseline unexpectedly answered out-of-scope case');
     } catch (error) {
       caseErrors++;
       console.error('CASE FAILURE',qcase.id,error.stack||error);
     }
   }
-  if(caseErrors>0) throw new Error(`${caseErrors} benchmark cases crashed in runtime smoke`);
+  if(caseErrors>0) throw new Error(`${caseErrors} benchmark cases failed in runtime smoke`);
 
-  console.log(JSON.stringify({ai:'PASS',baseline:'PASS',safety:'PASS',degraded:'PASS',conflict:'PASS',benchmarkCases:questions.length,benchmarkCrashes:caseErrors,verifiedClaims:ai.diagnostics.verifiedClaimCount,finalPassages:ai.passages.length},null,2));
+  const lowConfidence=await runResearch('تكرار الذنب والانتكاس',{mode:'ai'});
+  if(lowConfidence.outcome!=='ok' || lowConfidence.diagnostics.evidenceGate?.coveredSubquestions!==1 || lowConfidence.diagnostics.evidenceGate?.totalSubquestions!==1 || (lowConfidence.diagnostics.evidenceGate?.aiConfidence ?? 1)>=0.5) throw new Error('low-confidence topic regression failed');
+  const pageGuard=await runResearch('اذكر لي الصفحة 500 من الداء والدواء بنصها',{mode:'ai'});
+  if(pageGuard.outcome!=='abstained' || !pageGuard.diagnostics.pipeline.includes('policy:citation-coverage')) throw new Error('citation coverage guard failed');
+
+  console.log(JSON.stringify({ai:'PASS',baseline:'PASS',safety:'PASS',degraded:'PASS',conflict:'PASS',benchmarkCases:questions.length,benchmarkFailures:caseErrors,lowConfidenceTopic:'PASS',citationGuard:'PASS',verifiedClaims:ai.diagnostics.verifiedClaimCount,finalPassages:ai.passages.length},null,2));
 })().catch(err=>{console.error(err.stack||err);process.exit(1)});

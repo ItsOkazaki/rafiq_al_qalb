@@ -15,26 +15,30 @@ const SAMPLE_QUERY = "أشعر أن قلبي قاسٍ ولا أتأثر بالق
 
 function makeAIResponseForChat(system: string, user: string) {
   if (system.includes("مخطط بحث عربي") || system.includes("مخطط استعلام")) {
+    const question = user.match(/السؤال:\s*(.+?)(?:\n|$)/)?.[1]?.trim() || SAMPLE_QUERY;
     return {
       intent: "research",
       audience: "general",
-      semanticQuery: SAMPLE_QUERY,
-      subquestions: [SAMPLE_QUERY],
-      searchTerms: ["قسوة القلب", "القرآن", "التأثر"],
+      semanticQuery: question,
+      subquestions: [question],
+      searchTerms: question === "تكرار الذنب والانتكاس"
+        ? ["تكرار الذنب", "الانتكاس", "الإصرار"]
+        : ["قسوة القلب", "القرآن", "التأثر"],
     };
   }
   if (system.includes("مقيّم أدلة") || system.includes("قيّم الأدلة")) {
     const payload = JSON.parse(user) as { candidates: { id: string }[] };
+    const lowConfidenceTopicCase = user.includes("تكرار الذنب والانتكاس");
     return {
       ranked: payload.candidates.map((candidate, i) => ({
         id: candidate.id,
-        relevance: Math.max(0.60, 0.95 - i * 0.03),
-        supports: [SAMPLE_QUERY],
+        relevance: lowConfidenceTopicCase ? Math.max(0.39, 0.44 - i * 0.02) : Math.max(0.60, 0.95 - i * 0.03),
+        supports: [lowConfidenceTopicCase ? "تكرار الذنب والانتكاس" : SAMPLE_QUERY],
         reason: "يدعم خطة البحث في المادة المرفقة.",
       })),
       gate: {
         sufficient: true,
-        confidence: 0.94,
+        confidence: lowConfidenceTopicCase ? 0.39 : 0.94,
         coveredSubquestions: 1,
         totalSubquestions: 1,
         missingSubquestions: [],
@@ -185,6 +189,25 @@ describe("AI-first Evidence-Gated pipeline", () => {
       "ai:claim-verification",
       "answer:verified",
     ]));
+  });
+
+  it("لا يمتنع عن موضوع معروف في المكتبة لمجرد أن درجة الترتيب منخفضة", async () => {
+    const result = await runResearch("تكرار الذنب والانتكاس");
+    expect(result.outcome).toBe("ok");
+    expect(result.diagnostics.evidenceGate?.coveredSubquestions).toBe(1);
+    expect(result.diagnostics.evidenceGate?.totalSubquestions).toBe(1);
+    expect(result.diagnostics.evidenceGate?.confidence).toBeLessThan(0.5);
+    expect(result.diagnostics.verifiedClaimCount).toBeGreaterThan(0);
+  });
+
+  it("يمتنع عن نقل صفحة غير مفهرسة أو نص حرفي من ملخص محرر", async () => {
+    const missingPage = await runResearch("اذكر لي الصفحة 500 من الداء والدواء بنصها");
+    expect(missingPage.outcome).toBe("abstained");
+    expect(missingPage.diagnostics.pipeline).toContain("policy:citation-coverage");
+
+    const curatedOnly = await runResearch("اذكر لي الصفحة 147 من الداء والدواء بنصها");
+    expect(curatedOnly.outcome).toBe("abstained");
+    expect(curatedOnly.diagnostics.pipeline).toContain("policy:citation-coverage");
   });
 
   it("يحتفظ بمسار baseline للمقارنة فقط", async () => {

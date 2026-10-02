@@ -6,6 +6,8 @@
 
 import { isFramingSafe } from "@/lib/terminology";
 import { buildResearchBrief } from "@/lib/ai/fallback";
+import { CHUNKS } from "@/lib/corpus/chunks";
+import { getSourceById } from "@/lib/sources/registry";
 import {
   detectSourceConflicts,
   generateClaimAnswer,
@@ -82,6 +84,34 @@ function envFlag(name: string): boolean {
   return value === "1" || value === "true" || value === "yes";
 }
 
+function citationRequestViolation(query: string, topics: ReturnType<typeof identifyTopics>): string | null {
+  const normalized = normalizeDialect(query);
+  const pageNumbers = [...normalized.matchAll(/(?:الصفحة|صفحة|ص\.?)\s*(\d{1,4})/g)].map((m) => Number(m[1]));
+  const asksVerbatim = /(بنصها|بنصه|حرفيا|حرفياً|نصا|نصاً|بالنص|بالنص الكامل|نقل حرفي|نقلا حرفيا|اقتباس كامل)/.test(normalized);
+  if (pageNumbers.length === 0 && !asksVerbatim) return null;
+
+  const sourceHint = CHUNKS.find((chunk) => {
+    const title = getSourceById(chunk.sourceId)?.title ?? "";
+    return title.length > 0 && normalized.includes(normalizeDialect(title));
+  })?.sourceId;
+  const scope = sourceHint ? CHUNKS.filter((chunk) => chunk.sourceId === sourceHint) : CHUNKS;
+
+  for (const page of pageNumbers) {
+    const exists = scope.some((chunk) => typeof chunk.page === "string" && new RegExp(`(?:^|\\D)${page}(?:$|\\D)`).test(chunk.page));
+    if (!exists) return `الصفحة المطلوبة (${page}) غير مفهرسة في المادة المعتمدة، لذلك لا يمكن للنظام نقلها أو اختلاقها.`;
+  }
+
+  if (asksVerbatim) {
+    const literalAvailable = scope.some((chunk) => {
+      if (chunk.excerptType !== "literal" || chunk.citationStatus !== "verified-page") return false;
+      if (pageNumbers.length === 0) return true;
+      return pageNumbers.every((page) => typeof chunk.page === "string" && new RegExp(`(?:^|\\D)${page}(?:$|\\D)`).test(chunk.page));
+    });
+    if (!literalAvailable) return "المادة المفهرسة لهذا الطلب لا تحتوي نقلاً حرفياً موثقاً على مستوى الصفحة؛ لذلك يمتنع النظام عن تقديم نص حرفي من الذاكرة أو التخمين.";
+  }
+  return null;
+}
+
 export interface RunResearchOptions {
   mode?: "ai" | "baseline";
   audience?: ResearchPlan["audience"];
@@ -149,6 +179,19 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
       message: PRESCRIPTION_REFERRAL_MESSAGE,
       suggestions: related.length > 0 ? related : BROWSE_SUGGESTIONS,
       diagnostics: emptyDiagnostics({ pipeline: ["policy:prescription-referral"], latencyMs: Date.now() - started }),
+    };
+  }
+
+  const citationViolation = citationRequestViolation(normalizedQuery, topics);
+  if (citationViolation) {
+    return {
+      ...base,
+      outcome: "abstained",
+      topics,
+      keywords: prelimKeywords,
+      message: citationViolation,
+      suggestions: topics.length > 0 ? topics.map((m) => ({ slug: m.topic.slug, title: m.topic.title })) : BROWSE_SUGGESTIONS,
+      diagnostics: emptyDiagnostics({ pipeline: ["policy:citation-coverage"], latencyMs: Date.now() - started }),
     };
   }
 
@@ -277,10 +320,11 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
     if (!gate) {
       throw new Error("Evidence gate did not return a result");
     }
-    const strictConfidence = gate.confidence >= 0.68 && topRelevance >= 0.55;
-    const groundedFallbackConfidence = Boolean(hybrid.semanticError) && (gate.aiConfidence ?? 0) >= 0.80 && gate.confidence >= 0.48 && topRelevance >= 0.55;
-    const deterministicEnough = gate.coveredSubquestions >= gate.totalSubquestions && (strictConfidence || groundedFallbackConfidence);
-    gate.sufficient = gate.sufficient && deterministicEnough;
+    // retrievePassagesHybrid already applies the evidence gate. Keep this layer as
+    // a consistency check only, rather than introducing a second conflicting cutoff.
+    const coveragePass = gate.coveredSubquestions >= gate.totalSubquestions;
+    const rerankPass = topRelevance >= 0.35 || hybrid.usedDeterministicFallback;
+    if (!coveragePass || !rerankPass) gate.sufficient = false;
     diagnostics.evidenceGate = gate;
 
     if (!gate.sufficient) {
