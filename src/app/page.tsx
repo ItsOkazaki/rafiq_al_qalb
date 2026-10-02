@@ -31,16 +31,16 @@ export default function HomePage() {
           }}
           aria-hidden
         />
-        <div className="pointer-events-none absolute inset-x-0 top-16 flex justify-center opacity-35 sm:top-20 sm:opacity-40" aria-hidden>
+        <div className="pointer-events-none absolute inset-x-0 top-6 flex justify-center opacity-20 sm:top-8 sm:opacity-25" aria-hidden>
           <Image
             src="/logo/marks/white-gold.svg"
             alt=""
-            width={150}
-            height={84}
-            className="h-auto w-28 sm:w-36"
+            width={260}
+            height={162}
+            className="h-auto w-32 sm:w-44"
           />
         </div>
-        <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-16 sm:pt-24">
+        <div className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-32 sm:pt-36">
           <div className="mx-auto max-w-3xl text-center">
             <p className="font-ornament text-lg text-brass-300">بسم الله نبدأ</p>
             <h1 className="heading-display mt-4 text-5xl font-bold leading-[1.35] text-parchment-50 sm:text-6xl">

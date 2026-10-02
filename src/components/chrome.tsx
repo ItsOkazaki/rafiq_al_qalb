@@ -15,19 +15,17 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40">
       <div className="glass-dark border-b border-white/8 px-5 py-3.5">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
-          <Link href="/" className="group flex items-center gap-3">
-            <div className="relative size-11 shrink-0 overflow-hidden rounded-full border border-brass-400/30 glass-gold">
-              <Image
-                src="/logo/icons/main.png"
-                alt="شعار رفيق القلوب"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-            <span className="leading-tight">
-              <span className="heading-display block text-xl font-bold text-parchment-50">رفيق القلوب</span>
-              <span className="block text-[11px] font-medium tracking-wide text-brass-300/80">
+          <Link href="/" className="group flex items-center gap-2.5 shrink-0">
+            <Image
+              src="/logo/Sub/white-gold.svg"
+              alt="شعار رفيق القلوب"
+              width={597}
+              height={528}
+              className="h-[74px] w-[84px] shrink-0 rounded-none border-0 bg-transparent object-contain p-0 shadow-none sm:h-[80px] sm:w-[91px]"
+              priority
+            />
+            <span className="hidden leading-tight sm:block">
+              <span className="block max-w-[235px] text-[10.5px] font-medium leading-5 tracking-wide text-brass-300/80">
                 أداة حوارية — مادة مفهرسة موثقة المصدر والصفحة
               </span>
             </span>
@@ -73,7 +71,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-white/8">
       <div className="glass-dark relative overflow-hidden px-5 py-14">
-        <div className="pointer-events-none absolute bottom-0 right-0 hidden w-44 translate-x-8 translate-y-6 opacity-[0.10] lg:block" aria-hidden>
+        <div className="pointer-events-none absolute bottom-0 right-0 hidden w-36 translate-x-6 translate-y-5 opacity-[0.10] lg:block" aria-hidden>
           <Image
             src="/logo/marks/white-gold.svg"
             alt=""
