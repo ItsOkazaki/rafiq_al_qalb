@@ -17,13 +17,13 @@ export const metadata: Metadata = {
     template: "%s — رفيق القلوب",
   },
   description:
-    "رفيق القلوب نظام بحث عربي مدعوم بالذكاء الاصطناعي: يفهم السؤال، يبحث دلالياً وهجيناً في مصادر معتمدة، يعيد ترتيب الأدلة، ويتحقق من إسناد الادعاءات قبل العرض. لا يشخّص ولا يُفتي ولا يصف علاجاً.",
+    "رفيق القلوب أداة حوارية تستقبل موضوع بحثك، تحدد بابه المناسب، وتسترجع المادة حصراً من مصادر مفهرسة مع إسناد دقيق (مصدر + جزء/صفحة + رابط أصلي). لا تشخّص ولا تُفتي ولا تصف علاجاً.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "رفيق القلوب — Evidence-Gated AI RAG",
+    title: "رفيق القلوب — أداة حوارية لاسترجاع المادة الموثقة",
     description: "تسترجع المادة العلمية حصراً من مصادر مفهرسة — لا تشخيص ولا فتوى ولا وصفات.",
     images: [{ url: "/logo.png", width: 1080, height: 1080, alt: "شعار رفيق القلوب" }],
     locale: "ar_SA",
@@ -40,8 +40,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className="min-h-screen bg-parchment-100 bg-arabesque paper-grain text-ink-800 antialiased">
-        <div className="flex min-h-screen flex-col">
+      <body className="min-h-screen text-parchment-100 antialiased">
+        <div className="bg-arabesque-overlay" aria-hidden />
+        <div className="relative z-10 flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />

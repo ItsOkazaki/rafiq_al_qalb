@@ -1,8 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BookOpenText, HeartPulse, Landmark, MessagesSquare } from "lucide-react";
 import { OrnamentDivider } from "@/components/ornaments";
-
-import Image from "next/image";
 
 const NAV = [
   { href: "/", label: "الرئيسية", icon: Landmark },
@@ -13,50 +12,54 @@ const NAV = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-parchment-300/80 bg-parchment-100/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-3.5">
-        <Link href="/" className="group flex items-center gap-3">
-          <div className="relative size-12 overflow-hidden rounded-full border border-brass-400/30 bg-white">
-            <Image
-              src="/logo.png"
-              alt="شعار رفيق القلوب"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-          <span className="leading-tight">
-            <span className="heading-display block text-xl font-bold text-forest-800">رفيق القلوب</span>
-            <span className="block text-[11px] font-medium tracking-wide text-ink-500">
-              أداة حوارية — مادة مفهرسة موثقة المصدر والصفحة
+    <header className="sticky top-0 z-40">
+      <div className="glass-dark border-b border-white/8 px-5 py-3.5">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
+          <Link href="/" className="group flex items-center gap-3">
+            <div className="relative size-11 overflow-hidden rounded-full border border-brass-400/30 glass-gold">
+              <Image
+                src="/logo.png"
+                alt="شعار رفيق القلوب"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <span className="leading-tight">
+              <span className="heading-display block text-xl font-bold text-parchment-50">رفيق القلوب</span>
+              <span className="block text-[11px] font-medium tracking-wide text-brass-300/80">
+                أداة حوارية — مادة مفهرسة موثقة المصدر والصفحة
+              </span>
             </span>
-          </span>
-        </Link>
-        <nav className="hidden items-center gap-1 md:flex">
-          {NAV.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-parchment-200/70 hover:text-forest-700"
-            >
-              <Icon className="size-4" strokeWidth={1.8} />
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <Link
-          href="/hiwar"
-          className="hidden rounded-full bg-forest-700 px-5 py-2 text-sm font-semibold text-parchment-50 shadow-manuscript transition-colors hover:bg-forest-800 md:inline-block"
-        >
-          ابدأ الحوار البحثي
-        </Link>
+          </Link>
+
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-parchment-200/80 transition-all hover:bg-white/8 hover:text-brass-300"
+              >
+                <Icon className="size-4 opacity-70" strokeWidth={1.8} />
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <Link
+            href="/hiwar"
+            className="hidden rounded-full bg-gradient-to-l from-brass-600 to-brass-400 px-5 py-2 text-sm font-bold text-forest-900 shadow-lg transition-all hover:from-brass-500 hover:to-brass-300 hover:shadow-brass-400/20 md:inline-block"
+          >
+            ابدأ الحوار البحثي
+          </Link>
+        </div>
       </div>
-      <nav className="flex items-center justify-center gap-1 overflow-x-auto border-t border-parchment-200 px-3 py-1.5 md:hidden">
+      <nav className="flex items-center justify-center gap-1 border-b border-white/6 bg-black/20 px-3 py-1.5 backdrop-blur-md md:hidden">
         {NAV.map(({ href, label }) => (
           <Link
             key={href}
             href={href}
-            className="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium text-ink-600 hover:bg-parchment-200/70"
+            className="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium text-parchment-200/70 hover:text-brass-300"
           >
             {label}
           </Link>
@@ -68,38 +71,40 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-forest-800/15 bg-forest-900 bg-arabesque-dark text-parchment-200">
-      <div className="mx-auto max-w-6xl px-5 py-12">
-        <OrnamentDivider tone="gold" />
-        <div className="mt-8 grid gap-10 md:grid-cols-3">
-          <div>
-            <p className="heading-display text-2xl font-bold text-parchment-50">رفيق القلوب</p>
-            <p className="mt-3 text-sm leading-7 text-parchment-200/85">
-              أداة حوارية تساعد على تحديد أبواب البحث، واقتراح الكلمات المفتاحية،
-              واسترجاع المادة من المصادر المعتمدة فحسب — مع عرض المصدر والموضع ورابط الأصل.
-            </p>
+    <footer className="mt-24 border-t border-white/8">
+      <div className="glass-dark px-5 py-14">
+        <div className="mx-auto max-w-6xl">
+          <OrnamentDivider tone="gold" />
+          <div className="mt-10 grid gap-10 md:grid-cols-3">
+            <div>
+              <p className="heading-display text-2xl font-bold text-parchment-50">رفيق القلوب</p>
+              <p className="mt-3 text-sm leading-7 text-parchment-200/70">
+                أداة حوارية للخطباء والوعاظ والمختصين وطلاب العلم. تسترجع المادة حصراً من مصادر
+                مفهرسة مسبقاً مع المصدر والموضع والرابط الأصلي.
+              </p>
+            </div>
+            <div>
+              <p className="mb-3 text-sm font-semibold tracking-wide text-brass-300">حدود الأداة</p>
+              <ul className="space-y-2 text-sm text-parchment-200/70">
+                <li>لا تقدّم تشخيصاً لأي حالة.</li>
+                <li>لا تُصدر فتوى ولا حكماً شرعياً.</li>
+                <li>لا تصف علاجاً أو برنامجاً شخصياً.</li>
+                <li>تمتنع صراحة عند غياب المادة.</li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 text-sm font-semibold tracking-wide text-brass-300">سياسة المصادر</p>
+              <p className="text-sm leading-7 text-parchment-200/70">
+                الاسترجاع مقصور على{" "}
+                <Link href="/maktaba" className="link-brass">المصادر المسجلة في المكتبة</Link>.
+                لا تُعرض الكتب غير المعتمدة ولا يُسترجع منها.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="mb-3 text-sm font-semibold tracking-wide text-brass-200">حدود الأداة</p>
-            <ul className="space-y-2 text-sm text-parchment-200/85">
-              <li>لا تقدّم تشخيصاً لأي حالة.</li>
-              <li>لا تُصدر فتوى ولا حكماً شرعياً.</li>
-              <li>لا تقترح علاجاً شخصياً ولا وصفات.</li>
-              <li>تمتنع عن الإجابة إن غابت المادة المعتمدة.</li>
-            </ul>
+          <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/6 pt-6 text-center text-xs text-parchment-200/40">
+            <p>هذه مادة للبحث والدراسة، وليست تشخيصاً ولا فتوى ولا وصفاً لعلاج شخصي.</p>
+            <p>رفيق القلوب — مشروع بحثي لتحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي.</p>
           </div>
-          <div>
-            <p className="mb-3 text-sm font-semibold tracking-wide text-brass-200">سياسة المصادر</p>
-            <p className="text-sm leading-7 text-parchment-200/85">
-              الاسترجاع مقصور على المصادر المسجلة في{" "}
-              <Link href="/maktaba" className="link-brass">المكتبة المعتمدة</Link>.
-              لا تُضاف مادة إلا بعد تسجيل المصدر وتوثيق موضعه، ولا تُعرض الكتب غير المعتمدة في المكتبة.
-            </p>
-          </div>
-        </div>
-        <div className="mt-10 flex flex-col items-center gap-2 border-t border-parchment-50/10 pt-6 text-center text-xs text-parchment-200/60">
-          <p>هذه مادة للبحث والدراسة، وليست تشخيصاً ولا فتوى ولا وصفاً لعلاج شخصي.</p>
-          <p>رفيق القلوب — مشروع بحثي للمختصين والدعاة وطالبي العلم.</p>
         </div>
       </div>
     </footer>

@@ -21,12 +21,12 @@ export default function HomePage() {
   return (
     <div>
       {/* ── البطل ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-forest-900 bg-arabesque-dark text-parchment-100">
+      <section className="relative overflow-hidden bg-forest-900 bg-arabesque-dark text-parchment-100 pb-16 pt-24">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(900px 460px at 50% -10%, rgba(201,164,69,0.14), transparent 60%), radial-gradient(700px 380px at 90% 110%, rgba(20,52,34,0.9), transparent 60%)",
+              "radial-gradient(1000px 500px at 50% -10%, rgba(201,164,69,0.18), transparent 70%), radial-gradient(800px 400px at 90% 110%, rgba(20,52,34,0.95), transparent 60%)",
           }}
           aria-hidden
         />
@@ -238,14 +238,14 @@ export default function HomePage() {
       </section>
 
       {/* ── البنية التقنية — لجنة التحكيم ─────────────────────────── */}
-      <section className="border-t border-parchment-300 bg-parchment-50 py-16">
+      <section className="relative overflow-hidden border-t border-white/20 bg-white/30 py-24 backdrop-blur-md">
         <div className="mx-auto max-w-5xl px-5">
           <header className="text-center">
-            <h2 className="heading-display text-2xl font-bold text-forest-800">البنية التقنية الفعلية</h2>
+            <h2 className="heading-display text-3xl font-bold text-forest-800">البنية التقنية الفعلية</h2>
             <p className="mt-2 text-sm text-ink-500">الأدوات والتقنيات المستخدمة فعلياً في الكود — لا وصف تسويقي</p>
-            <Link href="/lab" className="link-brass mt-3 inline-block text-xs font-semibold">مختبر الأدلة والقياس →</Link>
+            <div className="mx-auto mt-4 max-w-xs"><OrnamentDivider /></div>
           </header>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 label: "معالجة اللغة الطبيعية",
@@ -254,23 +254,23 @@ export default function HomePage() {
               },
               {
                 label: "محرك الاسترجاع (RAG)",
-                value: "Hybrid Retrieval + AI Re-ranking",
-                note: "يجمع البحث اللفظي مع embeddings دلالية ثم يعيد النموذج ترتيب المرشحين بحسب صلتهم بخطة البحث؛ الاسترجاع لا يخرج عن Corpus المعتمد.",
+                value: "استرجاع قائم على الكلمات المفتاحية مع تعزيز الموضوع (Keyword + Topic Boost)",
+                note: "لا يعتمد على قاعدة بيانات متجهية، ولا يسترجع من الإنترنت المفتوح؛ بل يعمل حصراً على محتوى مفهرس مسبقًا ومحدّد داخل المكتبة.",
               },
               {
-                label: "قاعدة بيانات التشغيل والقياس",
-                value: "Neon PostgreSQL عبر Drizzle ORM",
-                note: "تُستخدم للتوثيق التشغيلي وقياس مسار AI ونتائج benchmark؛ المادة العلمية نفسها تبقى في Corpus المراجع ولا تتحول إلى مصدر مفتوح.",
+                label: "قاعدة بيانات المصادر",
+                value: "PostgreSQL عبر Drizzle ORM",
+                note: "تُستخدم لتخزين وتتبع جلسات البحث والبيانات التشغيلية، بينما تُضمّن مواد المكتبة في المشروع ضمن Corpus ثابت ومفهرس مسبقًا.",
               },
               {
-                label: "الذكاء الاصطناعي في النواة",
-                value: "Gemini / OpenRouter / OpenAI + embeddings (مسار AI أساسي)",
-                note: "AI يخطط للسؤال، يدعم الاسترجاع الدلالي، يعيد ترتيب الأدلة، يتحقق من كفايتها، يصوغ الادعاءات، ثم يراجع إسناد كل ادعاء قبل العرض؛ ويمكن تبديل المزود دون تغيير طبقة الأدلة.",
+                label: "نموذج الذكاء الاصطناعي",
+                value: "Google Gemini 1.5 Flash",
+                note: "مزوّد الذكاء الاصطناعي الأساسي لتنظيم وتلخيص المادة المسترجعة بأسلوب حواري دقيق.",
               },
               {
-                label: "آلية الامتناع والتحقق (Evidence Gate)",
-                value: "Semantic Coverage + AI Evidence Gate + Claim-Level Verification",
-                note: "لا يكفي تشابه الكلمات: يجب تغطية جوانب السؤال، ثم تمر كل صياغة عبر تحقق مستقل؛ غير المدعوم أو المتعارض يُسقط قبل العرض.",
+                label: "آلية الامتناع والتحقق (Guarded Generation)",
+                value: "عتبة ثقة للاسترجاع (MIN_PASSAGE_SCORE = 3) مع فحص السلامة والفتوى والوصف",
+                note: "تعتمد على مجموعة من ضوابط التحقق، وفي حال عدم استيفاء الشروط المطلوبة، يمتنع النظام عن توليد إجابة ويعرض رسالة امتناع مناسبة.",
               },
               {
                 label: "الواجهة والنشر",
@@ -278,7 +278,7 @@ export default function HomePage() {
                 note: "الخطوط المستخدمة: Amiri + IBM Plex Sans Arabic + Aref Ruqaa، وجميعها مرخّصة بموجب SIL Open Font License (OFL).",
               },
             ].map(({ label, value, note }) => (
-              <div key={label} className="card-manuscript rounded-2xl p-5">
+              <div key={label} className="card-manuscript rounded-2xl p-6">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-brass-600">{label}</p>
                 <p className="mt-2 text-sm font-semibold leading-7 text-ink-800">{value}</p>
                 <p className="mt-1 text-[11px] leading-5 text-ink-500">{note}</p>

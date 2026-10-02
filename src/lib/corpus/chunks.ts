@@ -10,6 +10,7 @@
 
 import type { CorpusChunk } from "@/lib/types";
 import { BINBAZ_MAJMOU_CHUNKS } from "@/lib/corpus/binbaz-majmou";
+import { BUKHARI_IBN_TAYMIYYAH_CHUNKS } from "@/lib/corpus/bukhari-ibn-taymiyyah";
 
 const SRC = "albadr-daa-dawaa";
 
@@ -582,6 +583,7 @@ export const CHUNKS: CorpusChunk[] = [
   },
 
   ...BINBAZ_MAJMOU_CHUNKS,
+  ...BUKHARI_IBN_TAYMIYYAH_CHUNKS,
 ];
 
 export function getChunksByTopic(topicId: string): CorpusChunk[] {

@@ -1,446 +1,211 @@
+// اختبارات مسار البحث الكامل: السلامة أولاً، لا فتوى، الامتناع،
+// المسار الحتمي بدون مفتاح، والتوليد المستند عند توفره (مع الحارس اللاحق).
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runResearch } from "@/lib/research/pipeline";
-import { embedTexts } from "@/lib/ai/embeddings";
-import {
-  detectSourceConflicts,
-  getAIConfig,
-  planResearch,
-  probeChat,
-  verifyClaims,
-} from "@/lib/ai/provider";
-import type { RetrievedPassage } from "@/lib/types";
 import { ABSTAIN_MESSAGE, scanForForbiddenFraming } from "@/lib/terminology";
+import { SYSTEM_PROMPT } from "@/lib/ai/provider";
 
 const SAMPLE_QUERY = "أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن";
 
-function makeAIResponseForChat(system: string, user: string) {
-  if (system.includes("مخطط بحث عربي") || system.includes("مخطط استعلام")) {
-    const question = user.match(/السؤال:\s*(.+?)(?:\n|$)/)?.[1]?.trim() || SAMPLE_QUERY;
-    return {
-      intent: "research",
-      audience: "general",
-      semanticQuery: question,
-      subquestions: [question],
-      searchTerms: question === "تكرار الذنب والانتكاس"
-        ? ["تكرار الذنب", "الانتكاس", "الإصرار"]
-        : ["قسوة القلب", "القرآن", "التأثر"],
-    };
-  }
-  if (system.includes("مقيّم أدلة") || system.includes("قيّم الأدلة")) {
-    const payload = JSON.parse(user) as { candidates: { id: string }[] };
-    const lowConfidenceTopicCase = user.includes("تكرار الذنب والانتكاس");
-    return {
-      ranked: payload.candidates.map((candidate, i) => ({
-        id: candidate.id,
-        relevance: lowConfidenceTopicCase ? Math.max(0.39, 0.44 - i * 0.02) : Math.max(0.60, 0.95 - i * 0.03),
-        supports: [lowConfidenceTopicCase ? "تكرار الذنب والانتكاس" : SAMPLE_QUERY],
-        reason: "يدعم خطة البحث في المادة المرفقة.",
-      })),
-      gate: {
-        sufficient: true,
-        confidence: lowConfidenceTopicCase ? 0.39 : 0.94,
-        coveredSubquestions: 1,
-        totalSubquestions: 1,
-        missingSubquestions: [],
-        notes: "المادة تغطي سؤال البحث.",
-      },
-    };
-  }
-  if (system.includes("مولّد إجابة") || system.includes("ولّد ادعاءات")) {
-    const payload = JSON.parse(user) as { evidence: { id: string }[] };
-    return {
-      claims: payload.evidence.slice(0, 2).map((e, i) => ({
-        id: `c${i + 1}`,
-        text: `الادعاء الموثق رقم ${i + 1}.`,
-        evidenceIds: [e.id],
-      })),
-      limits: ["المادة المسترجعة لا تتجاوز ما ظهر في المقاطع."]
-    };
-  }
-  if (system.includes("مدقّق ادعاءات") || system.includes("تحقق هل كل claim")) {
-    const payload = JSON.parse(user) as { claims: { id: string }[] };
-    return {
-      claims: payload.claims.map((c) => ({
-        id: c.id,
-        status: "supported",
-        note: "المقطع يسند الادعاء كما صيغ.",
-      })),
-      conflicts: [],
-    };
-  }
-  if (system.includes("كاشف تباين") || system.includes("ارصد التباين")) {
-    return {
-      conflicts: [{
-        sourceIds: ["synthetic-a", "synthetic-b"],
-        passageIds: ["fixture-a", "fixture-b"],
-        type: "explicit-contradiction",
-        summary: "المصدران يقدمان حالتين متعارضتين في بيانات الاختبار.",
-      }],
-    };
-  }
-  throw new Error(`Unexpected AI system prompt: ${system.slice(0, 80)}`);
+function mockCompletion(text: string) {
+  return vi.fn(async () =>
+    new Response(
+      JSON.stringify({ choices: [{ message: { content: text } }] }),
+      { status: 200, headers: { "content-type": "application/json" } },
+    ),
+  );
 }
 
-function installMockAI() {
-  vi.stubGlobal("fetch", vi.fn(async (input: string | URL, init?: RequestInit) => {
-    const url = String(input);
-    const body = JSON.parse(String(init?.body ?? "{}"));
-    if (url.endsWith("/embeddings")) {
-      const inputItems = Array.isArray(body.input) ? body.input : [];
-      return new Response(JSON.stringify({
-        data: inputItems.map((_: unknown, index: number) => ({
-          index,
-          embedding: [1, 0, 0, 0],
-        })),
-      }), { status: 200 });
-    }
-
-    const messages = Array.isArray(body.messages) ? body.messages : [];
-    const system = String(messages[0]?.content ?? "");
-    const user = String(messages[1]?.content ?? "");
-    const response = makeAIResponseForChat(system, user);
-    return new Response(JSON.stringify({
-      choices: [{ message: { content: JSON.stringify(response) } }],
-    }), { status: 200 });
-  }));
-}
-
-function syntheticPassage(id: string, sourceId: string, title: string, text: string): RetrievedPassage {
-  return {
-    chunkId: id,
-    text,
-    chapter: "fixture",
-    page: "N/A",
-    citationStatus: "chapter-only",
-    excerptType: "curated-summary",
-    keywords: [],
-    score: 0.9,
-    source: {
-      sourceId,
-      slug: sourceId,
-      title,
-      author: "Synthetic",
-      publisher: "Benchmark",
-      registryUrl: "https://example.invalid",
-      originalUrl: "https://example.invalid",
-    },
-  };
-}
-
-describe("سياسات السلامة والفتوى قبل AI", () => {
-  it("يوقف طلبات الخطر قبل أي استرجاع", async () => {
+describe("السلامة لها الأولوية القصوى — قبل أي استرجاع", () => {
+  it("يوقف كل شيء عند الإشارة لإيذاء النفس", async () => {
     const result = await runResearch("أفكر في الانتحار");
+    expect(result.outcome).toBe("safety");
+    expect(result.passages).toHaveLength(0);
+    expect(result.safety).not.toBeNull();
+    expect(result.safety!.message).toContain("مساعدة بشرية");
+    expect(result.safety!.steps.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("السلامة تتقدم على مطابقة الموضوعات", async () => {
+    // الاستعلام يذكر موضوع قسوة القلب أيضاً؛ يجب أن يُعرض رد السلامة وحده.
+    const result = await runResearch("قلبي قاس من كثرة الذنوب وأريد أن أقتل نفسي");
     expect(result.outcome).toBe("safety");
     expect(result.passages).toHaveLength(0);
   });
 
-  it("يحيل مسائل الحكم الشرعي إلى أهل الاختصاص", async () => {
+  it("لا يشتمل رد السلامة على محتوى ديني ولا تشخيص", async () => {
+    const result = await runResearch("أتمنى الموت من شدة التعب");
+    expect(result.outcome).toBe("safety");
+    const blob = JSON.stringify(result.safety);
+    expect(scanForForbiddenFraming(blob)).toHaveLength(0);
+    expect(blob).not.toMatch(/آية|حديث|الذكر يزيل/);
+  });
+});
+
+describe("لا فتاوى — إحالة على أهل العلم", () => {
+  it("سؤال الحلال والحرام لا يُجاب بحكم", async () => {
     const result = await runResearch("هل هذا الفعل حلال أم حرام؟");
     expect(result.outcome).toBe("fatwa");
     expect(result.passages).toHaveLength(0);
-    expect(result.message).toMatch(/إفتاء|عالِم|أهل العلم/);
-  });
-});
-
-describe("AI-first Evidence-Gated pipeline", () => {
-  const previous: Record<string, string | undefined> = {};
-  for (const key of ["OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL", "OPENAI_EMBEDDING_MODEL", "AI_API_KEY", "AI_BASE_URL", "AI_CHAT_MODEL", "AI_EMBEDDING_MODEL", "AI_TOKEN_SAVER", "AI_PLANNER_MODE", "AI_USE_EMBEDDINGS"]) {
-    previous[key] = process.env[key];
-  }
-
-  beforeEach(() => {
-    process.env.OPENAI_API_KEY = "test-key";
-    delete process.env.AI_API_KEY;
-    delete process.env.AI_BASE_URL;
-    delete process.env.AI_CHAT_MODEL;
-    delete process.env.AI_EMBEDDING_MODEL;
-    process.env.OPENAI_BASE_URL = "https://api.openai.com/v1";
-    process.env.OPENAI_MODEL = "gpt-4o-mini";
-    process.env.OPENAI_EMBEDDING_MODEL = "text-embedding-3-small";
-    process.env.AI_TOKEN_SAVER = "false";
-    process.env.AI_PLANNER_MODE = "ai";
-    process.env.AI_USE_EMBEDDINGS = "true";
-    installMockAI();
+    expect(result.message).toContain("إفتاء");
+    expect(result.message).toMatch(/عالِم|أهل العلم/);
   });
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    for (const [key, value] of Object.entries(previous)) {
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
+  it("يسمي المادة الفقهية دون أن يحكم فيها", async () => {
+    const result = await runResearch("طلقت زوجتي فما حكم الشرع؟");
+    expect(result.outcome).toBe("fatwa");
+    expect(result.fatwa!.matter).toBe("مسألة في الطلاق");
+    expect(JSON.stringify(result)).not.toMatch(/طلاقك بائن|يجوز لك|لا يجوز لك/);
+  });
+
+  it("زكاة وربا ونذر وكفارة كلها إحالة", async () => {
+    for (const q of ["ما حكم الزكاة في مالي؟", "أتعامل بالربا هل يجوز؟", "نذرت نذراً ولم أوفِ", "ما كفارة اليمين؟"]) {
+      const result = await runResearch(q);
+      expect(result.outcome).toBe("fatwa");
     }
   });
 
-  it("يجعل AI جزءاً من كامل مسار الإجابة ويجتاز التحقق", async () => {
-    const result = await runResearch(SAMPLE_QUERY);
-    expect(result.outcome).toBe("ok");
-    expect(result.ai.mode).toBe("evidence-gated");
-    expect(result.diagnostics.plan).not.toBeNull();
-    expect(result.diagnostics.semanticRetrievalUsed).toBe(true);
-    expect(result.diagnostics.reranked.length).toBeGreaterThan(0);
-    expect(result.diagnostics.evidenceGate?.sufficient).toBe(true);
-    expect(result.diagnostics.verifiedClaimCount).toBeGreaterThan(0);
-    expect(result.ai.text).toContain("الادعاء الموثق");
-    expect(result.diagnostics.pipeline).toEqual(expect.arrayContaining([
-      "ai:research-planner",
-      "ai:hybrid-retrieval",
-      "ai:evidence-gate",
-      "ai:claim-generation",
-      "ai:claim-verification",
-      "answer:verified",
-    ]));
-  });
-
-  it("لا يمتنع عن موضوع معروف في المكتبة لمجرد أن درجة الترتيب منخفضة", async () => {
-    const result = await runResearch("تكرار الذنب والانتكاس");
-    expect(result.outcome).toBe("ok");
-    expect(result.diagnostics.evidenceGate?.coveredSubquestions).toBe(1);
-    expect(result.diagnostics.evidenceGate?.totalSubquestions).toBe(1);
-    expect(result.diagnostics.evidenceGate?.confidence).toBeLessThan(0.5);
-    expect(result.diagnostics.verifiedClaimCount).toBeGreaterThan(0);
-  });
-
-  it("يمتنع عن نقل صفحة غير مفهرسة أو نص حرفي من ملخص محرر", async () => {
-    const missingPage = await runResearch("اذكر لي الصفحة 500 من الداء والدواء بنصها");
-    expect(missingPage.outcome).toBe("abstained");
-    expect(missingPage.diagnostics.pipeline).toContain("policy:citation-coverage");
-
-    const curatedOnly = await runResearch("اذكر لي الصفحة 147 من الداء والدواء بنصها");
-    expect(curatedOnly.outcome).toBe("abstained");
-    expect(curatedOnly.diagnostics.pipeline).toContain("policy:citation-coverage");
-  });
-
-  it("يحتفظ بمسار baseline للمقارنة فقط", async () => {
-    const result = await runResearch(SAMPLE_QUERY, { mode: "baseline" });
-    expect(result.outcome).toBe("ok");
-    expect(result.ai.mode).toBe("baseline");
-    expect(result.diagnostics.pipeline[0]).toBe("baseline:topic");
-  });
-
-  it("يفشل بشكل آمن إذا تعطل مزود AI ولا يعرض نصاً مولداً", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("network down"); }));
-    const result = await runResearch(SAMPLE_QUERY);
-    expect(result.outcome).toBe("ai-unavailable");
-    expect(result.ai.text).toBeNull();
-    expect(result.diagnostics.pipeline).toContain("fallback:evidence-browser");
-  });
-
-  it("لا يسمح للمزوّد بأن يعيد embedding محلياً افتراضياً عند استخدام OpenAI", () => {
-    const config = getAIConfig();
-    expect(config.baseUrl).toBe("https://api.openai.com/v1");
-    expect(config.embeddingModel).toBe("text-embedding-3-small");
+  it("قد يقترح تحويلاً إلى مسار بحث دون استرجاع", async () => {
+    const result = await runResearch("هل يجوز التهاون بالذنوب الصغيرة — ما حكم ذلك؟");
+    expect(result.outcome).toBe("fatwa");
+    expect(result.passages).toHaveLength(0);
+    // اقتراح مسار بحث فقط — لا مادة ولا حكم
   });
 });
 
-
-describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
-  const previous: Record<string, string | undefined> = {};
-  for (const key of [
-    "AI_PROVIDER", "GEMINI_API_KEY", "GEMINI_CHAT_MODEL", "GEMINI_EMBEDDING_MODEL",
-    "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "OPENROUTER_EMBEDDING_MODEL", "EMBEDDING_PROVIDER",
-    "AI_TOKEN_SAVER", "AI_PLANNER_MODE", "AI_USE_EMBEDDINGS",
-  ]) previous[key] = process.env[key];
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    for (const [key, value] of Object.entries(previous)) {
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
+describe("الاسترجاع والنتيجة السليمة", () => {
+  it("ناتج مكتمل: موضوعات + كلمات + مادة + مصدر + إخلاء", async () => {
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.outcome).toBe("ok");
+    expect(result.topics.length).toBeGreaterThan(0);
+    expect(result.keywords.length).toBeGreaterThan(0);
+    expect(result.passages.length).toBeGreaterThan(0);
+    const sourceIds = new Set(result.passages.map((passage) => passage.source.sourceId));
+    // يجب أن يتضمن الرد مادة من الداء والدواء على الأقل
+    expect(sourceIds).toContain("albadr-daa-dawaa");
+    // المصادر المعتمدة المسموح بها في الاسترجاع
+    const allowedSourceIds = new Set([
+      "albadr-daa-dawaa",
+      "binbaz-tawba-musaaib",
+      "binbaz-majmou-fatawa",
+      "ksu-quran-project",
+      "sahih-bukhari",
+      "ibn-taymiyyah-amrad",
+    ]);
+    for (const passage of result.passages) {
+      expect(allowedSourceIds.has(passage.source.sourceId)).toBe(true);
+      expect(passage.source.originalUrl).toMatch(/^https?:\/\//);
+      expect(passage.chapter.length).toBeGreaterThan(3);
     }
+    expect(result.disclaimer).toContain("ليست تشخيصاً");
   });
 
-  it("يستخدم Gemini مباشرة مع generateContent وbatchEmbedContents", async () => {
-    process.env.AI_PROVIDER = "gemini";
-    process.env.GEMINI_API_KEY = "test-gemini";
-    process.env.GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
-    process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
-    process.env.AI_TOKEN_SAVER = "false";
-    process.env.AI_PLANNER_MODE = "ai";
-    process.env.AI_USE_EMBEDDINGS = "true";
-    delete process.env.OPENROUTER_API_KEY;
-    delete process.env.EMBEDDING_PROVIDER;
-
-    vi.stubGlobal("fetch", vi.fn(async (input: string | URL, init?: RequestInit) => {
-      const url = String(input);
-      const body = JSON.parse(String(init?.body ?? "{}"));
-      if (url.includes(":generateContent")) {
-        const system = String(body.systemInstruction?.parts?.[0]?.text ?? "");
-        let payload: unknown;
-        if (system.includes("مخطط بحث عربي")) payload = {
-          intent: "research", audience: "general", semanticQuery: SAMPLE_QUERY,
-          subquestions: [SAMPLE_QUERY], searchTerms: ["قسوة القلب", "القرآن", "التأثر"],
-        };
-        else payload = { ok: true };
-        return new Response(JSON.stringify({
-          candidates: [{ content: { parts: [{ text: JSON.stringify(payload) }] } }],
-        }), { status: 200 });
-      }
-      if (url.includes(":batchEmbedContents")) {
-        const requests = Array.isArray(body.requests) ? body.requests : [];
-        return new Response(JSON.stringify({
-          embeddings: requests.map(() => ({ values: [1, 0, 0, 0] })),
-        }), { status: 200 });
-      }
-      throw new Error(`unexpected url ${url}`);
-    }));
-
-    const config = getAIConfig();
-    expect(config.provider).toBe("Gemini");
-    expect(config.chatModel).toBe("gemini-3.5-flash-lite");
-    expect(config.embeddingModel).toBe("gemini-embedding-2");
-    expect(config.freeTierCapable).toBe(true);
-
-    const plan = await planResearch(SAMPLE_QUERY);
-    expect(plan.semanticQuery).toBe(SAMPLE_QUERY);
-    const vectors = await embedTexts(["نص عربي للاختبار", "نص ثانٍ"]);
-    expect(vectors).toHaveLength(2);
-    expect(vectors?.[0]).toEqual([1, 0, 0, 0]);
-  });
-
-  it("يتعامل مع 503 مؤقتاً عبر إعادة المحاولة ثم نموذج Gemini احتياطي", async () => {
-    process.env.AI_PROVIDER = "gemini";
-    process.env.GEMINI_API_KEY = "test-gemini";
-    process.env.GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
-    process.env.GEMINI_CHAT_FALLBACK_MODEL = "gemini-3.1-flash-lite";
-    process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
-    process.env.AI_TOKEN_SAVER = "false";
-    process.env.AI_PLANNER_MODE = "ai";
-    process.env.AI_USE_EMBEDDINGS = "true";
-
-    let calls = 0;
-    vi.stubGlobal("fetch", vi.fn(async (input: string | URL) => {
-      const url = String(input);
-      if (!url.includes(":generateContent")) throw new Error(`unexpected url ${url}`);
-      calls += 1;
-      if (calls <= 3) {
-        return new Response(JSON.stringify({ error: { code: 503, status: "UNAVAILABLE", message: "temporarily busy" } }), { status: 503 });
-      }
-      return new Response(JSON.stringify({
-        candidates: [{ content: { parts: [{ text: JSON.stringify({ ok: true }) }] } }],
-      }), { status: 200 });
-    }));
-
-    const result = await probeChat();
-    expect(result.ok).toBe(true);
-    expect(calls).toBe(4);
-  });
-
-  it("يستخدم OpenRouter مع معرفات مجانية للمحادثة والتضمين", async () => {
-    process.env.AI_PROVIDER = "openrouter";
-    process.env.OPENROUTER_API_KEY = "test-router";
-    process.env.OPENROUTER_MODEL = "qwen/qwen3.8-27b:free";
-    process.env.OPENROUTER_EMBEDDING_MODEL = "liquid/lfm-2.5-embedding-350m:free";
-    process.env.AI_TOKEN_SAVER = "false";
-    process.env.AI_PLANNER_MODE = "ai";
-    process.env.AI_USE_EMBEDDINGS = "true";
-    delete process.env.GEMINI_API_KEY;
-    delete process.env.EMBEDDING_PROVIDER;
-
-    vi.stubGlobal("fetch", vi.fn(async (input: string | URL, init?: RequestInit) => {
-      const url = String(input);
-      const body = JSON.parse(String(init?.body ?? "{}"));
-      if (url.endsWith("/chat/completions")) {
-        const system = String(body.messages?.[0]?.content ?? "");
-        const payload = system.includes("مخطط بحث عربي")
-          ? { intent: "research", audience: "general", semanticQuery: SAMPLE_QUERY, subquestions: [SAMPLE_QUERY], searchTerms: ["قسوة القلب"] }
-          : { ok: true };
-        return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(payload) } }] }), { status: 200 });
-      }
-      if (url.endsWith("/embeddings")) {
-        const inputs = Array.isArray(body.input) ? body.input : [];
-        return new Response(JSON.stringify({ data: inputs.map((_: unknown, index: number) => ({ index, embedding: [0, 1, 0, 0] })) }), { status: 200 });
-      }
-      throw new Error(`unexpected url ${url}`);
-    }));
-
-    const config = getAIConfig();
-    expect(config.provider).toBe("OpenRouter");
-    expect(config.chatModel).toMatch(/:free$/);
-    expect(config.embeddingModel).toMatch(/:free$/);
-    expect(config.freeTierCapable).toBe(true);
-
-    const plan = await planResearch(SAMPLE_QUERY);
-    expect(plan.intent).toBe("research");
-    const vectors = await embedTexts(["نص عربي"]);
-    expect(vectors?.[0]).toEqual([0, 1, 0, 0]);
-  });
-});
-
-
-describe("Gemini free-tier token saver", () => {
-  it("uses a local plan and does not require embeddings by default", async () => {
-    process.env.AI_PROVIDER = "gemini";
-    process.env.GEMINI_API_KEY = "test-gemini";
-    delete process.env.AI_USE_EMBEDDINGS;
-    delete process.env.AI_PLANNER_MODE;
-    process.env.AI_TOKEN_SAVER = "true";
-
-    const config = getAIConfig();
-    expect(config.tokenSaver).toBe(true);
-    expect(config.plannerMode).toBe("local");
-    expect(config.useEmbeddings).toBe(false);
-    const plan = await planResearch("ما أسباب قسوة القلب؟");
-    expect(plan.subquestions).toHaveLength(1);
-
-    delete process.env.GEMINI_API_KEY;
-    delete process.env.AI_PROVIDER;
-    delete process.env.AI_TOKEN_SAVER;
-  });
-});
-
-
-describe("Claim verification and conflicts", () => {
-  beforeEach(() => {
-    process.env.OPENAI_API_KEY = "test-key";
-    process.env.OPENAI_BASE_URL = "https://api.openai.com/v1";
-    process.env.OPENAI_MODEL = "gpt-4o-mini";
-    process.env.OPENAI_EMBEDDING_MODEL = "text-embedding-3-small";
-    vi.stubGlobal("fetch", vi.fn(async (input: string | URL, init?: RequestInit) => {
-      const url = String(input);
-      if (url.endsWith("/chat/completions")) {
-        const body = JSON.parse(String(init?.body ?? "{}"));
-        const system = String(body.messages?.[0]?.content ?? "");
-        const user = String(body.messages?.[1]?.content ?? "");
-        return new Response(JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(makeAIResponseForChat(system, user)) } }],
-        }), { status: 200 });
-      }
-      return new Response(JSON.stringify({ data: [] }), { status: 200 });
-    }));
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it("يميز الادعاءات المتعارضة ولا يفصل أي مصدر هو الأصح", async () => {
-    const passages = [
-      syntheticPassage("fixture-a", "synthetic-a", "A", "The item is permitted."),
-      syntheticPassage("fixture-b", "synthetic-b", "B", "The item is not permitted."),
-    ];
-    const result = await verifyClaims(
-      "Compare the two sources.",
-      [{ id: "c1", text: "The two sources agree.", evidenceIds: ["fixture-a", "fixture-b"] }],
-      passages,
-    );
-    expect(result.claims[0].status).toBe("supported");
-    // A direct conflict fixture is independently tested through the detector.
-    const conflicts = await detectSourceConflicts("Compare the two sources.", passages);
-    expect(conflicts.length).toBeGreaterThan(0);
-    expect(conflicts[0].type).toBe("explicit-contradiction");
+  it("لا تشخيص ولا وصف في أي حقل مولّد", async () => {
+    const result = await runResearch(SAMPLE_QUERY);
+    const parts = [
+      result.topics.map((t) => t.topic.title).join(" "),
+      result.keywords.join(" "),
+      result.passages.map((p) => p.text + p.chapter).join(" "),
+      result.ai.text ?? "",
+    ].join(" ");
+    expect(scanForForbiddenFraming(parts)).toHaveLength(0);
   });
 });
 
 describe("الامتناع الأمين", () => {
-  it("يمنع الإجابة خارج المادة", async () => {
+  it("موضوع خارج المادة المعتمدة → امتناع بالرسالة المقررة", async () => {
     const result = await runResearch("تاريخ الدولة الأموية وعمارة قرطبة في الأندلس");
     expect(result.outcome).toBe("abstained");
     expect(result.message).toBe(ABSTAIN_MESSAGE);
+    expect(result.passages).toHaveLength(0);
+    expect(result.suggestions.length).toBeGreaterThan(0);
   });
 
-  it("النصوص المولدة لا تحمل framing محظور", async () => {
-    const result = await runResearch("أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن");
-    const blob = JSON.stringify(result.ai.text ?? "");
-    expect(scanForForbiddenFraming(blob)).toHaveLength(0);
+  it("مدخل فارغ → طلب توضيح ولا اختراع", async () => {
+    const result = await runResearch("  ");
+    expect(result.outcome).toBe("invalid");
+  });
+});
+
+describe("المسار الحتمي بدون مفتاح ذكاء اصطناعي", () => {
+  const savedKey = process.env.OPENAI_API_KEY;
+  beforeEach(() => {
+    delete process.env.OPENAI_API_KEY;
+  });
+  afterEach(() => {
+    if (savedKey) process.env.OPENAI_API_KEY = savedKey;
+  });
+
+  it("ينتج تنظيماً حتمياً من المقاطع نفسها", async () => {
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.outcome).toBe("ok");
+    expect(result.ai.mode).toBe("deterministic");
+    expect(result.ai.text).toContain("تنظيم آلي حتمي");
+    expect(result.ai.text).toContain("الموضع:");
+    // جزء من نص أول مقطع موجود حرفياً في التنظيم الحتمي
+    const first = result.passages[0].text.slice(0, 20);
+    expect(result.ai.text).toContain(first.split("،")[0].split(";")[0].slice(0, 12));
+  });
+});
+
+describe("التوليد المستند عند توفر المزود", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete process.env.OPENAI_API_KEY;
+  });
+
+  it("يمرر المقاطع فقط للنموذج ويستخدم الناتج", async () => {
+    process.env.OPENAI_API_KEY = "test-key";
+    const safe = "نقاط مستندة إلى المادة فقط: ١) جاء في المقطع الأول... ٢) ... حدود المادة: لم تتناول المقاطع غير ذلك.";
+    const fetchMock = mockCompletion(safe);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.ai.mode).toBe("model");
+    expect(result.ai.text).toBe(safe);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    const payload = JSON.parse(String(init.body)) as {
+      temperature: number;
+      messages: { role: string; content: string }[];
+    };
+    expect(payload.temperature).toBe(0);
+    expect(payload.messages[0].content).toBe(SYSTEM_PROMPT);
+    // رسالة المستخدم تتضمن نص المقاطع المسترجعة حرفياً
+    const userContent = payload.messages[1].content;
+    for (const p of result.passages) {
+      expect(userContent).toContain(p.text);
+    }
+  });
+
+  it("الحارس اللاحق يرفض توليداً فيه صياغة محظورة ويرجع للحتمي", async () => {
+    process.env.OPENAI_API_KEY = "test-key";
+    vi.stubGlobal("fetch", mockCompletion("تشخيص حالتك هو قسوة قلب، ودواؤك هو كذا."));
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.ai.mode).toBe("deterministic");
+  });
+
+  it("فشل الشبكة → رجوع حتمي دون كسر", async () => {
+    process.env.OPENAI_API_KEY = "test-key";
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("network down"); }));
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.outcome).toBe("ok");
+    expect(result.ai.mode).toBe("deterministic");
+  });
+
+  it("تعليمات النظام تفرض القيود المنهجية كلها", () => {
+    for (const must of [
+      "أداة حوارية",
+      "لا تقدّم تشخيصاً",
+      "لا تُصدر فتوى",
+      "لا تخترع",
+      "لا تستخدم أي معرفة خارج",
+      "ميّز بوضوح",
+      "قل ذلك صراحة",
+    ]) {
+      expect(SYSTEM_PROMPT).toContain(must);
+    }
   });
 });

@@ -17,5 +17,3 @@ coverage/
 
 # Local deployment archives
 *.zip
-
-benchmarks/results/latest.json

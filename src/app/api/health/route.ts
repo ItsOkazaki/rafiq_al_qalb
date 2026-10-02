@@ -1,74 +1,15 @@
 import { db } from "@/db";
 import { sql } from "drizzle-orm";
-import { getAIConfig, isAIConfigured, isEmbeddingConfigured, probeChat } from "@/lib/ai/provider";
-import { embedTexts } from "@/lib/ai/embeddings";
-import { APPROVED_SOURCES } from "@/lib/sources/registry";
-import { CHUNKS } from "@/lib/corpus/chunks";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
 
-async function probeEmbedding(): Promise<{ ok: boolean; vectorDimensions?: number; batchVectors?: number; error?: string }> {
-  const cfg = getAIConfig();
-  if (!cfg.useEmbeddings) return { ok: true, error: "DISABLED_TOKEN_SAVER" };
-  if (!cfg.embeddingApiKey) return { ok: false, error: "EMBEDDING_NOT_CONFIGURED" };
+export async function GET() {
   try {
-    // Probe a small batch as well as one vector. The production retrieval path
-    // intentionally batches Gemini requests to avoid oversized payload failures.
-    const vectors = await embedTexts([
-      "اختبار صحة الاتصال بالبحث الدلالي",
-      "اختبار ثانٍ للبحث الدلالي",
-      "اختبار ثالث للبحث الدلالي",
-    ]);
-    const dimensions = vectors?.[0]?.length;
-    return {
-      ok: Boolean(vectors?.length === 3 && dimensions),
-      vectorDimensions: dimensions,
-      batchVectors: vectors?.length,
-    };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message.slice(0, 320) : "EMBEDDING_PROBE_FAILED" };
-  }
-}
-
-export async function GET(request: Request) {
-  const config = getAIConfig();
-  let database = "configured";
-  try {
-    await db.execute(sql`select 1`);
+    if (db) {
+      await db.execute(sql`select 1`);
+    }
+    return Response.json({ ok: true });
   } catch {
-    database = "unavailable";
+    return Response.json({ ok: false, db: "unavailable" }, { status: 500 });
   }
-
-  const shouldProbe = new URL(request.url).searchParams.get("probe") === "1";
-  const probes = shouldProbe
-    ? { chat: await probeChat(), embedding: await probeEmbedding() }
-    : undefined;
-
-  return Response.json({
-    ok: database === "configured" && isAIConfigured() && (!probes || probes.chat.ok),
-    service: "rafiq-alqulub",
-    aiProvider: config.provider,
-    aiConfigured: isAIConfigured(),
-    embeddingConfigured: isEmbeddingConfigured(),
-    freeTierCapable: config.freeTierCapable,
-    chatModel: config.chatModel,
-    embeddingProvider: config.embeddingProvider,
-    embeddingModel: config.embeddingModel,
-    baseUrlKind: config.provider,
-    database,
-    approvedSources: APPROVED_SOURCES.filter((s) => s.status === "active").length,
-    indexedChunks: CHUNKS.length,
-    pipeline: [
-      config.plannerMode === "local" ? "local-query-planner" : "ai-planner",
-      config.useEmbeddings ? "hybrid-retrieval" : "lexical-topic-retrieval",
-      "reranking", "evidence-gate", "claim-generation", "claim-verification",
-    ],
-    probes,
-    tokenSaver: config.tokenSaver,
-    plannerMode: config.plannerMode,
-    embeddingsEnabled: config.useEmbeddings,
-    rerankCandidates: config.rerankCandidates,
-    finalPassages: config.finalPassages,
-  });
 }

@@ -1,5 +1,8 @@
-// مقارن baseline فقط للقياس: تنظيم المادة المسترجعة حرفياً دون أي توليد.
-// لا يُستخدم هذا المسار لإنتاج إجابة حوارية في الواجهة العامة.
+// ─────────────────────────────────────────────────────────────────────────────
+// التنظيم الآلي الحتمي للمادة المسترجعة (بدون نموذج ذكاء اصطناعي).
+// هذا هو المسار الافتراضي المقصود عند غياب مفتاح AI — فهو لا يخترع شيئاً:
+// يعيد ترتيب المادة المسترجعة نفسها ويعرض أبرز جُملها مع عناوين الموضوعات.
+// ─────────────────────────────────────────────────────────────────────────────
 
 import type { RetrievedPassage, TopicMatch } from "@/lib/types";
 
@@ -8,7 +11,7 @@ function firstSentences(text: string, max = 2): string {
     .split(/[؛.]/)
     .map((s) => s.trim())
     .filter(Boolean);
-  return parts.slice(0, max).join("؛ ") + (parts.length > 0 ? "؛" : "");
+  return parts.slice(0, max).join("؛ ") + "؛";
 }
 
 export function buildResearchBrief(
@@ -16,20 +19,28 @@ export function buildResearchBrief(
   passages: RetrievedPassage[],
 ): string {
   const lines: string[] = [];
-  lines.push("وضع المقارنة التقليدي: عرض للمقاطع المسترجعة فقط دون نموذج توليد.");
+  lines.push("تنظيم آلي حتمي للمادة المسترجعة (بدون نموذج ذكاء اصطناعي):");
   lines.push("");
 
   if (matchedTopics.length > 0) {
     lines.push("موضوعات المسار البحثي:");
-    for (const m of matchedTopics) lines.push(`• ${m.topic.title}`);
+    for (const m of matchedTopics) {
+      const count = passages.filter((p) =>
+        m.topic.keywords.some((k) => p.keywords.includes(k)) ,
+      ).length;
+      void count;
+      lines.push(`• ${m.topic.title}`);
+    }
     lines.push("");
   }
 
-  lines.push("المقاطع التي وجدها البحث اللفظي:");
+  lines.push("أبرز ما تضمنته المادة المسترجعة من المصدر المعتمد:");
   passages.forEach((p, i) => {
     lines.push(`${i + 1}. ${firstSentences(p.text)} (الموضع: ${p.chapter})`);
   });
   lines.push("");
-  lines.push("هذه النتيجة هي baseline للمقارنة فقط؛ لا تمثل مسار الإجابة المدعومة بالذكاء الاصطناعي.");
+  lines.push(
+    "ملاحظة منهجية: التلخيص أعلاه جُمّع حرفياً من المقاطع المسترجعة نفسها، ولم يُضف إليه أي معنى من خارجها. وصفُ المستخدم يبقى وصفاً شخصياً، ومحتوى المصدر يبقى محتوى المصدر.",
+  );
   return lines.join("\n");
 }

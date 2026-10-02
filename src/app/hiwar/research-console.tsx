@@ -20,7 +20,6 @@ export function ResearchConsole() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ResearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [audience, setAudience] = useState<"general" | "student" | "researcher" | "preacher">("general");
   const ranRef = useRef(false);
 
   const run = useCallback(async (q: string) => {
@@ -32,7 +31,7 @@ export function ResearchConsole() {
       const res = await fetch("/api/research", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ query: trimmed, audience }),
+        body: JSON.stringify({ query: trimmed }),
       });
       if (!res.ok) throw new Error("bad status");
       const data = (await res.json()) as ResearchResult;
@@ -42,7 +41,7 @@ export function ResearchConsole() {
     } finally {
       setLoading(false);
     }
-  }, [audience, loading]);
+  }, [loading]);
 
   useEffect(() => {
     const q = params.get("q");
@@ -55,39 +54,13 @@ export function ResearchConsole() {
 
   return (
     <div className="space-y-10">
-      <div className="card-manuscript rounded-2xl p-6 sm:p-8">
-          <label htmlFor="research-query" className="block text-sm font-bold text-ink-700">
+        <div className="card-manuscript rounded-2xl p-6 sm:p-8">
+          <label htmlFor="research-query" className="block text-sm font-bold text-parchment-100">
             صِف موضوع بحثك
           </label>
-          <p className="mt-1 text-xs leading-6 text-ink-500">
-            يُفهم وصفك مدخلاً لتحديد مسار بحث. يمكنك اختيار طريقة العرض؛ الأدلة والمصادر لا تتغير بتغير الجمهور.
+          <p className="mt-1 text-xs leading-6 text-parchment-200/60">
+            يُفهم وصفك مدخلاً لتحديد مسار بحث — لا يشخَّص ولا تُقيَّم حالة شخصية.
           </p>
-
-          <div className="mt-4">
-            <p className="text-[11px] font-semibold text-ink-500">نوع المستفيد — لتكييف عرض الإجابة فقط:</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {[
-                ["general", "قارئ عام"],
-                ["student", "طالب علم"],
-                ["researcher", "باحث"],
-                ["preacher", "خطيب / واعظ"],
-              ].map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setAudience(value as typeof audience)}
-                  className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                    audience === value
-                      ? "border-forest-600/40 bg-forest-700 text-parchment-50"
-                      : "border-parchment-300 bg-parchment-50 text-ink-600 hover:border-brass-400/60"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <textarea
             id="research-query"
             value={query}
@@ -98,26 +71,26 @@ export function ResearchConsole() {
             rows={4}
             maxLength={1000}
             placeholder="مثال: أشعر أن قلبي قاسٍ ولا أتأثر بالموعظة، وأريد مادة علمية في هذا الموضوع…"
-            className="research-input mt-4 w-full resize-y rounded-xl p-4 text-[15px] leading-8 text-ink-800 placeholder:text-ink-500/60"
+            className="research-input mt-4 w-full resize-y rounded-xl p-4 text-[15px] leading-8"
           />
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={() => void run(query)}
               disabled={loading || query.trim().length < 3}
-              className="inline-flex items-center gap-2 rounded-full bg-forest-700 px-6 py-2.5 text-sm font-bold text-parchment-50 shadow-manuscript transition-all hover:bg-forest-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-brass-600 to-brass-400 px-6 py-2.5 text-sm font-bold text-forest-900 shadow-lg transition-all hover:from-brass-500 hover:to-brass-300 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" strokeWidth={2.2} />}
-              تشغيل البحث المدعوم بالذكاء الاصطناعي
+              استرجاع المادة البحثية
             </button>
-            <span className="flex items-center gap-1.5 text-[11px] text-ink-500">
-              <ShieldCheck className="size-3.5 text-forest-600" strokeWidth={2} />
-              الذكاء الاصطناعي داخل حدود سجل المصادر — ولا إجابة قبل اجتياز بوابة الدليل
+            <span className="flex items-center gap-1.5 text-[11px] text-parchment-200/50">
+              <ShieldCheck className="size-3.5 text-brass-400/70" strokeWidth={2} />
+              البحث مقصور على سجل المصادر المعتمدة
             </span>
           </div>
 
-          <div className="mt-6 border-t border-parchment-300/70 pt-4">
-            <p className="mb-2 text-[11px] font-semibold tracking-wide text-ink-500">أمثلة لمداخل بحثية:</p>
+          <div className="mt-6 border-t border-white/8 pt-4">
+            <p className="mb-2 text-[11px] font-semibold tracking-wide text-parchment-200/50">أمثلة لمداخل بحثية:</p>
             <div className="flex flex-wrap gap-2">
               {EXAMPLES.map((ex) => (
                 <button
@@ -127,7 +100,7 @@ export function ResearchConsole() {
                     setQuery(ex);
                     void run(ex);
                   }}
-                  className="rounded-full border border-parchment-300 bg-parchment-50 px-3.5 py-1.5 text-xs text-ink-600 transition-colors hover:border-brass-400/60 hover:text-forest-700"
+                  className="rounded-full bg-white/6 border border-white/12 px-3.5 py-1.5 text-xs text-parchment-200/70 transition-colors hover:border-brass-400/30 hover:text-brass-300"
                 >
                   {ex}
                 </button>
@@ -137,16 +110,16 @@ export function ResearchConsole() {
         </div>
 
       {loading && (
-        <div className="flex flex-col items-center gap-4 py-8" role="status" aria-live="polite">
-          <svg viewBox="0 0 24 24" className="animate-ornament size-8 stroke-brass-400" fill="none" strokeWidth="1.4">
+        <div className="flex flex-col items-center gap-4 py-12" role="status" aria-live="polite">
+          <svg viewBox="0 0 24 24" className="animate-ornament size-10 stroke-brass-400" fill="none" strokeWidth="1.2">
             <path d="M12 3l2.2 5.4 5.8.6-4.4 3.8 1.3 5.7L12 15.4l-4.9 3.1 1.3-5.7L4 9l5.8-.6L12 3z" strokeLinejoin="round" />
           </svg>
-          <p className="text-sm text-ink-500">يفهم السؤال، ويبحث دلالياً، ويعيد ترتيب الأدلة، ثم يتحقق من الادعاءات قبل العرض…</p>
+          <p className="text-sm text-parchment-200/60">يحدد الباب البحثي، ويستخرج الكلمات، ويستدعي Gemini لتنظيم المادة…</p>
         </div>
       )}
 
       {error && (
-        <p className="rounded-xl border border-oxblood-700/30 bg-oxblood-100 p-4 text-center text-sm font-semibold text-oxblood-700">
+        <p className="rounded-xl border border-oxblood-700/40 bg-oxblood-800/30 glass p-4 text-center text-sm font-semibold text-red-300">
           {error}
         </p>
       )}

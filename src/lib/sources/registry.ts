@@ -75,7 +75,34 @@ export const APPROVED_SOURCES: RegisteredSource[] = [
     approvedAt: "2026-09-26",
     notes: "مصدر معتمد للنص القرآني والتفاسير المعتمدة في أبواب التداوي بالقرآن والتدبر.",
   },
-
+  {
+    id: "sahih-bukhari",
+    slug: "sahih-bukhari",
+    title: "صحيح البخاري — الجامع المسند الصحيح",
+    author: "الإمام محمد بن إسماعيل البخاري (١٩٤–٢٥٦هـ)",
+    category: "حديث نبوي",
+    publisher: "موقع موسوعة السنة — الكنز",
+    registryUrl: "https://sunnah.com/bukhari",
+    originalUrl: "https://sunnah.com/bukhari",
+    status: "active",
+    approvedBy: "فريق رفيق القلوب لاعتماد المصادر",
+    approvedAt: "2026-09-27",
+    notes: "أصح الكتب بعد كتاب الله. فُهرست منه أحاديث مختارة في أبواب الرقائق والإيمان.",
+  },
+  {
+    id: "ibn-taymiyyah-amrad",
+    slug: "amrad-al-qulub-wa-shifauha",
+    title: "أمراض القلوب وشفاؤها",
+    author: "شيخ الإسلام ابن تيمية (٦٦١–٧٢٨هـ)",
+    category: "تزكية وسلوك",
+    publisher: "المكتبة الشاملة",
+    registryUrl: "https://shamela.ws/book/645",
+    originalUrl: "https://shamela.ws/book/645",
+    status: "active",
+    approvedBy: "فريق رفيق القلوب لاعتماد المصادر",
+    approvedAt: "2026-09-27",
+    notes: "رسالة جليلة في تشريح أمراض القلوب المعنوية وسبل علاجها بالوحي.",
+  },
 ];
 
 /**

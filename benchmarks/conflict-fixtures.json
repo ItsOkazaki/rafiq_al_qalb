@@ -1,5 +1,0 @@
-{
-  "description": "Synthetic-only fixture used to verify that the verifier can detect explicit disagreement without deciding which source is correct.",
-  "endpoint": "POST /api/benchmark/conflict",
-  "expected": "At least one explicit-contradiction conflict should be reported by an AI-configured environment."
-}
