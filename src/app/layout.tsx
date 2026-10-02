@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   description:
     "رفيق القلوب أداة حوارية تستقبل موضوع بحثك، تحدد بابه المناسب، وتسترجع المادة حصراً من مصادر مفهرسة مع إسناد دقيق (مصدر + جزء/صفحة + رابط أصلي). لا تشخّص ولا تُفتي ولا تصف علاجاً.",
   icons: {
-    icon: "/logo/icons/main.png",
-    apple: "/logo/icons/main.png",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
     title: "رفيق القلوب — أداة حوارية لاسترجاع المادة الموثقة",

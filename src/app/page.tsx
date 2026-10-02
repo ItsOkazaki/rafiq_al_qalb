@@ -37,7 +37,7 @@ export default function HomePage() {
             alt=""
             width={260}
             height={162}
-            className="h-auto w-32 sm:w-44"
+            className="h-auto w-24 sm:w-32 object-contain"
           />
         </div>
         <div className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-32 sm:pt-36">
