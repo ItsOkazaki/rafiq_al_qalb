@@ -11,8 +11,8 @@
 ```text
 سؤال المستخدم
 → Safety / Fatwa / Prescription policy
-→ AI Research Planner
-→ Hybrid Retrieval (lexical + semantic embeddings)
+→ Local Query Plan (AI planner اختياري)
+→ Approved Retrieval (lexical/topic، مع embeddings اختيارية)
 → AI Re-ranking
 → Evidence Gate
 → Claim Generation
@@ -25,9 +25,9 @@
 
 ## ما يفعله AI فعلياً
 
-- يفهم السؤال العربي ويحوّله إلى intent وsemantic query وأسئلة فرعية.
-- يولد embedding للسؤال ويجري بحثاً دلالياً على كامل الـCorpus المعتمد.
-- يدمج الترتيب اللفظي والدلالي.
+- يهيّئ السؤال محلياً إلى intent وsemantic query ومصطلحات البحث في الوضع المجاني الافتراضي، ويمكن تشغيل AI planner عند الحاجة.
+- يستخدم retrieval لفظياً/موضوعياً أولاً، ويمكن تفعيل Gemini embeddings اختيارياً بدلاً من إرسال كامل الـCorpus في كل طلب.
+- يدمج الترتيب اللفظي والدلالي عند تفعيل embeddings.
 - يعيد ترتيب مرشحي الأدلة بحسب خطة البحث.
 - يقيّم كفاية الدليل قبل السماح بالتوليد.
 - يولد claims مرتبطة بمعرّفات المقاطع المسترجعة.
@@ -53,6 +53,6 @@
 الـbenchmark يحتوي 40 سؤالاً ثابتاً ويقارن نفس الحالات بين:
 
 1. baseline: topic/keyword/token-overlap retrieval.
-2. ai: planner + embeddings + hybrid retrieval + reranking + evidence gate + claim verification.
+2. ai: local/AI planning + approved retrieval + reranking + evidence gate + claim verification؛ embeddings اختيارية.
 
 الأرقام المعروضة في السلايدات يجب أن تأتي من `benchmarks/results/latest.json` بعد تشغيل النسخة المنشورة فعلياً، وليس من أرقام مكتوبة يدوياً.

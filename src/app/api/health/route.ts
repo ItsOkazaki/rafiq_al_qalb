@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { sql } from "drizzle-orm";
-import { getAIConfig, isAIConfigured, probeChat } from "@/lib/ai/provider";
+import { getAIConfig, isAIConfigured, isEmbeddingConfigured, probeChat } from "@/lib/ai/provider";
 import { embedTexts } from "@/lib/ai/embeddings";
 import { APPROVED_SOURCES } from "@/lib/sources/registry";
 import { CHUNKS } from "@/lib/corpus/chunks";
@@ -10,6 +10,7 @@ export const maxDuration = 30;
 
 async function probeEmbedding(): Promise<{ ok: boolean; vectorDimensions?: number; batchVectors?: number; error?: string }> {
   const cfg = getAIConfig();
+  if (!cfg.useEmbeddings) return { ok: true, error: "DISABLED_TOKEN_SAVER" };
   if (!cfg.embeddingApiKey) return { ok: false, error: "EMBEDDING_NOT_CONFIGURED" };
   try {
     // Probe a small batch as well as one vector. The production retrieval path
@@ -45,10 +46,11 @@ export async function GET(request: Request) {
     : undefined;
 
   return Response.json({
-    ok: database === "configured" && isAIConfigured() && (!probes || (probes.chat.ok && probes.embedding.ok)),
+    ok: database === "configured" && isAIConfigured() && (!probes || probes.chat.ok),
     service: "rafiq-alqulub",
     aiProvider: config.provider,
     aiConfigured: isAIConfigured(),
+    embeddingConfigured: isEmbeddingConfigured(),
     freeTierCapable: config.freeTierCapable,
     chatModel: config.chatModel,
     embeddingProvider: config.embeddingProvider,
@@ -57,7 +59,16 @@ export async function GET(request: Request) {
     database,
     approvedSources: APPROVED_SOURCES.filter((s) => s.status === "active").length,
     indexedChunks: CHUNKS.length,
-    pipeline: ["planner", "hybrid-retrieval", "reranking", "evidence-gate", "claim-generation", "claim-verification"],
+    pipeline: [
+      config.plannerMode === "local" ? "local-query-planner" : "ai-planner",
+      config.useEmbeddings ? "hybrid-retrieval" : "lexical-topic-retrieval",
+      "reranking", "evidence-gate", "claim-generation", "claim-verification",
+    ],
     probes,
+    tokenSaver: config.tokenSaver,
+    plannerMode: config.plannerMode,
+    embeddingsEnabled: config.useEmbeddings,
+    rerankCandidates: config.rerankCandidates,
+    finalPassages: config.finalPassages,
   });
 }

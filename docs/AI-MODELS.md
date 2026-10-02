@@ -30,7 +30,7 @@ The RAG, evidence gate, claim schema, verification rules, and safety policies do
 Some OpenRouter free endpoints document that prompts/outputs or embeddings may be retained or used to train the underlying provider model. Do not send secrets or unnecessary personal data through free providers. For the competition, keep the approved corpus and evaluation metadata controlled and use the provider whose data policy the team accepts.
 
 
-### Gemini reliability note
-The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+### Gemini free-tier reliability note
+The default challenge configuration is deliberately token-friendly: local query planning, lexical/topic retrieval first, 6 rerank candidates, 3 final passages, and no embedding call unless explicitly enabled. This keeps the normal question path to about three Gemini calls (rerank → grounded claim generation → verification) instead of spending quota on planning and full-corpus embeddings.
 
-- Gemini 503/429/5xx responses are retried with exponential backoff and then may fall back to the secondary chat model. This handles transient provider congestion without weakening the evidence gate.
+When embeddings are enabled, the Gemini embedding path batches small groups and validates response counts. Gemini 408/429/5xx responses use a limited retry budget and may fall back to the secondary free-tier chat model; a provider failure never weakens the evidence gate because the pipeline can fall back to approved deterministic retrieval.

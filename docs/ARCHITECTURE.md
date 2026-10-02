@@ -11,14 +11,14 @@
 Policy Gates ──────────── safety / fatwa / personal prescription
    │
    ▼
-AI Research Planner
+Local Query Plan (Gemini AI planner optional)
    │  intent + semanticQuery + subquestions + searchTerms
    ▼
-Hybrid Retrieval
-   │  lexical candidates ─┐
-   │  semantic embeddings ┤→ union + weighted fusion
-   ▼                     │
-AI Re-ranking ◄──────────┘
+Approved Retrieval
+   │  lexical/topic baseline ───────────┐
+   │  optional Gemini embeddings ──────┤→ union + weighted fusion
+   ▼                                   │
+AI Re-ranking ◄────────────────────────┘
    │  relevance + subquestion support
    ▼
 Evidence Gate
@@ -47,14 +47,14 @@ Verified Answer
 
 الـAI لا يملك طريقاً لإدخال source ID من خارج المقاطع المقدمة. وكل citation في النتيجة يُحلّ مرة أخرى مقابل chunk مسترجع قبل العرض.
 
+## الوضع الصديق للتوكن
+
+في إعداد Gemini المجاني الافتراضي لا نستهلك طلباً مستقلاً للتخطيط، ولا نرسل الـcorpus كله إلى embeddings. نبدأ بالبحث اللفظي/الموضوعي، ثم نرسل عدداً صغيراً من المقاطع إلى Gemini لإعادة الترتيب، ثم إلى التوليد والتحقق. embeddings متاحة اختيارياً فقط عندما تكون ذات قيمة فعلية.
+
 ## لماذا يوجد baseline؟
 
-لإجابة سؤال التحكيم: «ما الذي أضافه AI مقارنة بطريقة أبسط؟». baseline هو lexical/topic retrieval القديم، بينما المسار الرئيسي يستخدم AI في فهم السؤال، الدلالة، إعادة الترتيب، بوابة الأدلة، صياغة الادعاءات والتحقق.
+لإجابة سؤال التحكيم: «ما الذي أضافه AI مقارنة بطريقة أبسط؟». baseline هو lexical/topic retrieval القديم. القيمة المضافة في المسار الرئيسي تظهر في إعادة ترتيب الأدلة، بوابة الكفاية، صياغة claims مرتبطة بالأدلة، والتحقق المستقل.
 
 ## فشل مزود AI
 
-الفشل لا يتحول إلى إجابة مخترعة. `runResearch()` يعيد `ai-unavailable` ويعرض الأدلة المسترجعة فقط.
-
-
-### Gemini reliability note
-The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+الفشل لا يتحول إلى إجابة مخترعة. عند تعطل embeddings أو re-ranking، يعود النظام إلى أدلة معتمدة وترتيب حتمي، ولا يُعرض نص مولّد إلا بعد اجتياز بوابة الدليل والتحقق. وإذا فشل مسار التوليد/التحقق نفسه، تظهر حالة امتنع النظام عن الإجابة بدل ملء الفراغ.

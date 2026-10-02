@@ -1,22 +1,17 @@
-# خريطة متطلبات التحكيم → أدلة التنفيذ
+# خريطة معايير التحكيم النهائي → أدلة المشروع
 
-هذه الخريطة تربط النسخة البرمجية الحالية بمعايير القبول المنشورة في دليل المشارك. لا تحتوي على درجات متوقعة؛ الدرجة الفعلية قرار اللجنة.
+هذه الخريطة تستخدم الأوزان الظاهرة في نسخة معايير التحكيم النهائي الخاصة بالتحدي المرفقة للفريق. لا تُنشئ درجات متوقعة ولا ترتّب المشروع؛ وظيفتها ربط كل معيار بدليل قابل للمراجعة.
 
-| المعيار الرسمي | الوزن | كيف يجيب المشروع عليه | الدليل القابل للمراجعة |
+| المعيار | الوزن | ما يوضحه المشروع | الدليل القابل للمراجعة |
 |---|---:|---|---|
-| وضوح المشكلة وملاءمتها للمسار والجمهور | 25% | حالة استخدام محددة: بحث عربي موثّق داخل corpus معتمد، مع امتناع عند نقص الدليل | `README.md`, `src/app/page.tsx`, `src/app/hiwar/` |
-| ملاءمة توظيف AI والقيمة المضافة | 15% | AI Planner + embeddings + hybrid retrieval + re-ranking + evidence gate + claim verification؛ مع baseline منفصل للمقارنة | `docs/AI-MODELS.md`, `src/lib/ai/`, `src/lib/rag/retrieve.ts`, `benchmarks/run-benchmark.mjs` |
-| خطة الموثوقية والسلامة العلمية | 20% | سجل مصادر، حدود corpus، إسناد واضح، abstention، منع الفتوى/الوصفة/التشخيص، تحقق الادعاءات، رصد التباين | `src/lib/sources/registry.ts`, `src/lib/policy/`, `src/lib/safety.ts`, `docs/CONFLICT-TESTING.md` |
-| قابلية التنفيذ خلال مدة التحدي | 15% | وظائف منفصلة يمكن تطويرها وقياسها على corpus صغير؛ خطة delta واضحة | `docs/CHALLENGE-DAY-DELTA-PLAN.md` |
-| الأصالة والقيمة المضافة | 15% | Evidence-Gated AI: النموذج لا يكفي أن يولّد؛ يجب أن يجد دليلاً، يربط الادعاء به، ثم يمرره عبر verifier | `docs/ARCHITECTURE.md`, `src/lib/research/pipeline.ts` |
-| القدرة على التنفيذ وتغطية المهام | 10% | بنية صغيرة قابلة للمراجعة، benchmark ثابت، UX protocol، checklist تسليم | `docs/IMPLEMENTED-REQUIREMENTS.md`, `docs/UX-TEST-PLAN.md`, `docs/CHALLENGE-DELIVERY-CHECKLIST.md` |
+| جودة الحل التقني وتوظيف الذكاء الاصطناعي | 25% | مسار Evidence-Gated RAG، Gemini، إعادة الترتيب، التحقق، وتوفير الموارد في وضع free-tier | `src/lib/ai/`, `src/lib/rag/retrieve.ts`, `src/lib/research/pipeline.ts` |
+| الموثوقية والسلامة العلمية | 15% | corpus معتمد فقط، سجل مصادر، إسناد، بوابة دليل، امتناع عند نقص الدليل، وسياسات منع الفتوى/الوصفة/التشخيص | `src/lib/sources/registry.ts`, `src/lib/policy/`, `src/lib/safety.ts` |
+| الابتكار والقيمة المضافة | 15% | لا يكتفي النموذج بالتوليد؛ كل claim يمر عبر evidence IDs ثم verifier قبل العرض | `src/lib/ai/provider.ts`, `docs/ARCHITECTURE.md` |
+| تجربة المستفيد والتواصل والإتاحة | 10% | واجهة عربية واضحة، مكتبة قابلة للتصفح، بطاقة دليل، ومسار حواري متصل بالمصدر | `src/app/hiwar/`, `src/app/maktaba/`, `src/components/passage-card.tsx` |
+| تحقيق النفع وفق معيار نجاح المسار | 20% | حالة استخدام محددة: تحويل سؤال عن المادة المعتمدة إلى إجابة منظمة وقابلة للتتبع أو امتناع واضح | `README.md`, `src/app/hiwar/`, `docs/DEMO-SCRIPT.md` |
+| واقعية التشغيل والاستثمار | 10% | إعداد مجاني أولي عبر Gemini، fallback حتمي، health check، وعدم تخزين المفاتيح في المستودع | `.env.example`, `src/app/api/health/`, `docs/DEPLOY.md`, `docs/AI-RESILIENCE.md` |
+| وضوح العرض وإتاحة التحقق | 5% | benchmark ثابت، health endpoint، lab، traceable source metadata، ووثائق تشغيل وفشل | `benchmarks/`, `src/app/lab/`, `src/app/api/health/`, `docs/` |
 
-## اختبار القيمة المضافة للـAI
+## قاعدة النزاهة الزمنية
 
-الـbaseline هو البحث اللفظي/الموضوعي الموجود في `retrievePassages()`. نفس الـgold set يمر على baseline وعلى مسار AI. لا تُعتمد أي أرقام قبل تشغيل benchmark فعلي على البيئة النهائية.
-
-المقاييس الأساسية: Source Recall، Source Hit@4، Topic Hit، Citation Grounding، Expected Citation Rate، Abstention Accuracy، AI Activation، وتغير النتائج العليا.
-
-## الأمانة الزمنية
-
-هذه الخريطة لا تغيّر تاريخ التطوير. وفق قواعد التحدي، المشروع السابق يمكن استخدامه بشرط الإفصاح عن حالته، ويُحتسب الإنجاز الجديد المنفّذ خلال 4–6 أكتوبر 2026 فقط ضمن الـchallenge-day delta. لذلك يجب تثبيت `docs/PRE-CHALLENGE-BASELINE.md` وعدم نسبة هذا العمل السابق إلى أيام التحدي.
+يبقى `docs/PRE-CHALLENGE-BASELINE.md` مرجعاً لما كان موجوداً قبل أيام التنفيذ. لا تُنسب التعديلات الجديدة إلى ما قبل نافذة التحدي؛ يجب عرض delta المنفّذ فعلياً أثناء أيام التنفيذ.

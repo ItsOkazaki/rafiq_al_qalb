@@ -5,6 +5,7 @@ import {
   detectSourceConflicts,
   getAIConfig,
   planResearch,
+  probeChat,
   verifyClaims,
 } from "@/lib/ai/provider";
 import type { RetrievedPassage } from "@/lib/types";
@@ -13,7 +14,7 @@ import { ABSTAIN_MESSAGE, scanForForbiddenFraming } from "@/lib/terminology";
 const SAMPLE_QUERY = "أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن";
 
 function makeAIResponseForChat(system: string, user: string) {
-  if (system.includes("مخطط استعلام")) {
+  if (system.includes("مخطط بحث عربي") || system.includes("مخطط استعلام")) {
     return {
       intent: "research",
       audience: "general",
@@ -22,7 +23,7 @@ function makeAIResponseForChat(system: string, user: string) {
       searchTerms: ["قسوة القلب", "القرآن", "التأثر"],
     };
   }
-  if (system.includes("مقيّم أدلة")) {
+  if (system.includes("مقيّم أدلة") || system.includes("قيّم الأدلة")) {
     const payload = JSON.parse(user) as { candidates: { id: string }[] };
     return {
       ranked: payload.candidates.map((candidate, i) => ({
@@ -41,7 +42,7 @@ function makeAIResponseForChat(system: string, user: string) {
       },
     };
   }
-  if (system.includes("مولّد إجابة")) {
+  if (system.includes("مولّد إجابة") || system.includes("ولّد ادعاءات")) {
     const payload = JSON.parse(user) as { evidence: { id: string }[] };
     return {
       claims: payload.evidence.slice(0, 2).map((e, i) => ({
@@ -52,7 +53,7 @@ function makeAIResponseForChat(system: string, user: string) {
       limits: ["المادة المسترجعة لا تتجاوز ما ظهر في المقاطع."]
     };
   }
-  if (system.includes("مدقّق ادعاءات")) {
+  if (system.includes("مدقّق ادعاءات") || system.includes("تحقق هل كل claim")) {
     const payload = JSON.parse(user) as { claims: { id: string }[] };
     return {
       claims: payload.claims.map((c) => ({
@@ -63,7 +64,7 @@ function makeAIResponseForChat(system: string, user: string) {
       conflicts: [],
     };
   }
-  if (system.includes("كاشف تباين")) {
+  if (system.includes("كاشف تباين") || system.includes("ارصد التباين")) {
     return {
       conflicts: [{
         sourceIds: ["synthetic-a", "synthetic-b"],
@@ -139,7 +140,7 @@ describe("سياسات السلامة والفتوى قبل AI", () => {
 
 describe("AI-first Evidence-Gated pipeline", () => {
   const previous: Record<string, string | undefined> = {};
-  for (const key of ["OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL", "OPENAI_EMBEDDING_MODEL", "AI_API_KEY", "AI_BASE_URL", "AI_CHAT_MODEL", "AI_EMBEDDING_MODEL"]) {
+  for (const key of ["OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL", "OPENAI_EMBEDDING_MODEL", "AI_API_KEY", "AI_BASE_URL", "AI_CHAT_MODEL", "AI_EMBEDDING_MODEL", "AI_TOKEN_SAVER", "AI_PLANNER_MODE", "AI_USE_EMBEDDINGS"]) {
     previous[key] = process.env[key];
   }
 
@@ -152,6 +153,9 @@ describe("AI-first Evidence-Gated pipeline", () => {
     process.env.OPENAI_BASE_URL = "https://api.openai.com/v1";
     process.env.OPENAI_MODEL = "gpt-4o-mini";
     process.env.OPENAI_EMBEDDING_MODEL = "text-embedding-3-small";
+    process.env.AI_TOKEN_SAVER = "false";
+    process.env.AI_PLANNER_MODE = "ai";
+    process.env.AI_USE_EMBEDDINGS = "true";
     installMockAI();
   });
 
@@ -211,6 +215,7 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
   for (const key of [
     "AI_PROVIDER", "GEMINI_API_KEY", "GEMINI_CHAT_MODEL", "GEMINI_EMBEDDING_MODEL",
     "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "OPENROUTER_EMBEDDING_MODEL", "EMBEDDING_PROVIDER",
+    "AI_TOKEN_SAVER", "AI_PLANNER_MODE", "AI_USE_EMBEDDINGS",
   ]) previous[key] = process.env[key];
 
   afterEach(() => {
@@ -226,6 +231,9 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
     process.env.GEMINI_API_KEY = "test-gemini";
     process.env.GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
     process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
+    process.env.AI_TOKEN_SAVER = "false";
+    process.env.AI_PLANNER_MODE = "ai";
+    process.env.AI_USE_EMBEDDINGS = "true";
     delete process.env.OPENROUTER_API_KEY;
     delete process.env.EMBEDDING_PROVIDER;
 
@@ -235,7 +243,7 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
       if (url.includes(":generateContent")) {
         const system = String(body.systemInstruction?.parts?.[0]?.text ?? "");
         let payload: unknown;
-        if (system.includes("مخطط استعلام")) payload = {
+        if (system.includes("مخطط بحث عربي")) payload = {
           intent: "research", audience: "general", semanticQuery: SAMPLE_QUERY,
           subquestions: [SAMPLE_QUERY], searchTerms: ["قسوة القلب", "القرآن", "التأثر"],
         };
@@ -272,6 +280,9 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
     process.env.GEMINI_CHAT_MODEL = "gemini-3.5-flash-lite";
     process.env.GEMINI_CHAT_FALLBACK_MODEL = "gemini-3.1-flash-lite";
     process.env.GEMINI_EMBEDDING_MODEL = "gemini-embedding-2";
+    process.env.AI_TOKEN_SAVER = "false";
+    process.env.AI_PLANNER_MODE = "ai";
+    process.env.AI_USE_EMBEDDINGS = "true";
 
     let calls = 0;
     vi.stubGlobal("fetch", vi.fn(async (input: string | URL) => {
@@ -296,6 +307,9 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
     process.env.OPENROUTER_API_KEY = "test-router";
     process.env.OPENROUTER_MODEL = "qwen/qwen3.8-27b:free";
     process.env.OPENROUTER_EMBEDDING_MODEL = "liquid/lfm-2.5-embedding-350m:free";
+    process.env.AI_TOKEN_SAVER = "false";
+    process.env.AI_PLANNER_MODE = "ai";
+    process.env.AI_USE_EMBEDDINGS = "true";
     delete process.env.GEMINI_API_KEY;
     delete process.env.EMBEDDING_PROVIDER;
 
@@ -304,7 +318,7 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
       const body = JSON.parse(String(init?.body ?? "{}"));
       if (url.endsWith("/chat/completions")) {
         const system = String(body.messages?.[0]?.content ?? "");
-        const payload = system.includes("مخطط استعلام")
+        const payload = system.includes("مخطط بحث عربي")
           ? { intent: "research", audience: "general", semanticQuery: SAMPLE_QUERY, subquestions: [SAMPLE_QUERY], searchTerms: ["قسوة القلب"] }
           : { ok: true };
         return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(payload) } }] }), { status: 200 });
@@ -326,6 +340,28 @@ describe("مزودو AI المجانيون — Gemini / OpenRouter", () => {
     expect(plan.intent).toBe("research");
     const vectors = await embedTexts(["نص عربي"]);
     expect(vectors?.[0]).toEqual([0, 1, 0, 0]);
+  });
+});
+
+
+describe("Gemini free-tier token saver", () => {
+  it("uses a local plan and does not require embeddings by default", async () => {
+    process.env.AI_PROVIDER = "gemini";
+    process.env.GEMINI_API_KEY = "test-gemini";
+    delete process.env.AI_USE_EMBEDDINGS;
+    delete process.env.AI_PLANNER_MODE;
+    process.env.AI_TOKEN_SAVER = "true";
+
+    const config = getAIConfig();
+    expect(config.tokenSaver).toBe(true);
+    expect(config.plannerMode).toBe("local");
+    expect(config.useEmbeddings).toBe(false);
+    const plan = await planResearch("ما أسباب قسوة القلب؟");
+    expect(plan.subquestions).toHaveLength(1);
+
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.AI_PROVIDER;
+    delete process.env.AI_TOKEN_SAVER;
   });
 });
 

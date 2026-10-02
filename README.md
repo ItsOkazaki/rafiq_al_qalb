@@ -11,11 +11,10 @@ Question
   ↓
 Safety / Fatwa / Prescription Policy
   ↓
-AI Research Planner
+Local token-friendly query plan
   ↓
-Hybrid Retrieval
-  ├── lexical/topic baseline
-  └── semantic embeddings
+Approved lexical/topic retrieval
+  └── optional Gemini embeddings when explicitly enabled
   ↓
 AI Re-ranking
   ↓
@@ -23,7 +22,7 @@ Evidence Gate
   ↓
 Claim Generation
   ↓
-Claim Verification + Conflict Detection
+Claim Verification
   ↓
 Verified Answer + Evidence Map
   ↓
@@ -54,15 +53,18 @@ Neon (private operational/evaluation telemetry)
 | `OPENROUTER_EMBEDDING_MODEL` | الافتراضي `liquid/lfm-2.5-embedding-350m:free` |
 | `EMBEDDING_PROVIDER` | لتخصيص مزود الـembedding بشكل مستقل عن chat |
 | `OPENAI_API_KEY` | خيار OpenAI عند توفر الرصيد |
-| `AI_RERANK_CANDIDATES` | عدد المرشحين قبل إعادة الترتيب |
-| `AI_FINAL_PASSAGES` | الحد النهائي للمقاطع |
+| `AI_TOKEN_SAVER` | تشغيل وضع التوفير الافتراضي |
+| `AI_PLANNER_MODE` | `local` افتراضياً أو `ai` عند الحاجة إلى مخطط Gemini |
+| `AI_USE_EMBEDDINGS` | تفعيل البحث الدلالي اختيارياً |
+| `AI_RERANK_CANDIDATES` | عدد المرشحين قبل إعادة الترتيب (6 افتراضياً) |
+| `AI_FINAL_PASSAGES` | الحد النهائي للمقاطع (3 افتراضياً) |
 
 ## التحقق والقياس
 
 مجموعة benchmark ثابتة من **40 سؤالاً** موجودة في `benchmarks/questions.json`. نشغّل السؤال نفسه بمسارين:
 
 - `baseline`: البحث اللفظي/الموضوعي الموجود في النظام الأصلي.
-- `ai`: التخطيط + semantic embeddings + hybrid fusion + AI reranking + evidence gate + claim verification.
+- `ai`: الخطة المحلية + retrieval من corpus المعتمد + AI reranking + evidence gate + claim verification؛ ويمكن تفعيل embeddings عند الحاجة.
 
 الأمر:
 
@@ -104,8 +106,8 @@ npm run benchmark -- --url https://YOUR-VERCEL-URL
 راجِع `docs/SOURCES-AND-LICENSES.md` و`docs/RIGHTS-AND-RELEASE-CHECK.md` قبل النشر. ميّز دائماً بين `literal` و`curated-summary` ولا تقدّم الأخيرة على أنها نقل حرفي.
 
 
-### Gemini reliability note
-The Gemini embedding path batches retrieval embeddings in small groups, validates response counts, and requests 768-dimensional vectors. This avoids relying on one oversized batch during serverless execution. The health probe also validates a small embedding batch.
+### Gemini free-tier resilience
+الوضع الافتراضي صديق للـfree tier: الخطة محلية، لا توجد embedding request في كل سؤال، ويتم إرسال عدد صغير من المقاطع إلى Gemini. المسار المعتاد يستخدم re-ranking ثم claim generation ثم verification، مع ميزانية output صغيرة لكل مرحلة. embeddings متاحة اختيارياً، وفشلها لا يمنع fallback إلى retrieval المعتمد.
 
 ### Gemini capacity resilience
-The Gemini chat client retries transient 408/429/5xx failures with exponential backoff and falls back from `gemini-3.5-flash-lite` to `gemini-3.1-flash-lite` when the primary model is temporarily unavailable.
+العميل يعيد محاولة محدودة لأخطاء 408/429/5xx ويمكنه التحول إلى `gemini-3.1-flash-lite` عند تعذر النموذج الأساسي مؤقتاً. لا تُضاف أي مفاتيح فعلية إلى المستودع.

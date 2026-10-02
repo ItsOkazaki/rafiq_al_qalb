@@ -171,6 +171,9 @@ export interface AIDiagnostics {
   totalClaimCount: number;
   latencyMs: number | null;
   degradedReason: string | null;
+  semanticError: string | null;
+  rerankError: string | null;
+  usedDeterministicFallback: boolean;
 }
 
 export interface ResearchResult {

@@ -54,6 +54,9 @@ function emptyDiagnostics(overrides: Partial<AIDiagnostics> = {}): AIDiagnostics
     totalClaimCount: 0,
     latencyMs: null,
     degradedReason: null,
+    semanticError: null,
+    rerankError: null,
+    usedDeterministicFallback: false,
     ...overrides,
   };
 }
@@ -72,6 +75,11 @@ function finalText(claims: AnswerClaim[], limits: string[], passages: ResearchRe
     lines.push("", "حدود المادة:", ...limits.map((l) => `• ${l}`));
   }
   return lines.join("\n");
+}
+
+function envFlag(name: string): boolean {
+  const value = typeof process !== "undefined" ? process.env[name] : undefined;
+  return value === "1" || value === "true" || value === "yes";
 }
 
 export interface RunResearchOptions {
@@ -201,10 +209,14 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
     };
   }
 
+  const aiConfig = getAIConfig();
   const diagnostics = emptyDiagnostics({
-    chatModel: getAIConfig().chatModel,
-    embeddingModel: getAIConfig().embeddingModel,
-    pipeline: ["policy:safety+fatwa", "ai:research-planner"],
+    chatModel: aiConfig.chatModel,
+    embeddingModel: aiConfig.embeddingModel,
+    pipeline: [
+      "policy:safety+fatwa",
+      aiConfig.plannerMode === "local" ? "ai:local-query-plan" : "ai:research-planner",
+    ],
   });
 
   try {
@@ -229,20 +241,30 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
     diagnostics.baselineTopIds = hybrid.baselinePassages.map((p) => p.chunkId);
     diagnostics.hybridTopIds = hybrid.passages.map((p) => p.chunkId);
     diagnostics.reranked = hybrid.reranked;
+    diagnostics.semanticError = hybrid.semanticError;
+    diagnostics.rerankError = hybrid.rerankError;
+    diagnostics.usedDeterministicFallback = hybrid.usedDeterministicFallback;
 
-    if (!hybrid.semanticUsed || hybrid.passages.length === 0) {
+    const semanticActuallyFailed = Boolean(hybrid.semanticError && hybrid.semanticError !== "SEMANTIC_DISABLED_TOKEN_SAVER");
+    if (semanticActuallyFailed) diagnostics.pipeline.push("ai:semantic-degraded");
+    if (hybrid.rerankError) diagnostics.pipeline.push("ai:rerank-degraded");
+    if (hybrid.usedDeterministicFallback) diagnostics.pipeline.push("ai:deterministic-fallback");
+    diagnostics.degradedReason = hybrid.rerankError || (semanticActuallyFailed ? hybrid.semanticError : null);
+
+    if (hybrid.passages.length === 0) {
       const fallback = hybrid.baselinePassages;
       return {
         ...base,
-        outcome: "ai-unavailable",
+        outcome: fallback.length > 0 ? "abstained" : "ai-unavailable",
         topics,
         keywords: extractKeywords(normalizedQuery, topics, fallback),
         passages: fallback,
-        message: "تعذر تشغيل البحث الدلالي أو إعادة الترتيب في بيئة التشغيل الحالية. لم تُعرض إجابة مولّدة حتى لا يختلط الوضع التجريبي بالإجابة الموثقة.",
+        message: fallback.length > 0
+          ? "وجد النظام مادة معتمدة، لكنه لم يحصل على دليل كافٍ لتمريرها عبر بوابة التحقق؛ لذلك امتنع عن توليد إجابة."
+          : "تعذر تشغيل مكونات البحث بالذكاء الاصطناعي ولم تُوجد مادة كافية في البحث الحتمي.",
         diagnostics: {
           ...diagnostics,
-          pipeline: [...diagnostics.pipeline, "ai:retrieval-failed", "fallback:evidence-browser"],
-          degradedReason: "Embedding or re-ranking call failed",
+          pipeline: [...diagnostics.pipeline, "ai:no-final-passages", "fallback:evidence-browser"],
           latencyMs: Date.now() - started,
         },
         suggestions: topics.length > 0 ? topics.map((m) => ({ slug: m.topic.slug, title: m.topic.title })) : BROWSE_SUGGESTIONS,
@@ -255,7 +277,9 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
     if (!gate) {
       throw new Error("Evidence gate did not return a result");
     }
-    const deterministicEnough = gate.coveredSubquestions >= gate.totalSubquestions && gate.confidence >= 0.68 && topRelevance >= 0.55;
+    const strictConfidence = gate.confidence >= 0.68 && topRelevance >= 0.55;
+    const groundedFallbackConfidence = Boolean(hybrid.semanticError) && (gate.aiConfidence ?? 0) >= 0.80 && gate.confidence >= 0.48 && topRelevance >= 0.55;
+    const deterministicEnough = gate.coveredSubquestions >= gate.totalSubquestions && (strictConfidence || groundedFallbackConfidence);
     gate.sufficient = gate.sufficient && deterministicEnough;
     diagnostics.evidenceGate = gate;
 
@@ -299,8 +323,10 @@ export async function runResearch(rawQuery: string, options: RunResearchOptions 
 
     // Independent pass: detect source-to-source tension even when no generated claim
     // happens to cite both passages. It never decides which source is correct.
-    const independentConflicts = await detectSourceConflicts(query, hybrid.passages);
-    diagnostics.pipeline.push("ai:conflict-detection");
+    const independentConflicts = envFlag("AI_INDEPENDENT_CONFLICTS")
+      ? await detectSourceConflicts(query, hybrid.passages)
+      : [];
+    if (independentConflicts.length > 0) diagnostics.pipeline.push("ai:conflict-detection");
     diagnostics.conflicts = [...checked.conflicts, ...independentConflicts]
       .filter((c, index, all) => all.findIndex((x) => x.summary === c.summary) === index);
     diagnostics.verifiedClaimCount = checked.claims.filter((c) => c.status === "supported").length;

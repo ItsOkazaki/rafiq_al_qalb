@@ -14,7 +14,7 @@ npm run build
 
 ## بوابة الذكاء الاصطناعي
 
-1. تأكد من أن planner وembeddings وhybrid retrieval وre-ranking وevidence gate وclaim verification وconflict detection تعمل على المزود المختار.
+1. تأكد من أن local/AI planner وretrieval وre-ranking وevidence gate وclaim verification تعمل على المزود المختار. إذا فعّلت embeddings، اختبرها منفصلاً؛ ليست مطلوبة لتشغيل وضع Gemini المجاني الافتراضي.
 2. شغّل benchmark كامل 40 سؤالاً على Vercel Preview/Production.
 3. شغّل conflict fixture.
 4. احتفظ بـ `benchmarks/results/latest.json` داخلياً وراجِع الأرقام قبل إدخالها في العرض.

@@ -8,7 +8,7 @@ The original system is preserved as `mode=baseline`: topic/keyword/token-overlap
 
 ## AI iteration
 
-The upgraded path is `mode=ai`: AI research planning → semantic embeddings → hybrid fusion → AI re-ranking → evidence gate → claim generation → claim verification → conflict detection.
+The upgraded path is `mode=ai`: local token-friendly planning (or optional AI planning) → approved lexical/topic retrieval → optional semantic embeddings → AI re-ranking → evidence gate → claim generation → claim verification → optional conflict detection.
 
 ## Local engineering smoke already performed
 
