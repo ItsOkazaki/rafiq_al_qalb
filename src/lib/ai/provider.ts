@@ -212,9 +212,9 @@ export async function generateGroundedSummary(
  */
 export async function detectSourceConflicts(
   _query: string,
-  passages: Array<{ chunkId: string; source: { sourceId: string; title: string }; text: string }>,
+  passages: Array<{ chunkId: string; source: { sourceId: string; title?: string }; text: string }>,
 ): Promise<Array<{ sourceIds: string[]; passageIds: string[]; type: "apparent-tension" | "different-emphasis" | "explicit-contradiction"; summary: string }>> {
-  const groups = new Map<string, Array<{ chunkId: string; source: { sourceId: string; title: string }; text: string }>>();
+  const groups = new Map<string, Array<{ chunkId: string; source: { sourceId: string; title?: string }; text: string }>>();
   for (const passage of passages) {
     const group = groups.get(passage.source.sourceId) ?? [];
     group.push(passage);
