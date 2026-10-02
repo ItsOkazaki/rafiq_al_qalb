@@ -16,9 +16,9 @@ export function SiteHeader() {
       <div className="glass-dark border-b border-white/8 px-5 py-3.5">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
           <Link href="/" className="group flex items-center gap-3">
-            <div className="relative size-11 overflow-hidden rounded-full border border-brass-400/30 glass-gold">
+            <div className="relative size-11 shrink-0 overflow-hidden rounded-full border border-brass-400/30 glass-gold">
               <Image
-                src="/logo.png"
+                src="/logo/icons/main.png"
                 alt="شعار رفيق القلوب"
                 fill
                 className="object-contain"
@@ -72,8 +72,17 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-white/8">
-      <div className="glass-dark px-5 py-14">
-        <div className="mx-auto max-w-6xl">
+      <div className="glass-dark relative overflow-hidden px-5 py-14">
+        <div className="pointer-events-none absolute bottom-0 right-0 hidden w-44 translate-x-8 translate-y-6 opacity-[0.10] lg:block" aria-hidden>
+          <Image
+            src="/logo/marks/white-gold.svg"
+            alt=""
+            width={170}
+            height={95}
+            className="h-auto w-full"
+          />
+        </div>
+        <div className="relative z-10 mx-auto max-w-6xl">
           <OrnamentDivider tone="gold" />
           <div className="mt-10 grid gap-10 md:grid-cols-3">
             <div>

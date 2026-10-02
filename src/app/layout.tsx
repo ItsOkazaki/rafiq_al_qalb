@@ -19,13 +19,13 @@ export const metadata: Metadata = {
   description:
     "رفيق القلوب أداة حوارية تستقبل موضوع بحثك، تحدد بابه المناسب، وتسترجع المادة حصراً من مصادر مفهرسة مع إسناد دقيق (مصدر + جزء/صفحة + رابط أصلي). لا تشخّص ولا تُفتي ولا تصف علاجاً.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo/icons/main.png",
+    apple: "/logo/icons/main.png",
   },
   openGraph: {
     title: "رفيق القلوب — أداة حوارية لاسترجاع المادة الموثقة",
     description: "تسترجع المادة العلمية حصراً من مصادر مفهرسة — لا تشخيص ولا فتوى ولا وصفات.",
-    images: [{ url: "/logo.png", width: 1080, height: 1080, alt: "شعار رفيق القلوب" }],
+    images: [{ url: "/logo/Main/main.png", width: 1866, height: 1649, alt: "شعار رفيق القلوب" }],
     locale: "ar_SA",
     type: "website",
   },
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "رفيق القلوب",
     description: "أداة حوارية — مادة موثقة حصراً من مصادر مفهرسة",
-    images: ["/logo.png"],
+    images: ["/logo/Main/main.png"],
   },
 };
 

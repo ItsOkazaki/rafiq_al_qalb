@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -30,6 +31,15 @@ export default function HomePage() {
           }}
           aria-hidden
         />
+        <div className="pointer-events-none absolute inset-x-0 top-16 flex justify-center opacity-35 sm:top-20 sm:opacity-40" aria-hidden>
+          <Image
+            src="/logo/marks/white-gold.svg"
+            alt=""
+            width={150}
+            height={84}
+            className="h-auto w-28 sm:w-36"
+          />
+        </div>
         <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-16 sm:pt-24">
           <div className="mx-auto max-w-3xl text-center">
             <p className="font-ornament text-lg text-brass-300">بسم الله نبدأ</p>
