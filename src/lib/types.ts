@@ -3,9 +3,9 @@
 // أداة بحث علمي: لا تشخيص، لا فتوى، لا وصفات. استرجاع من مصادر معتمدة فقط.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type SourceStatus = "active" | "registered-pending";
+export type SourceStatus = "active";
 
-/** مصدر معتمد في سجل المصادر. لا يُسترجع إلا من مصدر status = active. */
+/** مصدر معتمد في سجل المصادر. لا يُسترجع إلا من مصدر status = active وله مقاطع corpus فعلية. */
 export interface RegisteredSource {
   id: string;
   slug: string;
@@ -25,7 +25,7 @@ export interface RegisteredSource {
 }
 
 /** مقطع نصي من المصدر المعتمد مع بيانات الموضع (إحالة على مستوى الفصل). */
-export type CitationStatus = "verified-page" | "chapter-only" | "page-pending";
+export type CitationStatus = "verified-page" | "chapter-only";
 export type ExcerptType = "literal" | "curated-summary";
 
 export interface CorpusChunk {
@@ -41,6 +41,9 @@ export interface CorpusChunk {
   topics: string[];
   keywords: string[];
   text: string;
+  /** نص الآية الموثق عند توفره، منفصل عن نص التفسير حتى لا تختلط الطبقتان. */
+  quranText?: string;
+  quranReference?: string;
 }
 
 /** باب بحثي في التصنيف الهرمي الموحّد (اثنا عشر باباً). */
@@ -79,6 +82,9 @@ export interface PassageSourceMeta {
 export interface RetrievedPassage {
   chunkId: string;
   text: string;
+  /** النص القرآني المميز عن التفسير عند توفره. */
+  quranText?: string;
+  quranReference?: string;
   chapter: string;
   page?: string;
   citationStatus?: CitationStatus;

@@ -37,6 +37,8 @@ export default async function BookPage({
   const passages: RetrievedPassage[] = chunks.map((c, i) => ({
     chunkId: c.id,
     text: c.text,
+    quranText: c.quranText,
+    quranReference: c.quranReference,
     chapter: c.chapter,
     page: c.page,
     citationStatus: c.citationStatus ?? "chapter-only",

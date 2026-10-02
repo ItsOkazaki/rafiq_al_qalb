@@ -1,0 +1,17 @@
+{
+  "sources": [
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "./official_exports/alifta_sunna",
+      "category": "حديث نبوي",
+      "status": "active"
+    },
+    {
+      "sourceId": "binbaz-majmou-fatawa",
+      "input": "./official_exports/binbaz",
+      "category": "فتاوى ومقالات",
+      "status": "active"
+    }
+  ],
+  "output": "./generated/docling-chunks.json"
+}

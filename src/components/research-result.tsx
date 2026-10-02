@@ -95,15 +95,20 @@ function OkView({ result }: { result: ResearchResult }) {
             <div className="flex flex-wrap items-center gap-3">
               <SectionTitle icon={Telescope}>
                 {result.ai.mode === "model"
-                  ? "التنظيم الآلي المستند إلى المادة المسترجعة"
-                  : "التنظيم الآلي الحتمي للمادة المسترجعة"}
+                  ? "ملخّص مولّد بالذكاء الاصطناعي — ليس من نص المصدر"
+                  : "تنظيم آلي حتمي للمادة المسترجعة"}
               </SectionTitle>
-              <span className="rounded-full border border-brass-300/50 bg-forest-900/60 px-3 py-0.5 text-[11px] font-medium text-brass-200">
+              <span className="rounded-full border border-brass-300/50 bg-forest-900/60 px-3 py-0.5 text-[11px] font-bold text-brass-200">
                 {result.ai.mode === "model"
-                  ? "نموذج ذكاء اصطناعي مقيَّد بالمقاطع أعلاه فقط"
-                  : "بدون نموذج ذكاء اصطناعي — تجميع حرفي من المقاطع"}
+                  ? "محتوى مولّد آلياً — ليس نص المصدر ولا اقتباساً منه"
+                  : "بدون نموذج ذكاء اصطناعي — النص مجمّع من المقاطع المسترجعة"}
               </span>
             </div>
+            {result.ai.mode === "model" && (
+              <p className="rounded-lg border border-brass-300/25 bg-brass-400/10 px-4 py-3 text-xs font-semibold leading-6 text-brass-100">
+                تنبيه للجنة والمستخدم: هذا القسم «ملخّص مولّد بالذكاء الاصطناعي» وليس نصاً من المصدر ولا اقتباساً حرفياً منه. المادة المرجعية تظهر أعلاه في بطاقات المصادر، والنص القرآني يظهر في كتلة مستقلة موسومة برواية حفص عن عاصم.
+              </p>
+            )}
             <p className="whitespace-pre-line text-sm leading-8 text-parchment-100/95">
               {result.ai.text}
             </p>

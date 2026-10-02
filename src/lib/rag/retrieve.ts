@@ -5,8 +5,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { CHUNKS } from "@/lib/corpus/chunks";
+import { DOCLING_CHUNKS } from "@/lib/corpus/docling-chunks";
 import { TOPICS } from "@/lib/rag/topics";
-import { getSourceById, isRetrievableSourceId, isExcludedSourceTitle } from "@/lib/sources/registry";
+import { APPROVED_SOURCES, getSourceById, isRetrievableSourceId, isExcludedSourceTitle } from "@/lib/sources/registry";
 import { normalizeArabic, tokenizeArabic } from "@/lib/text/arabic";
 import type { CorpusChunk, RetrievedPassage, TopicMatch } from "@/lib/types";
 
@@ -19,6 +20,20 @@ export const MIN_PASSAGE_SCORE = 3;
 const GENERIC_QUERY_TOKENS = new Set([
   "الله", "الناس", "العبد", "العباد", "الدنيا", "الاخره", "شيء", "امر", "امور",
   "موضوع", "موضوعات", "بحث", "ماده", "مادة", "العلم", "العلمية", "الحديث", "السؤال",
+  "ما", "من", "هو", "هي", "في", "عن", "هل", "هذا", "هذه", "ذلك", "تلك", "الى",
+  "لماذا", "كيف", "ماذا", "اريد", "أريد", "رأي", "راي", "قول", "أفضل", "افضل",
+  "لاعب", "كرة", "كره", "قدم", "الاول", "الأول", "كامل", "كاملة", "تفسير", "ايه", "آيه", "اية", "آية", "سورة", "سوره",
+]);
+
+const QURAN_QUERY_HINTS = ["قرآن", "مصحف", "آية", "اية", "آيه", "ايه", "سورة", "سوره"]
+  .map(normalizeArabic);
+const AUTHORITY_QUERY_HINTS = ["رأي", "راي", "قول", "موقف"] .map(normalizeArabic);
+const IGNORED_AUTHOR_TOKENS = new Set([
+  "الشيخ", "شيخ", "الإمام", "الامام", "رحمه", "الله", "بن", "ابن", "عبد",
+  "الرئاسة", "رئاسة", "العامة", "العلمية", "علميه", "بحوث", "الإفتاء", "افتاء",
+  "شركة", "حرف", "تقنية", "لتقنية", "معلومات", "تعاون", "مجمع", "ملك",
+  "لطباعة", "مصحف", "شريف", "القرآن", "قران", "كريم", "وتفسير", "ميسر",
+  "محمد", "عبدالعزيز", "عبد",
 ]);
 
 function canonicalSearchToken(token: string): string {
@@ -52,6 +67,32 @@ function tokenVariants(token: string): string[] {
   const normalized = normalizeArabic(token);
   const canonical = canonicalSearchToken(normalized);
   return [...new Set([normalized, canonical].filter(Boolean))];
+}
+
+
+function isQuranSpecificQuery(norm: string): boolean {
+  return QURAN_QUERY_HINTS.some((hint) => hint && norm.includes(hint));
+}
+
+function hasAuthorityCue(norm: string): boolean {
+  const queryTokens = new Set(tokenizeArabic(norm).map(normalizeArabic));
+  return AUTHORITY_QUERY_HINTS.some((hint) => hint && queryTokens.has(hint));
+}
+
+function getExplicitSourceIds(norm: string): Set<string> {
+  const ids = new Set<string>();
+  for (const source of APPROVED_SOURCES) {
+    const authorTokens = tokenizeArabic(source.author)
+      .map(normalizeArabic)
+      .filter((t) => t.length >= 3 && !IGNORED_AUTHOR_TOKENS.has(t));
+    const titleTokens = tokenizeArabic(source.title)
+      .map(normalizeArabic)
+      .filter((t) => t.length >= 4 && !GENERIC_QUERY_TOKENS.has(t));
+    const matchingAuthorTokens = authorTokens.filter((t) => norm.includes(t));
+    const matchingTitleTokens = titleTokens.filter((t) => norm.includes(t));
+    if (matchingAuthorTokens.length >= 1 || matchingTitleTokens.length >= 2) ids.add(source.id);
+  }
+  return ids;
 }
 
 function buildDocumentFrequency(corpus: CorpusChunk[]): Map<string, number> {
@@ -128,7 +169,27 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
     (opts.matchedTopics ?? identifyTopics(query)).map((m) => m.topic.id),
   );
 
-  const approved = filterApproved(opts.corpus ?? CHUNKS);
+  const corpus = opts.corpus ?? [...CHUNKS, ...DOCLING_CHUNKS];
+  let approved = filterApproved(corpus);
+
+  // طلب قرآني محدد لا يُسند إلى تفسير عام أو كتاب آخر؛ لا بد من مقطع يحمل
+  // نص آية/مرجع آية فعلياً. هذا يمنع إجابات مثل «تفسير آية الكرسي» من
+  // الانحراف إلى مادة عن موضوع القلب لمجرد تشابه كلمة عابرة.
+  const quranSpecific = isQuranSpecificQuery(norm);
+  if (quranSpecific) {
+    approved = approved.filter((chunk) => Boolean(chunk.quranText && chunk.quranReference));
+  }
+
+  // عند السؤال عن «رأي/قول/موقف» عالم بعينه، لا نقبل مقطعاً من عالم آخر؛
+  // وإذا لم يظهر اسم مؤلف مسجّل في المصادر النشطة، فالمادة غير قابلة للإسناد.
+  const explicitSourceIds = getExplicitSourceIds(norm);
+  if (hasAuthorityCue(norm)) {
+    if (explicitSourceIds.size === 0) return [];
+    approved = approved.filter((chunk) => explicitSourceIds.has(chunk.sourceId));
+  } else if (explicitSourceIds.size > 0) {
+    approved = approved.filter((chunk) => explicitSourceIds.has(chunk.sourceId));
+  }
+
   const docFreq = buildDocumentFrequency(approved);
   const corpusSize = Math.max(approved.length, 1);
   const queryTokens = [...tokens].map((t) => ({ original: t, variants: tokenVariants(t) }));
@@ -160,7 +221,10 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
         if (k && norm.includes(k)) {
           score += 3.5;
           directMatch = true;
-          strongLexicalMatch = true;
+          const keywordHasSignal = tokenizeArabic(kw)
+            .map(normalizeArabic)
+            .some((token) => token.length >= 3 && !GENERIC_QUERY_TOKENS.has(token));
+          if (keywordHasSignal) strongLexicalMatch = true;
         }
       }
 
@@ -170,6 +234,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       );
 
       let weightedHits = 0;
+      let nonGenericMatches = 0;
       for (const { variants } of queryTokens) {
         let exact = false;
         let similar = false;
@@ -194,15 +259,16 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
         if (exact || similar) {
           directMatch = true;
           weightedHits += bestWeight;
-          if (!GENERIC_QUERY_TOKENS.has(variants[0]) && bestWeight >= 3.5) {
-            strongLexicalMatch = true;
+          if (!GENERIC_QUERY_TOKENS.has(variants[0])) {
+            nonGenericMatches += 1;
+            if (bestWeight >= 3.5) strongLexicalMatch = true;
           }
         }
       }
       score += Math.min(weightedHits, 8);
 
       // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عامة عابرة.
-      const relevance = matchedTopicIds.size > 0 || strongLexicalMatch;
+      const relevance = matchedTopicIds.size > 0 || (nonGenericMatches > 0 && strongLexicalMatch);
       return { chunk, score, directMatch, relevance };
     })
     .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.directMatch)
@@ -237,6 +303,8 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
     return {
       chunkId: chunk.id,
       text: chunk.text,
+      quranText: chunk.quranText,
+      quranReference: chunk.quranReference,
       chapter: chunk.chapter,
       page: chunk.page,
       citationStatus: chunk.citationStatus ?? "chapter-only",

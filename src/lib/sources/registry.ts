@@ -12,6 +12,40 @@ import type { RegisteredSource } from "@/lib/types";
  */
 export const APPROVED_SOURCES: RegisteredSource[] = [
   {
+    id: "kfgqpc-hafs-quran",
+    slug: "kfgqpc-hafs-quran",
+    title: "خط الرسم العثماني (رواية حفص) وبيانات المصحف",
+    author: "مجمع الملك فهد لطباعة المصحف الشريف",
+    category: "القرآن الكريم",
+    publisher: "مجمع الملك فهد لطباعة المصحف الشريف",
+    registryUrl: "https://qurancomplex.gov.sa/en/techquran/dev/",
+    originalUrl: "https://qurancomplex.gov.sa/en/techquran/dev/",
+    verificationUrl: "https://qurancomplex.gov.sa/en/techquran/dev/",
+    verificationLabel: "فتح منصة مطوري القرآن الرسمية",
+    status: "active",
+    approvedBy: "سياسة رفيق القلوب للمصادر السعودية الأولية",
+    approvedAt: "2026-10-02",
+    notes:
+      "المصدر المرجعي الأعلى للنص القرآني برواية حفص في طبقة العرض. تنص منصة المطورين على أن بيانات aya_text تستخدم خط kfgqpc_hafs_uthmanic_script، وأنها مخصصة لعرض الآيات نصياً. لا يُنشئ الذكاء الاصطناعي نص الآية ولا يعدّل رسمها أو علامات الوقف."
+  },
+  {
+    id: "alifta-sunna-encyclopedia",
+    slug: "alifta-sunna-encyclopedia",
+    title: "جامع خادم الحرمين الشريفين للسنة النبوية المطهرة",
+    author: "الرئاسة العامة للبحوث العلمية والإفتاء بالتعاون مع شركة حرف لتقنية المعلومات",
+    category: "حديث نبوي",
+    publisher: "الرئاسة العامة للبحوث العلمية والإفتاء — المملكة العربية السعودية",
+    registryUrl: "https://sunna.alifta.gov.sa/",
+    originalUrl: "https://sunna.alifta.gov.sa/",
+    verificationUrl: "https://sunna.alifta.gov.sa/Home/About",
+    verificationLabel: "فتح صفحة البرنامج الرسمية",
+    status: "active",
+    approvedBy: "سياسة رفيق القلوب للمصادر السعودية الأولية",
+    approvedAt: "2026-10-02",
+    notes:
+      "مصدر سعودي أولي للسنة. تصف الصفحة الرسمية البرنامج بأنه يضم 33 كتاباً من أمهات كتب السنة و57 كتاباً خدمياً، مع التخريج، وشجرة الموضوعات، والشروح، والحكم على الحديث، والبحث النصي. يظهر في سجل المصادر كمصدر نشط، ولا تُسترجع منه مادة إلا عندما توجد مقاطع corpus فعلية تحمل هذا المعرّف وبيانات موضعها."
+  },
+  {
     id: "albadr-daa-dawaa",
     slug: "al-daa-wal-dawaa",
     title: "الداء والدواء — الجواب الكافي لمن سأل عن الدواء الشافي",

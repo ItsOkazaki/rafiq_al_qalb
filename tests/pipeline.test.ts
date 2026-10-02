@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runResearch } from "@/lib/research/pipeline";
 import { ABSTAIN_MESSAGE, scanForForbiddenFraming } from "@/lib/terminology";
 import { SYSTEM_PROMPT } from "@/lib/ai/provider";
+import { sanitizeStrictArabicOutput } from "@/lib/text/strict-output";
 
 const SAMPLE_QUERY = "أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن";
 
@@ -135,6 +136,14 @@ describe("الاسترجاع والنتيجة السليمة", () => {
     expect(result.disclaimer).toContain("ليست تشخيصاً");
   });
 
+  it("النص القرآني المنفصل يحمل رواية حفص وعلامات الوقف المتاحة من المصدر", async () => {
+    const result = await runResearch("ذكر الله وطمأنينة القلب");
+    const quranPassage = result.passages.find((p) => p.quranText);
+    expect(quranPassage?.quranText).toBeTruthy();
+    expect(quranPassage?.quranReference).toBeTruthy();
+    expect(quranPassage?.quranText).toMatch(/[ۖۗۚۙ]/);
+  });
+
   it("لا تشخيص ولا وصف في أي حقل مولّد", async () => {
     const result = await runResearch(SAMPLE_QUERY);
     const parts = [
@@ -183,6 +192,19 @@ describe("المسار الحتمي بدون مفتاح ذكاء اصطناعي"
   });
 });
 
+describe("الحارس الصارم للغة المخرجات", () => {
+  it("يرفض الصينية واللاتينية والروابط", () => {
+    expect(sanitizeStrictArabicOutput("ملخص عربي 你好")).toBeNull();
+    expect(sanitizeStrictArabicOutput("Arabic summary" )).toBeNull();
+    expect(sanitizeStrictArabicOutput("ملخص عربي https://example.com")).toBeNull();
+  });
+
+  it("يقبل العربية مع علامات الترقيم والأرقام العربية", () => {
+    const out = sanitizeStrictArabicOutput("١) يتناول النص أثر الذكر.\nحدود المادة: لا تتناول المقاطع غير ذلك.");
+    expect(out).toContain("حدود المادة");
+  });
+});
+
 describe("التوليد المستند عند توفر المزود", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -214,6 +236,13 @@ describe("التوليد المستند عند توفر المزود", () => {
     }
   });
 
+  it("الحارس اللاحق يرفض توليداً مختلط اللغة ويرجع للحتمي", async () => {
+    process.env.OPENAI_API_KEY = "test-key";
+    vi.stubGlobal("fetch", mockCompletion("هذا ملخص 你好 وباقي النص."));
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.ai.mode).toBe("deterministic");
+  });
+
   it("الحارس اللاحق يرفض توليداً فيه صياغة محظورة ويرجع للحتمي", async () => {
     process.env.OPENAI_API_KEY = "test-key";
     vi.stubGlobal("fetch", mockCompletion("تشخيص حالتك هو قسوة قلب، ودواؤك هو كذا."));
@@ -238,6 +267,9 @@ describe("التوليد المستند عند توفر المزود", () => {
       "لا تستخدم أي معرفة خارج",
       "ميّز بوضوح",
       "قل ذلك صراحة",
+      "المخرج النهائي عربي فقط",
+      "لا تضف علامات وقف أو تشكيل من إنشائك",
+      "لا حروف لاتينية",
     ]) {
       expect(SYSTEM_PROMPT).toContain(must);
     }

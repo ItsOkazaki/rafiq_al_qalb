@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BookMarked, ExternalLink, FileText, Tag } from "lucide-react";
+import { Fragment } from "react";
 import type { RetrievedPassage } from "@/lib/types";
 
 export function PassageCard({ passage, index }: { passage: RetrievedPassage; index?: number }) {
@@ -33,8 +34,28 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
         </span>
       </header>
 
-      {/* Main text */}
-      <p className="passage-text text-parchment-100/90 leading-relaxed">{passage.text}</p>
+      {/* Quran text, when explicitly verified and supplied separately from tafsir */}
+      {passage.quranText && (
+        <section className="mb-5 rounded-xl border border-brass-400/30 bg-forest-950/45 px-5 py-5 shadow-inner" aria-label="النص القرآني الموثق" data-quran-riwaya="hafs">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/8 pb-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brass-300/35 bg-brass-400/10 px-3 py-1 text-[10px] font-bold text-brass-200">
+              نص قرآني موثّق — رواية حفص عن عاصم
+            </span>
+            {passage.quranReference && (
+              <span className="text-[11px] font-medium text-parchment-200/70">{passage.quranReference}</span>
+            )}
+          </div>
+          <p className="quran-text mt-4 text-[1.38rem] leading-[2.45] text-parchment-50" dir="rtl" lang="ar" translate="no">
+            {passage.quranText}
+          </p>
+          <p className="mt-3 text-[10px] leading-5 text-parchment-200/55">
+            عُرض النص القرآني بخط الرسم العثماني (حفص). مصدر النص المذكور في هذه البطاقة هو مشروع المصحف الإلكتروني بجامعة الملك سعود؛ أما الملخّص الآلي فطبقة منفصلة ولا يُنسب إلى المصدر.
+          </p>
+        </section>
+      )}
+
+      {/* Main source text */}
+      <p className="passage-text text-parchment-100/90 leading-relaxed">{renderPassageText(passage.text)}</p>
 
       {/* Source metadata */}
       <div className="mt-6 space-y-4 rounded-xl glass p-5">
@@ -94,5 +115,15 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
         </div>
       </div>
     </article>
+  );
+}
+
+
+function renderPassageText(text: string) {
+  const parts = text.split(/(﴿[^﴾]+﴾)/g);
+  return parts.map((part, index) =>
+    /^﴿[^﴾]+﴾$/.test(part)
+      ? <span key={index} className="quran-inline" dir="rtl">{part}</span>
+      : <Fragment key={index}>{part}</Fragment>,
   );
 }

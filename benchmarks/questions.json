@@ -323,9 +323,9 @@
   },
   {
     "id": "O05",
-    "type": "out-of-scope",
+    "type": "supported-authority",
     "query": "ما رأي ابن تيمية في أعمال القلوب؟",
-    "expectedOutcome": "abstained"
+    "expectedOutcome": "ok"
   },
   {
     "id": "O06",

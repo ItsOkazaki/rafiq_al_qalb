@@ -40,6 +40,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ar" dir="rtl">
+      <head>
+        <link
+          rel="preload"
+          href="https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-screen text-parchment-100 antialiased">
         <div className="bg-arabesque-overlay" aria-hidden />
         <div className="relative z-10 flex min-h-screen flex-col">

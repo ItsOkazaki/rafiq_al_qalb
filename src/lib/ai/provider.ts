@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { isFramingSafe } from "@/lib/terminology";
+import { sanitizeStrictArabicOutput } from "@/lib/text/strict-output";
 import type { RetrievedPassage } from "@/lib/types";
 
 export const SYSTEM_PROMPT = [
@@ -19,6 +20,10 @@ export const SYSTEM_PROMPT = [
   "- ميّز بوضوح بين وصف المستخدم (مدخلاته الشخصية) ومحتوى المصدر (المادة العلمية).",
   "- إن لم تكن المادة كافية للإجابة، فقل ذلك صراحة ولا تملأ الفراغ.",
   "- لا تستخدم المصطلحات المحظورة: «تشخيص»، «وصفة»، «برنامج» علاجي، «أنت مصاب».",
+  "- النص القرآني ليس مادة لتعيد كتابتها من ذاكرتك: لا تنشئ آية، ولا تصحح آية، ولا تضف علامات وقف أو تشكيل من إنشائك، ولا تخلط النص القرآني بالتلخيص.",
+  "- لا تكرر الآيات في الملخص ما لم تكن هناك حاجة نصية واضحة داخل المقطع، ولا تقدّمها على أنها مخرجات النموذج.",
+  "- المخرج النهائي عربي فقط: لا حروف لاتينية، لا صينية، لا يابانية، لا كورية، لا رموز برمجية، ولا روابط.",
+  "- اكتب نصاً عادياً فقط بلا Markdown code fence أو HTML أو JSON.",
   "صيغة الناتج: عربية سليمة، ٣–٥ نقاط موجزة، ثم سطر «حدود المادة:» يوضح ما لم تتناوله المقاطع.",
 ].join("\n");
 
@@ -125,7 +130,7 @@ async function callGemini(prompt: string, systemPrompt: string, apiKey: string):
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0, maxOutputTokens: 1024 },
+        generationConfig: { temperature: 0, maxOutputTokens: 1024, responseMimeType: "text/plain" },
       }),
     });
 
@@ -174,7 +179,12 @@ export async function generateGroundedSummary(
   if (!geminiKey && !openaiKey) return null;
 
   const context = passages
-    .map((p, i) => `[مقطع ${i + 1}]\nالمصدر: ${p.source.title}\nالموضع: ${p.chapter}\nالنص: ${p.text}`)
+    .map((p, i) => {
+      const quranBlock = p.quranText
+        ? `\nالنص القرآني الموثّق (للاطلاع فقط — لا تعِد كتابته ولا تعدّل علاماته): ${p.quranText}`
+        : "";
+      return `[مقطع ${i + 1}]\nالمصدر: ${p.source.title}\nالموضع: ${p.chapter}${quranBlock}\nالمادة: ${p.text}`;
+    })
     .join("\n\n");
 
   const userPrompt = [
@@ -199,10 +209,12 @@ export async function generateGroundedSummary(
 
   if (!text) return null;
 
-  // الحارس اللاحق: رفض أي صياغة محظورة
-  if (!isFramingSafe(text)) return null;
+  // الحارس اللاحق: رفض أي صياغة محظورة أو مخرجات غير عربية/مختلطة.
+  const strictText = sanitizeStrictArabicOutput(text);
+  if (!strictText) return null;
+  if (!isFramingSafe(strictText)) return null;
 
-  return { mode: "model", text };
+  return { mode: "model", text: strictText };
 }
 
 

@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "UthmanicHafs";
+  src: url("/fonts/UthmanicHafs_V22.woff2") format("woff2"),
+       url("https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.ttf") format("truetype");
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+}
+
 @theme {
   /* ── Palette ── */
   --color-parchment-50: #fbf8f1;
@@ -36,6 +45,7 @@
   --color-oxblood-800: #5d2222;
 
   --font-display: "Amiri", "IBM Plex Sans Arabic", serif;
+  --font-quran: "UthmanicHafs", "Amiri", serif;
   --font-body: "IBM Plex Sans Arabic", "Amiri", system-ui, sans-serif;
   --font-ornament: "Aref Ruqaa", "Amiri", serif;
 
@@ -228,4 +238,23 @@ body {
 
 .border-glass-gold {
   border: 1px solid rgba(201, 164, 69, 0.2);
+}
+
+
+/* القرآن لا يدخل في خط الواجهة العام؛ يُعرض في طبقة منفصلة بخط حفص العثماني. */
+.quran-text {
+  font-family: var(--font-quran);
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: plaintext;
+  font-variant-ligatures: contextual common-ligatures;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  font-synthesis: none;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+.quran-inline {
+  font-family: var(--font-quran);
+  direction: rtl;
+  unicode-bidi: plaintext;
 }

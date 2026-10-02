@@ -38,6 +38,8 @@ export default async function TopicPage({
     return {
       chunkId: c.id,
       text: c.text,
+      quranText: c.quranText,
+      quranReference: c.quranReference,
       chapter: c.chapter,
       page: c.page,
       citationStatus: c.citationStatus ?? "chapter-only",
