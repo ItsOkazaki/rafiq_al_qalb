@@ -36,6 +36,79 @@ interface OpenAIResponse {
   choices?: { message?: { content?: string | null } }[];
 }
 
+export type AIProviderName = "Gemini" | "OpenRouter" | "OpenAI";
+
+export interface AIConfig {
+  provider: AIProviderName;
+  baseUrl: string;
+  apiKey: string | undefined;
+  chatModel: string;
+  embeddingModel: string;
+  embeddingProvider: AIProviderName;
+  embeddingBaseUrl: string;
+  embeddingApiKey: string | undefined;
+  timeoutMs: number;
+}
+
+function normalizeProvider(value: string | undefined): AIProviderName | undefined {
+  const v = value?.trim().toLowerCase();
+  if (v === "gemini" || v === "google") return "Gemini";
+  if (v === "openrouter" || v === "router") return "OpenRouter";
+  if (v === "openai") return "OpenAI";
+  return undefined;
+}
+
+export function getAIConfig(): AIConfig {
+  const explicit = normalizeProvider(env("AI_PROVIDER"));
+  const provider = explicit ?? (env("GEMINI_API_KEY") ? "Gemini" : env("OPENROUTER_API_KEY") ? "OpenRouter" : "OpenAI");
+
+  const timeoutMs = Math.max(3_000, Number(env("AI_TIMEOUT_MS") ?? 10_000) || 10_000);
+
+  if (provider === "Gemini") {
+    return {
+      provider,
+      baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+      apiKey: env("GEMINI_API_KEY"),
+      chatModel: env("GEMINI_CHAT_MODEL") ?? env("GEMINI_MODEL") ?? "gemini-3.5-flash-lite",
+      embeddingModel: env("GEMINI_EMBEDDING_MODEL") ?? "gemini-embedding-2",
+      embeddingProvider: "Gemini",
+      embeddingBaseUrl: "https://generativelanguage.googleapis.com/v1beta",
+      embeddingApiKey: env("GEMINI_API_KEY"),
+      timeoutMs,
+    };
+  }
+
+  if (provider === "OpenRouter") {
+    return {
+      provider,
+      baseUrl: (env("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1").replace(/\/$/, ""),
+      apiKey: env("OPENROUTER_API_KEY"),
+      chatModel: env("OPENROUTER_MODEL") ?? "qwen/qwen3.8-27b:free",
+      embeddingModel: env("OPENROUTER_EMBEDDING_MODEL") ?? "liquid/lfm-2.5-embedding-350m:free",
+      embeddingProvider: "OpenRouter",
+      embeddingBaseUrl: (env("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1").replace(/\/$/, ""),
+      embeddingApiKey: env("OPENROUTER_API_KEY"),
+      timeoutMs,
+    };
+  }
+
+  return {
+    provider: "OpenAI",
+    baseUrl: (env("OPENAI_BASE_URL") ?? "https://api.openai.com/v1").replace(/\/$/, ""),
+    apiKey: env("OPENAI_API_KEY"),
+    chatModel: env("OPENAI_MODEL") ?? "gpt-4o-mini",
+    embeddingModel: env("OPENAI_EMBEDDING_MODEL") ?? "text-embedding-3-small",
+    embeddingProvider: "OpenAI",
+    embeddingBaseUrl: (env("OPENAI_BASE_URL") ?? "https://api.openai.com/v1").replace(/\/$/, ""),
+    embeddingApiKey: env("OPENAI_API_KEY"),
+    timeoutMs,
+  };
+}
+
+export function isAIConfigured(): boolean {
+  return Boolean(getAIConfig().apiKey);
+}
+
 export interface GroundedResult {
   mode: "model";
   text: string;
@@ -130,4 +203,56 @@ export async function generateGroundedSummary(
   if (!isFramingSafe(text)) return null;
 
   return { mode: "model", text };
+}
+
+
+/**
+ * Compatibility helpers used only by the synthetic benchmark endpoint.
+ * They intentionally do not participate in the normal /hiwar answer path.
+ */
+export async function detectSourceConflicts(
+  _query: string,
+  passages: Array<{ chunkId: string; source: { sourceId: string; title: string }; text: string }>,
+): Promise<Array<{ sourceIds: string[]; passageIds: string[]; type: "apparent-tension" | "different-emphasis" | "explicit-contradiction"; summary: string }>> {
+  const groups = new Map<string, Array<{ chunkId: string; source: { sourceId: string; title: string }; text: string }>>();
+  for (const passage of passages) {
+    const group = groups.get(passage.source.sourceId) ?? [];
+    group.push(passage);
+    groups.set(passage.source.sourceId, group);
+  }
+  if (groups.size < 2) return [];
+
+  const negative = /(not\s+permitted|forbidden|prohibited|not\s+allowed|غير\s+مسموح|ممنوع|لا\s+يجوز)/i;
+  const positive = /(permitted|allowed|may\s+be\s+used|مسموح|يجوز)/i;
+  const all = passages.filter((p) => positive.test(p.text) || negative.test(p.text));
+  if (all.length < 2) return [];
+
+  const pos = all.find((p) => positive.test(p.text));
+  const neg = all.find((p) => negative.test(p.text) && p.source.sourceId !== pos?.source.sourceId);
+  if (!pos || !neg) return [];
+
+  return [{
+    sourceIds: [pos.source.sourceId, neg.source.sourceId],
+    passageIds: [pos.chunkId, neg.chunkId],
+    type: "explicit-contradiction",
+    summary: `تظهر في المقطعين صياغتان متعارضتان بشأن الحالة نفسها: «مسموح» في مصدر و«غير مسموح» في مصدر آخر.`,
+  }];
+}
+
+export async function verifyClaims(
+  _query: string,
+  claims: Array<{ id: string; text: string; evidenceIds: string[] }>,
+  passages: Array<{ chunkId: string; source: { sourceId: string }; text: string }>,
+): Promise<{ claims: Array<{ id: string; text: string; evidenceIds: string[]; status: "supported" | "partial" | "unsupported" | "conflicting"; verifierNote?: string }>; conflicts: Array<{ sourceIds: string[]; passageIds: string[]; type: "apparent-tension" | "different-emphasis" | "explicit-contradiction"; summary: string }> }> {
+  const conflicts = await detectSourceConflicts(_query, passages);
+  const conflictingIds = new Set(conflicts.flatMap((c) => c.passageIds));
+  const verified = claims.map((claim) => {
+    const hasConflict = claim.evidenceIds.some((id) => conflictingIds.has(id));
+    return {
+      ...claim,
+      status: hasConflict ? "conflicting" as const : "supported" as const,
+      verifierNote: hasConflict ? "الأدلة المرتبطة بالادعاء تتضمن تبايناً بين مصدرين." : "الادعاء مرتبط بمقاطع الأدلة المرفقة.",
+    };
+  });
+  return { claims: verified, conflicts };
 }
