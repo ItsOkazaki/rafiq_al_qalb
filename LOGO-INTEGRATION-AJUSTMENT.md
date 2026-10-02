@@ -1,6 +1,7 @@
-# Logo integration adjustment
+Hero logo correction
 
-- Header: uses the supplied full `Sub/white-gold.svg` logo at a larger natural aspect-ratio size, with no border/background wrapper.
-- Hero: uses the supplied mark-only `marks/white-gold.svg`, slightly reduced in size; no wordmark text is shown.
-- Footer: keeps the supplied mark-only logo and reduces it slightly for breathing room.
-- No package.json, Node, dependency, RAG, API, safety, or deployment configuration changes were made.
+- Added public/logo/marks/white-gold-hero.svg using the expert full mark artwork with a corrected 420px-tall viewBox so the lower edge is fully visible while the wordmark is excluded.
+- Updated only the hero image in src/app/page.tsx to use the new hero asset.
+- Footer continues using public/logo/marks/white-gold.svg unchanged.
+- Favicon continues using the original public/logo.png.
+- No package, Node, dependency, RAG, API, or safety files were changed.

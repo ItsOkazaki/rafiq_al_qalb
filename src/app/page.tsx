@@ -33,7 +33,7 @@ export default function HomePage() {
         />
         <div className="pointer-events-none absolute inset-x-0 top-6 flex justify-center opacity-20 sm:top-8 sm:opacity-25" aria-hidden>
           <Image
-            src="/logo/marks/white-gold.svg"
+            src="/logo/marks/white-gold-hero.svg"
             alt=""
             width={260}
             height={162}
