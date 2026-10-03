@@ -2,11 +2,5 @@
 > alifta:verify
 > node scripts/alifta-html/verify.mjs
 
-file:///home/runner/work/rafiq_al_qalb/rafiq_al_qalb/scripts/alifta-html/verify.mjs:52
-for (const [i, row] of rows ?? []) {
-                  ^
-
-TypeError: .for is not iterable
-    at file:///home/runner/work/rafiq_al_qalb/rafiq_al_qalb/scripts/alifta-html/verify.mjs:52:19
-
-Node.js v24.21.0
+FAIL: 1 corpus problem(s):
+  - #250 alifta-html-000251: URL leaked into text

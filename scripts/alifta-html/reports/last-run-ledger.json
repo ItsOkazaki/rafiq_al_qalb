@@ -1,11 +1,11 @@
 {
   "method": "official-html",
   "sourceId": "alifta-sunna-encyclopedia",
-  "generatedAt": "2026-10-03T16:57:20.207Z",
-  "totalChunks": 202,
+  "generatedAt": "2026-10-03T17:07:27.526Z",
+  "totalChunks": 271,
   "topicCounts": {
     "athar-al-dhunub": 78,
-    "qaswat-al-qalb": 41,
+    "qaswat-al-qalb": 74,
     "al-tawba": 40,
     "takrar-al-dhanb": 40,
     "al-ghafla": 39,
@@ -14,27 +14,27 @@
     "khushu-tadabbur": 80,
     "hudur-al-qalb": 81,
     "al-tadawi-bil-quran": 40,
-    "al-nazar-ghad": 5,
-    "hasm-al-shahwa": 4
+    "al-nazar-ghad": 41,
+    "hasm-al-shahwa": 40
   },
   "stats": {
-    "subjectsProcessed": 5,
-    "linksDiscovered": 200,
-    "detailAttempted": 200,
-    "detailSucceeded": 199,
-    "detailRejected": 1,
+    "subjectsProcessed": 7,
+    "linksDiscovered": 280,
+    "detailAttempted": 280,
+    "detailSucceeded": 278,
+    "detailRejected": 2,
     "commentaryAttempted": 60,
     "commentaryFound": 9,
-    "duplicatesRemoved": 7,
-    "chunksGenerated": 202,
+    "duplicatesRemoved": 17,
+    "chunksGenerated": 271,
     "fetchMethodCounts": {
-      "direct-official-html": 224,
-      "jina-reader-official-url": 0
+      "direct-official-html": 304,
+      "jina-reader-official-url": 1
     },
     "failuresByCategory": {
       "commentary:error": 35,
       "commentary:http-500": 16,
-      "detail:error": 1,
+      "detail:error": 2,
       "target:page:no-full-matn-or-explanation": 1
     }
   },
@@ -165,6 +165,22 @@
       "label": "حُفَّتِ النَّارُ بِالشَّهَوَاتِ",
       "resultLinks": 1,
       "chunksAdded": 0,
+      "commentaryFetches": 60
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
+      "kind": "subject",
+      "label": "النظر إلى بيت الغير بدون استئذان",
+      "resultLinks": 40,
+      "chunksAdded": 36,
+      "commentaryFetches": 60
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
+      "kind": "subject",
+      "label": "من أمراض القلوب اتباع الشهوات",
+      "resultLinks": 40,
+      "chunksAdded": 33,
       "commentaryFetches": 60
     }
   ],
@@ -486,6 +502,12 @@
       "kind": "target",
       "category": "page:no-full-matn-or-explanation",
       "message": "no-full-matn-or-explanation"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=9&mainId=107131",
+      "kind": "detail",
+      "category": "error",
+      "message": "matn-too-short; Jina content rejected (matn-too-short)"
     }
   ]
 }

@@ -7,19 +7,21 @@ Subject الحلق والجلوس في المساجد: discovered 40 official de
 Subject شروط التداوي بالرقى والتمائم: discovered 40 official detail links.
 Subject من آداب الدعاء الدعاء بالمأثور: discovered 40 official detail links.
 Subject أمراض القلوب وشفاؤها: discovered 40 official detail links.
+Subject النظر إلى بيت الغير بدون استئذان: discovered 40 official detail links.
+Subject من أمراض القلوب اتباع الشهوات: discovered 40 official detail links.
 
 ── Al-Ifta ingestion report ─────────────────────────────
-subjects processed      : 5
-links discovered        : 200
-detail pages attempted  : 200
-detail pages succeeded  : 199
-detail pages rejected   : 1
+subjects processed      : 7
+links discovered        : 280
+detail pages attempted  : 280
+detail pages succeeded  : 278
+detail pages rejected   : 2
 commentary attempted    : 60
 commentary found        : 9
-duplicates merged       : 7
-chunks generated        : 202
-fetch methods           : {"direct-official-html":224,"jina-reader-official-url":0}
-failures by category    : {"commentary:error":35,"commentary:http-500":16,"detail:error":1,"target:page:no-full-matn-or-explanation":1}
+duplicates merged       : 17
+chunks generated        : 271
+fetch methods           : {"direct-official-html":304,"jina-reader-official-url":1}
+failures by category    : {"commentary:error":35,"commentary:http-500":16,"detail:error":2,"target:page:no-full-matn-or-explanation":1}
 first failures:
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=5974&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
@@ -34,7 +36,7 @@ first failures:
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=20090&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=20092&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
 ─────────────────────────────────────────────────────────
-Generated 202 Al-Ifta HTML chunks.
+Generated 271 Al-Ifta HTML chunks.
 Fetcher: direct official HTML with Jina Reader fallback=enabled (no API key).
-Topic coverage: {"athar-al-dhunub":78,"qaswat-al-qalb":41,"al-tawba":40,"takrar-al-dhanb":40,"al-ghafla":39,"dhikr-athar":39,"al-hamm-wal-qalaq":41,"khushu-tadabbur":80,"hudur-al-qalb":81,"al-tadawi-bil-quran":40,"al-nazar-ghad":5,"hasm-al-shahwa":4}
-PASS: 202 chunks and all 12 doors meet the ingestion threshold.
+Topic coverage: {"athar-al-dhunub":78,"qaswat-al-qalb":74,"al-tawba":40,"takrar-al-dhanb":40,"al-ghafla":39,"dhikr-athar":39,"al-hamm-wal-qalaq":41,"khushu-tadabbur":80,"hudur-al-qalb":81,"al-tadawi-bil-quran":40,"al-nazar-ghad":41,"hasm-al-shahwa":40}
+PASS: 271 chunks and all 12 doors meet the ingestion threshold.
