@@ -1,28 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, BookOpenText, CheckCircle2, GitCompareArrows, Link2, Search, ShieldCheck } from "lucide-react";
+import { BadgeCheck, BookOpenText, CheckCircle2, GitCompareArrows, Search, ShieldCheck } from "lucide-react";
 import { OrnamentDivider } from "@/components/ornaments";
 
 export const metadata: Metadata = {
   title: "مختبر الأدلة",
-  description: "شرح قابل للمراجعة لمسار Evidence-Gated AI والقياس المقارن في رفيق القلوب.",
+  description:
+    "شرح قابل للمراجعة لمسار الاسترجاع المضبوط وحدود التوليد والقياس المقارن في رفيق القلوب.",
 };
 
 const stages = [
-  ["01", "AI Research Planner", "يفهم السؤال العربي ويحوّله إلى intent واستعلام دلالي وأسئلة فرعية، من دون إنتاج معلومة شرعية."],
-  ["02", "Hybrid Retrieval", "يجمع lexical retrieval مع embeddings دلالية لإيجاد مرشحين لا يعتمدون على التطابق الحرفي وحده."],
-  ["03", "AI Re-ranking", "يرتب أفضل المرشحين بحسب صلتهم بخطة البحث، مع إبقاء المصدر والموضع كجزء من كل evidence item."],
-  ["04", "Evidence Gate", "يُقيم تغطية جوانب السؤال وكفاية المادة قبل السماح بأي توليد."],
-  ["05", "Claim Verification", "يُنتج ادعاءات مرتبطة بالأدلة، ثم يراجعها نموذج ثانٍ ويُسقط غير المدعوم."],
-  ["06", "Conflict Detection", "يرصد التباين بين المواد المسترجعة من دون أن يقرر أي مصدر هو الأصح."],
+  ["01", "Policy Gates", "قبل أي استرجاع: فحص السلامة، ثم منع التشخيص، ثم منع الفتوى، ثم منع الوصف العلاجي، ثم منع طلب صفحة غير مفهرسة."],
+  ["02", "Arabic Normalization", "تطبيع عربي محلي للعامية والتشكيل والصيغ، مع تجزئة الكلمات واستخراج جذور البحث."],
+  ["03", "Topic + Keyword Analysis", "تحديد الأبواب البحثية الاثني عشر والكلمات المفتاحية من وصف المستخدم نفسه."],
+  ["04", "Approved-Corpus Retrieval", "استرجاع لفظي/موضوعي من سجل المصادر المعتمدة فقط، بعتبة صلة وحد أقصى أربعة مقاطع، وحصر قرآني خاص عند سؤال التفسير."],
+  ["05", "Evidence Gate", "إن لم تكفِ المادة → امتناع صريح. لا جواب بلا مقطع معتمد، ولا مصادر خارج السجل."],
+  ["06", "Grounded Organization", "نموذج مقيَّد (Gemini/OpenAI) يعيد تنظيم المقاطع المسترجعة بنص عربي فقط، وحارس لاحق يرفض أي صياغة محظورة أو مخرجات مختلطة، وإلا فالتنظيم الحتمي من المقاطع نفسها."],
 ];
 
 const metrics = [
-  ["Retrieval Hit@4", "هل أصاب الاسترجاع مجموعة المصادر المتوقع أن تجيب عن السؤال؟"],
-  ["Citation Grounding", "هل كل ادعاء موثّق مرتبط بمقطع مسترجع، وهل يطابق المصدر المتوقع في أسئلة الـgold set؟"],
+  ["Outcome Accuracy", "هل طابق ناتج المسار (مادة / امتناع / إحالة فتوى / رد سلامة) المتوقع في الـgold set؟"],
+  ["Retrieval Hit@4", "هل ظهر مصدر متوقع ضمن المقاطع الأربعة النهائية؟"],
+  ["Chunk Recall", "نسبة المقاطع الذهبية التي وصلت إلى النتيجة النهائية، وهي أدق من قياس اسم المصدر."],
   ["Abstention Accuracy", "هل امتنع النظام في الحالات التي لا يوجد فيها دليل كافٍ أو التي تتطلب إحالة؟"],
-  ["AI Activation", "هل اكتمل مسار الذكاء الاصطناعي للحالات التي يفترض أن تستفيد منه؟"],
-  ["Baseline Delta", "ما الذي تغيّر بين البحث اللفظي التقليدي والمسار الهجين + AI؟"],
+  ["Organization Mode", "هل نظّم النموذج المادة فعلاً، أم عمل المسار الحتمي؟ يُقاس لكل حالة على البيئة المنشورة."],
 ];
 
 export default function LabPage() {
@@ -40,13 +41,15 @@ export default function LabPage() {
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-brass-300/30 bg-forest-800 px-3 py-1 text-[11px] font-bold text-brass-200">AI-FIRST CORE</span>
+              <span className="rounded-full border border-brass-300/30 bg-forest-800 px-3 py-1 text-[11px] font-bold text-brass-200">EVIDENCE-FIRST</span>
               <span className="text-[11px] text-parchment-200/65">Evidence before generation</span>
             </div>
-            <h2 className="heading-display mt-3 text-3xl font-bold">الذكاء الاصطناعي لا يأتي في النهاية — بل يقود مسار البحث كله</h2>
+            <h2 className="heading-display mt-3 text-3xl font-bold">الدليل أولاً، والنموذج في النهاية وبحدود صارمة</h2>
             <p className="mt-4 text-sm leading-8 text-parchment-200/85">
-              طبقة المصادر والقواعد الحتمية تحافظ على الحدود، بينما AI يتولى المهام التي تحتاج فهماً دلالياً أو ترتيباً أو تحققاً.
-              هذا الفصل يتيح لنا قياس الإضافة بدلاً من الاكتفاء بقول «لدينا LLM».
+              المسار كله حتمي وقابل للمراجعة: السياسات، ثم تطبيع عربي محلي، ثم تحديد الأبواب، ثم استرجاع
+              من سجل المصادر المعتمدة فقط. النموذج لا يبحث ولا يقرر، ولا يُستدعى إلا لتنظيم المقاطع
+              المسترجعة نصاً عربياً، ويمرّ بعده حارس يرفض أي خارج عن المادة المسترجعة. وبدون مفتاح مزوّد
+              يعمل المسار بالكامل عبر التنظيم الحتمي من المقاطع نفسها.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">

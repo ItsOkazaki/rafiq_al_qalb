@@ -1,44 +1,51 @@
 # تثبيت النسخة المستقرة
 
-هذه الوثيقة هي بوابة ما قبل التسليم. لا يُعلن «stable» إلا بعد اجتياز البنود فعلياً على بيئة الفريق.
+لا يُعلن «stable» إلا بعد تنفيذ البنود التالية فعلياً على بيئة الفريق، بلا استثناء.
 
-## بوابة البرمجيات
+## بوابة البرمجيات (منفَّذة في هذا الـcommit)
 
 ```bash
-npm install --no-audit --no-fund
-npm run test
-npm run lint
+npm ci
+npm test                 # 60 اختبار Vitest
+npm run alifta:test      # 33 اختبار زاحف (أوفلاين، بدون شبكة)
+npm run alifta:manifest  # تطابق المانيفست وعتبات الجودة
+npm run alifta:verify    # بوابة corpus: 271 مقطعاً وكل الأبواب فوق العتبة
 npm run typecheck
+npm run lint
 npm run build
+npm start                # ثم فحص حي لـ/hiwar و/api/research
 ```
+
+نتائج التشغيل الأخيرة مسجّلة في تقرير التسليم النهائي (لا تُنسخ الأرقام يدوياً هنا).
 
 ## بوابة الذكاء الاصطناعي
 
-1. تأكد من أن local/AI planner وretrieval وre-ranking وevidence gate وclaim verification تعمل على المزود المختار. إذا فعّلت embeddings، اختبرها منفصلاً؛ ليست مطلوبة لتشغيل وضع Gemini المجاني الافتراضي.
-2. شغّل benchmark كامل 40 سؤالاً على Vercel Preview/Production.
-3. شغّل conflict fixture.
-4. احتفظ بـ `benchmarks/results/latest.json` داخلياً وراجِع الأرقام قبل إدخالها في العرض.
+1. على بيئة فيها مفتاح مزوّد: تحقق أن `ai.mode = "model"` يظهر في استجابة `/api/research`،
+   وأن الوسم «ملخّص مولّد بالذكاء الاصطناعي» ظاهر فوق النص.
+2. على بيئة بلا مفتاح: تحقق أن `ai.mode = "deterministic"` وأن النص مجمَّع من المقاطع.
+3. شغّل `npm run benchmark -- --url <deployment>` (40 حالة) واحفظ الملف الناتج.
+4. شغّل فحص التعارض الاصطناعي: `curl -X POST <deployment>/api/benchmark/conflict`
+   (يعيد `503` إذا لم يُضبط مزوّد — سجّل ذلك كما هو).
 
-## بوابة Neon
+## بوابة قاعدة البيانات (إن فُعّلت)
 
-1. تأكد من نجاح `/api/health` في فحص قاعدة Neon.
-2. تحقق من وصول جلسات البحث إلى `research_sessions`.
-3. تحقق من أن benchmark runner يستطيع حفظ `benchmark_runs` و`benchmark_results` عند وجود `DATABASE_URL`.
-
-## بوابة التجربة
-
-نفّذ `docs/UX-TEST-PLAN.md` مع عينة مجهولة، ثم حدّث `docs/UX-RESULTS.md` بالخلاصة المجمعة فقط.
+1. `database-setup.sql` مطبَّق على قاعدة Neon.
+2. `/api/health` يعيد `database: "connected"`.
+3. تظهر جلسات البحث في `research_sessions` بعد سؤال حقيقي.
 
 ## بوابة المحتوى والحقوق
 
-راجع `docs/SOURCES-AND-LICENSES.md` و`docs/RIGHTS-AND-RELEASE-CHECK.md`، وتحقق من حالة كل corpus excerpt، خصوصاً الفرق بين `literal` و`curated-summary`.
+1. راجع `docs/SOURCES-AND-LICENSES.md` و`docs/RIGHTS-AND-RELEASE-CHECK.md`.
+2. تأكد من صحة وسم كل مقطع: `literal` (منقول) مقابل `curated-summary` (عرض بحثي موجَّه).
+3. تحقق من خط حفص المحلي: `npm run verify:quran-font` (الملف مُضمَّن غير معدَّل، والبصمة مطابقة للموثَّق — `docs/FONT-LICENSE.md`).
 
 ## بوابة التحدي
 
-ثبّت baseline ما قبل التحدي، ثم سجّل فقط التغييرات التي ينفذها الفريق فعلياً في نافذة التحدي ضمن delta مستقل.
+ثبِّت baseline ما قبل التحدي، وسجِّل فقط التغييرات الفعلية داخل نافذة التنفيذ في تقرير
+delta مستقل. بعد اكتمال البوابات:
 
-بعد اكتمال كل البوابات، ضع tag واضحاً مثل:
-
-```text
-challenge-final-2026
+```bash
+git tag challenge-final-2026
 ```
+
+مع إعلان أرقام الـbenchmark من الملف الفعلي وحده.

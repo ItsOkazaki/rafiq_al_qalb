@@ -28,6 +28,11 @@ const GENERIC_QUERY_TOKENS = new Set([
   "موضوع", "موضوعات", "بحث", "ماده", "مادة", "العلم", "العلمية", "الحديث", "السؤال",
   "ما", "من", "هو", "هي", "في", "عن", "هل", "هذا", "هذه", "ذلك", "تلك", "الى",
   "لماذا", "كيف", "ماذا", "اريد", "أريد", "رأي", "راي", "قول", "أفضل", "افضل",
+  // كلمات وصفية عن المصدر نفسه لا عن مضمونه («ما الذي تقوله الرسالة الرسمية عن…»):
+  // تُستثنى من حساب تغطية السؤال حتى لا تُسقِط بحثاً موضوعياً صحيحاً.
+  // تُكتب بالشكل المطبَّع (ة←ه، مع سابقات مجرّدة) لأن المقارنة تجري بعد التطبيع والتقطيع.
+  "الرسالة", "رسالة", "الرساله", "رساله", "الرسمية", "الرسميه", "الرسمي", "رسمي",
+  "المنشورة", "المنشوره", "منشورة", "منشوره", "المنشور", "منشور",
   "لاعب", "كرة", "كره", "قدم", "الاول", "الأول", "كامل", "كاملة", "تفسير", "ايه", "آيه", "اية", "آية", "سورة", "سوره",
 ]);
 
@@ -144,15 +149,46 @@ function buildDocumentFrequency(corpus: CorpusChunk[]): Map<string, number> {
   return freq;
 }
 
+/**
+ * هل يطابق مرادفُ الباب سؤالَ المستخدم؟
+ *
+ * المطابقة الأساسية بالاحتواء الحرفي. وتُضاف إليها مطابقة تغطية الكلمات للمرادفات
+ * متعددة الكلمات: صياغة المستخدم قد تُقدَّم بأداة نفي أو ضمير («ما عاد أتأثر بالموعظة»
+ * مقابل مرادف «لا أتأثر بالموعظة»)، فيُقبل المرادف إذا ظهرت **كل** كلماته المعنوية
+ * في السؤال بعد التطبيع وتجريد السوابق. الشرط: كلمتان معنويتان على الأقل، حتى لا
+ * تتحول كلمة واحدة عامة إلى وسم بابٍ كامل.
+ */
+/** أشكال الكلمة التي تُقارَن بها المرادفات: المطبَّعة والجذرية («يضيق» ← «ضيق»). */
+function matchingForms(token: string): string[] {
+  const norm = normalizeArabic(token);
+  const canonical = canonicalSearchToken(norm);
+  return [...new Set([norm, canonical].filter((t) => t && t.length >= 3))];
+}
+
+function synonymMatchesSynonym(norm: string, queryForms: Set<string>, synonym: string): boolean {
+  const n = normalizeArabic(synonym);
+  if (n) {
+    // كلمة قصيرة (٣ أحرف أو أقل) مثل «هم» تطابق كلمةً كاملة فقط، وإلا التقطت
+    // «الأسهم» و«أهم» و«فهم» وسَمت سؤالاً بعيداً بأنه بابُ الهم والغم.
+    if (!n.includes(" ") && n.length <= 3) {
+      return queryForms.has(n);
+    }
+    if (norm.includes(n)) return true;
+  }
+  const tokens = tokenizeArabic(synonym).filter((t) => normalizeArabic(t).length >= 3);
+  if (tokens.length < 2) return false;
+  return tokens.every((t) => matchingForms(t).some((form) => queryForms.has(form)));
+}
+
 export function identifyTopics(query: string, topics = TOPICS): TopicMatch[] {
   const norm = normalizeArabic(query);
   if (!norm) return [];
+  const queryForms = new Set(tokenizeArabic(query).flatMap((t) => matchingForms(t)));
   const matches: TopicMatch[] = [];
   for (const topic of topics) {
     let score = 0;
     for (const syn of topic.synonyms) {
-      const n = normalizeArabic(syn);
-      if (n && norm.includes(n)) score += 2;
+      if (synonymMatchesSynonym(norm, queryForms, syn)) score += 2;
     }
     for (const kw of topic.keywords) {
       const n = normalizeArabic(kw);
@@ -241,8 +277,10 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
         strongLexicalMatch = true;
       }
 
+      // الكلمات المفتاحية تُقارن كلماتٍ كلمات، لا كعبارة كاملة: «الصبر عند البلاء»
+      // يجب أن تُطابق كلمتي «الصبر» و«البلاء» على حدة.
       const keywordTokens = new Set(
-        chunk.keywords.flatMap((kw) => tokenVariants(kw)),
+        chunk.keywords.flatMap((kw) => tokenizeArabic(kw)).flatMap((tk) => tokenVariants(tk)),
       );
       for (const kw of chunk.keywords) {
         const k = normalizeArabic(kw);
@@ -307,8 +345,11 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       // لكنه لا يغطيه؛ فالمقطع ليس إسناداً له. نطلب كلمتين معنويتين مختلفتين
       // وأن تغطّي المطابقات نصف كلمات السؤال المعنوية على الأقل.
       const coverage = meaningfulQueryTokens > 0 ? nonGenericMatches / meaningfulQueryTokens : 0;
+      // تغطية كاملة لكلمات السؤال المعنوية (بمطابقات فعلية) دليل قوي بذاتها،
+      // حتى لو جاءت أوزان الصيغ المفردة أقل من عتبة «المطابقة القوية» بسبب شيوع الكلمة.
+      const fullCoverage = nonGenericMatches >= 2 && coverage >= 0.99;
       const relevance =
-        matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && strongLexicalMatch);
+        matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && (strongLexicalMatch || fullCoverage));
       return { chunk, score, directMatch, relevance };
     })
     .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.directMatch)

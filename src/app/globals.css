@@ -2,8 +2,9 @@
 
 @font-face {
   font-family: "UthmanicHafs";
-  src: url("/fonts/UthmanicHafs_V22.woff2") format("woff2"),
-       url("/fonts/UthmanicHafs_V22.ttf") format("truetype"),
+  /* الملف المحلي غير معدَّل (KFGQPC HAFS V2.2) — لا يُحوَّل إلى WOFF2 لأن الترخيص يمنع التعديل.
+     الرابط البعيد يبقى بديلاً موثَّقاً أخيراً إن غاب الملف من النشر. */
+  src: url("/fonts/UthmanicHafs_V22.ttf") format("truetype"),
        url("https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.ttf") format("truetype");
   font-display: block;
   font-weight: 400;

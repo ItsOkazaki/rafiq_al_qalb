@@ -1,32 +1,45 @@
-# متطلبات الخبير → تنفيذ المشروع
+# متطلبات الخبير → الحالة الفعلية في المستودع
 
-هذه الصفحة تربط مباشرة بين قائمة العمل التي طلبها خبير الفريق وبين أماكن التنفيذ القابلة للمراجعة في المستودع.
+> هذه الصفحة تصف الحالة الفعلية للكود في هذا الـcommit. كل صف يشير إلى مكان قابل للمراجعة،
+> وما ليس منفّذاً في مسار التشغيل مكتوب صراحةً أنه غير منفّذ.
 
-| المتطلب | التنفيذ | مكان المراجعة |
+## منفّذ وقابل للتحقق
+
+| المتطلب | الحالة | مكان المراجعة |
 |---|---|---|
-| تحسين الـRAG | توحيد lexical + semantic candidate recall قبل الترتيب النهائي | `src/lib/rag/retrieve.ts` |
-| Hybrid Retrieval | embeddings على كامل corpus المعتمد + lexical fusion | `src/lib/rag/retrieve.ts`, `src/lib/ai/embeddings.ts` |
-| Re-ranking | AI يعيد ترتيب المرشحين ويحدد ما يدعم خطة البحث | `src/lib/ai/provider.ts` |
-| Evidence Filtering | Evidence Gate يجمع قرار AI مع تغطية دلالية مستقلة قبل التوليد | `src/lib/rag/retrieve.ts`, `src/lib/research/pipeline.ts` |
-| التحقق من الإجابة | claim generation ثم claim-level verification؛ غير المدعوم لا يظهر | `src/lib/ai/provider.ts`, `src/lib/research/pipeline.ts` |
-| اختبار تعارض المصادر | كاشف تعارض مستقل + fixture اصطناعي قابل للتشغيل | `detectSourceConflicts()`, `src/app/api/benchmark/conflict/route.ts`, `benchmarks/conflict-fixtures.json` |
-| Benchmark | gold set ثابت وتشغيل baseline/AI على نفس الأسئلة | `benchmarks/questions.json`, `benchmarks/run-benchmark.mjs` |
-| 30–50 سؤالاً | 40 حالة ثابتة موزعة على direct/vague/out-of-scope/fatwa-safety/multi-source/hallucination | `benchmarks/questions.json` |
-| قياس دقة الاسترجاع | source recall، source hit، topic hit، وتغير ترتيب النتائج | `benchmarks/run-benchmark.mjs` |
-| قياس صحة التوثيق | نسبة الادعاءات المدعومة + نسبة الإحالات الموافقة للمصادر المتوقعة | `benchmarks/run-benchmark.mjs` |
-| قياس Abstention | دقة الامتناع في الأسئلة خارج النطاق والفتوى وحالات نقص الدليل | `benchmarks/run-benchmark.mjs` |
-| مقارنة البحث التقليدي | baseline lexical منفصل ونسخة AI بنفس query/gold set | `src/lib/research/pipeline.ts`, `benchmarks/run-benchmark.mjs` |
-| تحسين واجهة الأدلة | claim → evidence links + source/chapter/page/verification links + retrieval metrics | `src/components/research-result.tsx`, `src/components/passage-card.tsx` |
-| اختبار تجربة المستخدم | بروتوكول + ملف نتائج جاهز. التنفيذ الفعلي مع 5–8 مستخدمين يجب أن يتم على النسخة النهائية | `docs/UX-TEST-PLAN.md`, `docs/UX-RESULTS.md` |
-| توثيق النتائج | benchmark يكتب JSON بنتائج التشغيل الفعلية، ولا توجد أرقام ثابتة مزعومة؛ النسخة الحالية لا تتضمن أرقاماً مصطنعة | `benchmarks/results/latest.json` (غير متعقّب) |
-| إصلاح الأخطاء الحرجة | إزالة اعتماد health route على DB، منع توليد AI عند فشل pipeline، والتحقق من source IDs | `src/app/api/health/route.ts`, `src/lib/research/pipeline.ts` |
-| تحديث GitHub والتوثيق | README + DEPLOY + CONTRIBUTING + architecture + model/baseline/delivery docs | `README.md`, `docs/` |
-| تثبيت نسخة مستقرة | قائمة إصدار نهائي وخطوات tag بعد اجتياز typecheck/lint/build/benchmark/UX | `docs/CHALLENGE-DELIVERY-CHECKLIST.md` |
+| استرجاع من corpus معتمد فقط + سجل مصادر | ✅ منفّذ | `src/lib/sources/registry.ts`, `src/lib/rag/retrieve.ts` |
+| عتبة كفاية دليل وامتناع صريح | ✅ منفّذ | `MIN_PASSAGE_SCORE = 3`, `MIN_PASSAGE_TEXT_LENGTH = 40`, `ABSTAIN_MESSAGE` |
+| حد أقصى للمقاطع المسترجعة | ✅ منفّذ | `MAX_PASSAGES = 4` + تنويع المصادر داخل `retrievePassages` |
+| منع الفتوى/التشخيص/الوصف الشخصي | ✅ منفّذ | `src/lib/policy/*`, `src/lib/safety.ts`, `src/lib/terminology.ts` |
+| سلامة تسبق الاسترجاع | ✅ منفّذ | أول بوابة في `runResearch` |
+| فهم العربية والعامية محلياً | ✅ منفّذ | `src/lib/text/arabic.ts` (`normalizeDialect`, `tokenizeArabic`) |
+| توليد مقيَّد بالمادة + وسم صريح | ✅ منفّذ | `src/lib/ai/provider.ts`, `src/components/research-result.tsx` |
+| حارس لاحق يرفض المخرجات المختلطة/المحظورة | ✅ منفّذ | `src/lib/text/strict-output.ts`, `isFramingSafe` |
+| مسار حتمي كامل بدون أي مفتاح | ✅ منفّذ | `src/lib/ai/fallback.ts` + تغطية اختبارية |
+| إسناد المصدر والموضع والرابط لكل مقطع | ✅ منفّذ | `PassageCard`, `RetrievedPassage` |
+| عرض الحديث الكامل + الشرح الرسمي كطبقتين منفصلتين | ✅ منفّذ | `src/components/passage-card.tsx` |
+| النص القرآني في حقل مستقل بخط حفص | ✅ منفّذ | `quranText`/`quranReference` + `globals.css` |
+| استرجاع جامع السنة من صفحات المتون الرسمية | ✅ منفّذ (271 مقطعاً) | `scripts/alifta-html/ingest.mjs`, `src/lib/corpus/generated/` |
+| بوابة جودة corpus وعدم الكتابة على corpus مرفوض | ✅ منفّذ ومختبر | `scripts/alifta-html/verify.mjs`, اختبار «a rejected run may not replace the committed corpus» |
+| مجموعة قياس ثابتة 40 حالة | ✅ منفّذة وقابلة للتشغيل | `benchmarks/questions.json`, `npm run benchmark` |
+| فحص صحة للبيئة المنشورة | ✅ منفّذ | `GET /api/health` (حالة AI + قاعدة البيانات + عدد المقاطع) |
+| اختبارات آلية | ✅ 60 اختبار Vitest + 33 اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
+| تصنيف المصادر المستبعدة ومنع استرجاعها | ✅ منفّذ | `EXCLUDED_SOURCES` في سجل المصادر |
 
-## معنى «الذكاء الاصطناعي أساسي» هنا
+## غير منفّذ في مسار التشغيل (صراحةً)
 
-الوضع الحواري الافتراضي هو `mode=ai`. في هذا الوضع لا تُصاغ الإجابة النهائية بالمسار الحتمي القديم. يجب أن يمر الطلب عبر:
+| المتطلب | الحالة | ملاحظة |
+|---|---|---|
+| AI Research Planner | ❌ غير موصول | لا يوجد استدعاء نموذج للتخطيط؛ التصنيف محلي حتمي. |
+| Semantic embeddings + Hybrid Retrieval | ❌ غير موصول | `src/lib/ai/embeddings.ts` موجود لكنه غير مستورد من أي مسار. |
+| AI Re-ranking | ❌ غير موصول | الترتيب حتمي (topic/keyword/rarity) داخل `retrievePassages`. |
+| Claim generation + Claim verification | ❌ غير موصول | لا توجد ادعاءات ولا تحقق على مادة المستخدم. |
+| Conflict detection على مادة المستخدم | ⚠️ جزئي | `/api/benchmark/conflict` يفحص مقطعين **اصطناعيين** بمصفوفة أنماط، ويتطلب مزوّداً. |
+| اختبار UX مع مستخدمين | ⏳ لم يُنفّذ | البروتوكول ونموذج النتائج جاهزان في `docs/UX-TEST-PLAN.md`. |
+| تشغيل benchmark على البيئة المنشورة | ⏳ لم يُنفّذ في هذا الـcommit | الأمر جاهز: `npm run benchmark -- --url <deployment>`. |
+| تضمين خط حفص داخل المستودع | ✅ منفّذ | `public/fonts/UthmanicHafs_V22.ttf` غير معدَّل + `npm run verify:quran-font` يفحص البصمة؛ الترخيص المضمَّن في الملف يسمح بالاستخدام والنسخ والتوزيع ويمنع التعديل (`docs/FONT-LICENSE.md`). |
 
-`AI Planner → Semantic Embeddings → Hybrid Fusion → AI Re-ranking → Evidence Gate → Claim Generation → Claim Verification → Final Answer`
+## ملاحظة منهجية
 
-الوضع `baseline` موجود للقياس والمقارنة فقط. عند غياب مزود AI أو فشل إحدى طبقات AI، يعرض النظام مادة الدليل/المكتبة ولا يدّعي أن مسار الإجابة الذكية اكتمل.
+الادعاءات في README والصفحات العامة مقيّدة بما هو منفّذ في الجدول الأول. لا تُنسب أي ميزة
+من الجدول الثاني إلى المنتج في العرض أو الوثائق قبل وصلها فعلياً واختبارها.

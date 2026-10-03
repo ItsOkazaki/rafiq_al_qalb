@@ -8,6 +8,8 @@ export const maxDuration = 120;
 
 interface ResearchRequestBody {
   query?: unknown;
+  /** `ai` (افتراضي) أو `baseline` — يُستعمل للقياس المقارن فقط. */
+  mode?: unknown;
 }
 
 export async function POST(request: Request) {
@@ -19,7 +21,8 @@ export async function POST(request: Request) {
   }
 
   const query = typeof body.query === "string" ? body.query : "";
-  const result = await runResearch(query);
+  const mode = body.mode === "baseline" ? "baseline" : "ai";
+  const result = await runResearch(query, { mode });
 
   // توثيق تشغيلي بأفضل جهد — لا يُسقِط الاستجابة أبداً.
   if (db) {

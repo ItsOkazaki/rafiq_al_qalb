@@ -17,13 +17,14 @@
 - [ ] لا يوجد `.env` في Git أو الملف المرفوع.
 - [ ] لا توجد قاعدة بيانات أو سجلات بحث مستخدمين.
 - [ ] لا توجد API keys/secret/token حرفية في الكود.
-- [ ] أعد فحص الأرشيف قبل الرفع:
+- [x] فحص الملفات المتعقّبة (لا ZIP ولا أرشيف مصادر في المستودع):
   ```bash
-  unzip -l rafiq-alqulub-vercel-source.zip
-  grep -RniE "password|secret|token|API key|DATABASE_URL=postgresql://" .
+  git ls-files | grep -iE '\.(zip|env|log)$'
+  grep -RniE "password|secret|token|api[_-]?key" --include='*.ts' --include='*.tsx' --include='*.mjs' src scripts | grep -v '\.env\.example'
   ```
-- [ ] `.env.example` يبقى خاليًا من القيم الحقيقية.
-- [ ] `database-setup.sql` لا يحتوي بيانات مستخدمين.
+- [x] `.env.example` خالٍ من القيم الحقيقية.
+- [x] `database-setup.sql` لا يحتوي بيانات مستخدمين.
+- [ ] **بند مفتوح**: المستودع ما زال **خاصاً (private)**؛ يجب تحويله إلى عام قبل التسليم.
 
 ## ٤) استقرار Vercel أثناء التحكيم
 - ثبّت مشروع Production واحدًا ولا تغير اسمه أو إعداداته أثناء التحكيم.

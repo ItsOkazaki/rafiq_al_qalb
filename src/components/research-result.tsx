@@ -6,7 +6,6 @@ import {
   BookOpenText,
   CircleHelp,
   Compass,
-  ExternalLink,
   HeartHandshake,
   Info,
   KeyRound,
@@ -273,16 +272,5 @@ function SafetyView({ result }: { result: ResearchResult }) {
         </p>
       </div>
     </div>
-  );
-}
-
-/** زر مساعد صغير لعرض حالة الاسترجاع */
-export function RetrievalMetaNote({ result }: { result: ResearchResult }) {
-  if (result.outcome !== "ok") return null;
-  return (
-    <p className="flex items-center gap-1.5 text-[11px] text-ink-500">
-      <ExternalLink className="size-3" />
-      {result.passages.length} مقاطع مسترجعة من مصدر معتمد واحد — حد الاسترجاع الأقصى مطبَّق.
-    </p>
   );
 }

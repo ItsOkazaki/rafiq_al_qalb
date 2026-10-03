@@ -1,20 +1,25 @@
 {
-  "name": "nextjs-postgresql-template",
+  "name": "rafiq-al-qalb",
+  "version": "1.0.0",
   "private": true,
+  "description": "رفيق القلوب — أداة حوارية تسترجع المادة العلمية حصراً من مصادر مفهرسة معتمدة، مع إسناد المصدر والموضع والرابط، وامتناع صريح عند غياب الدليل.",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "verify:quran-font": "node scripts/verify-quran-font.mjs",
     "test": "vitest run",
-    "alifta:ingest": "node scripts/alifta-html/ingest.mjs scripts/alifta-html/manifest.json",
-    "alifta:verify": "node scripts/alifta-html/verify.mjs",
+    "smoke": "node scripts/runtime-smoke.cjs",
+    "benchmark": "node benchmarks/run-benchmark.mjs",
+    "verify:quran-font": "node scripts/verify-quran-font.mjs",
     "alifta:test": "node scripts/alifta-html/test.mjs",
     "alifta:manifest": "node scripts/alifta-html/manifest-check.mjs",
     "alifta:live-check": "node scripts/alifta-html/live-check.mjs",
-    "alifta:capture": "node scripts/alifta-html/capture-fixtures.mjs"
+    "alifta:capture": "node scripts/alifta-html/capture-fixtures.mjs",
+    "alifta:ingest": "node scripts/alifta-html/ingest.mjs scripts/alifta-html/manifest.json",
+    "alifta:verify": "node scripts/alifta-html/verify.mjs"
   },
   "dependencies": {
     "@fontsource/amiri": "^5.3.0",
@@ -24,11 +29,9 @@
     "drizzle-orm": "0.45.2",
     "lucide-react": "^1.47.0",
     "next": "16.2.6",
-    "pdfjs-dist": "^6.3.289",
     "pg": "8.20.0",
     "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "vitest": "^5.0.1"
+    "react-dom": "19.2.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.17",
@@ -41,9 +44,10 @@
     "eslint-config-next": "16.2.6",
     "postcss": "8.5.8",
     "tailwindcss": "4.1.17",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^5.0.1"
   },
   "engines": {
-    "node": "24.x"
+    "node": ">=22.9.0"
   }
 }

@@ -1,240 +1,262 @@
 # رفيق القلوب — Rafiq Al-Qulub
 
-<div align="center">
+<div dir="rtl">
 
-**أداة حوارية للخطباء والوعاظ والمختصين وطلاب العلم**
+**أداة حوارية للخطباء والوعاظ والباحثين وطلاب العلم: تسترجع المادة العلمية حصراً من مصادر مفهرسة معتمدة، مع إسناد المصدر والموضع والرابط، وامتناع صريح عند غياب الدليل. لا تشخّص، ولا تُفتي، ولا تصف علاجاً.**
 
-*تسترجع المادة العلمية حصراً من مصادر مفهرسة — لا تشخّص ولا تُفتي ولا تصف علاجاً*
+[العرض الحي](https://rafiq-al-qalbv2.vercel.app) · [الحوار البحثي](https://rafiq-al-qalbv2.vercel.app/hiwar) · [المكتبة](https://rafiq-al-qalbv2.vercel.app/maktaba) · [مختبر الأدلة للجنة التحكيم](https://rafiq-al-qalbv2.vercel.app/lab) · [فهرس الوثائق](docs/README.md)
 
-[العرض الحي](https://rafiq-alqulub.vercel.app) · [المكتبة المعتمدة](/maktaba) · [الحوار البحثي](/hiwar)
+> **حالة المستودع:** خاص حالياً (Private). تحويله إلى عام جزء من قائمة ما قبل التسليم — `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
+> **الترخيص:** كود التطبيق MIT (`LICENSE`)؛ أما المصادر والخطوط فلكل منها شروطه الموثقة أدناه.
 
 </div>
 
 ---
 
-## ما هو رفيق القلوب؟
+## ١. المشكلة والحل
 
-أداة حوارية تستقبل وصف المستخدم للموضوع، وتحدّد بابه البحثي ضمن مكتبة مصنّفة في أبواب **التزكية والسلوك والعبادات القلبية**، ثم تسترجع المحتوى حصراً من مصادر مفهرسة مسبقاً.
+المادة الوعظية والعلمية في أبواب العبادات القلبية (أثر الذنوب، قسوة القلب، التوبة، الغفلة، الهم والقلق…) مشتتة بين الكتب والمواقع والفتاوى، ومستخرجات البحث تعطي روابط لا نصوصاً، وأدوات الذكاء الاصطناعي العامة تُجيب بثقة بلا إسناد.
 
-تعرض النتائج بصورة منظّمة وقابلة للتتبّع:
-- اسم المصدر
-- الجزء أو الصفحة
-- الرابط الرسمي للمصدر الأصلي
+**رفيق القلوب يعكس التصميم المعتاد:** الاسترجاع أولاً والنموذج أخيراً.
 
-**إن غابت المادة: امتناع مضمون** — لا تخمين، ولا حشو، ولا ثقة بلا مرجع.
+1. يصف المستخدم موضوعه بلغته.
+2. يحدد النظام الباب البحثي من بين **١٢ باباً** والكلمات المفتاحية.
+3. يسترجع **مقاطع فعلية** من corpus مفهرس مسبقاً — لا روابط، ولا بحث من الإنترنت المفتوح.
+4. يعرض لكل مقطع: المصدر، الجزء/الصفحة، الرابط الأصلي، ونص المتن الكامل عند توفره.
+5. إن لم تكفِ المادة: **امتناع صريح** («لم نجد مادة كافية…») بدل التخمين.
 
-## المشكلة
+## ٢. الحدود الصارمة (ليست شعارات — لها مسارات وسياسات في الكود)
 
-يواجه الخطباء والوعاظ والباحثون في أبواب العبادات القلبية أربع فجوات:
-
-1. **نقص المحتوى الوعظي الموثق** — المادة المتوفرة مشتتة أو بلا توثيق
-2. **تفرق الأبواب** — التوبة، الهم، الذكر، غض البصر، الاستشفاء بالقرآن موزعة على مجلدات يصعب استخراجها وعظياً
-3. **اقتباس بلا توثيق** — نصوص بلا مصدر، وكلام ينسب لمن لم يقله
-4. **هلوسة النماذج العامة** — جواب واثق بلا مرجع في المحتوى الديني
-
-## الحل
-
-| الخطوة | ما يحدث |
-|---|---|
-| **١. الاستقبال** | يستقبل وصف الموضوع بجملة بسيطة |
-| **٢. الفهم والتحديد** | يحدد الباب البحثي والكلمات المفتاحية |
-| **٣. الاسترجاع** | بحث فعلي في الفهرس المعتمد فقط — لا توليد حر |
-| **٤. التوثيق والعرض** | عرض منظم بالمصدر والجزء/الصفحة والرابط، أو امتناع واضح |
-
-## الأبواب البحثية (١٢ باباً)
-
-| # | الباب |
-|---|---|
-| 1 | آثار المعاصي والذنوب |
-| 2 | قسوة القلب |
-| 3 | التوبة |
-| 4 | تكرار الذنب والانتكاس |
-| 5 | الغفلة |
-| 6 | الذكر ومجالسه |
-| 7 | الهم والقلق |
-| 8 | التدبر والتأثر بالقرآن والموعظة |
-| 9 | حضور القلب في العمل |
-| 10 | التداوي بالقرآن والفاتحة |
-| 11 | غض البصر وآفة النظر |
-| 12 | الشهوة وحسم مادتها |
-
-## المصادر المعتمدة
-
-| المصدر | الناشر | المقاطع |
-|---|---|---:|
-| الداء والدواء — الجواب الكافي | موقع البدر | 35 |
-| التوبة إلى الله والضراعة إليه عند نزول المصائب | موقع ابن باز الرسمي | 6 |
-| مجموع فتاوى ومقالات متنوعة | موقع ابن باز الرسمي | 11 |
-| مشروع المصحف الإلكتروني | جامعة الملك سعود | 7 |
-
-**لا يُسترجع من أي مصدر خارج هذه المكتبة.**
-
-## الحدود — ضمان علمي
-
-| الحد | التفصيل |
-|---|---|
-| **لا تشخيص** | الوصف يُفهم مدخلاً للبحث فقط، لا تقييماً لأحد |
-| **لا فتوى** | استرجاع وتوثيق فقط، لا إصدار أحكام شرعية |
-| **لا وصفات** | مادة موثقة فقط، لا برامج علاجية ولا خطط شخصية |
-| **لا هلوسة** | إن غابت المادة يمتنع النظام صراحة |
-| **سلامة أولاً** | الحالات النفسية تُحال فوراً لمختص |
-
-## البنية التقنية
-
-| المكون | التقنية |
-|---|---|
-| معالجة اللغة الطبيعية | خوارزمية عربية مخصصة (`normalizeArabic` / `tokenizeArabic` / `normalizeDialect`) |
-| محرك الاسترجاع (RAG) | Keyword + Topic Boost — بدون قاعدة بيانات متجهية — لا استرجاع من الإنترنت المفتوح |
-| مصادر سعودية أولية | مجمع الملك فهد (حفص) + جامع السنة النبوية بالرئاسة العامة للبحوث العلمية والإفتاء؛ محتوى حديث Alifta يُفعّل بعد ingestion/review |
-| معالجة المستندات | Docling في مرحلة ingestion فقط؛ ناتج منظم وموسوم بالـprovenance ثم يدخل corpus المراجع |
-| قاعدة البيانات | PostgreSQL عبر Drizzle ORM (تتبع الجلسات) |
-| نموذج الذكاء الاصطناعي | Google Gemini 1.5 Flash (عبر واجهة OpenAI المتوافقة) |
-| آلية الامتناع | عتبة ثقة (`MIN_PASSAGE_SCORE = 3`) + فحص سلامة + فحص فتوى + فحص وصف |
-| الواجهة | Next.js 16 (App Router) |
-| النشر | Vercel |
-| الخطوط | Amiri + IBM Plex Sans Arabic + Aref Ruqaa (SIL OFL — مرخصة تجارياً) |
-
-## التثبيت والتشغيل المحلي
-
-### المتطلبات
-- Node.js 18+
-- PostgreSQL (اختياري — للتتبع التشغيلي فقط)
-
-### الخطوات
-
-```bash
-# 1. استنساخ المشروع
-git clone https://github.com/YOUR_USERNAME/rafiq-alqulub.git
-cd rafiq-alqulub
-
-# 2. تثبيت الحزم
-npm install
-
-# 3. إعداد متغيرات البيئة
-cp .env.example .env
-# عدّل .env وأضف DATABASE_URL (اختياري)
-
-# 4. إعداد قاعدة البيانات (اختياري)
-# إذا كان لديك PostgreSQL:
-npx drizzle-kit push
-
-# 5. التشغيل في وضع التطوير
-npm run dev
-
-# 6. فتح المتصفح
-# http://localhost:3000
-```
-
-### البناء للإنتاج
-
-```bash
-npm run build
-npm start
-```
-
-### النشر على Vercel
-
-1. ارفع المشروع على GitHub
-2. افتح [vercel.com/new](https://vercel.com/new)
-3. اربط المستودع
-4. أضف المتغيرات البيئية:
-   - `DATABASE_URL` (اختياري — PostgreSQL من [neon.tech](https://neon.tech))
-   - `OPENAI_API_KEY` (اختياري — لتفعيل التنظيم الآلي)
-5. اضغط **Deploy**
-
-## المتغيرات البيئية
-
-| المتغير | مطلوب؟ | الوظيفة |
+| الحالة | السلوك | الموضع |
 |---|---|---|
-| `DATABASE_URL` | لا | سجل تتبع جلسات البحث (PostgreSQL) |
-| `OPENAI_API_KEY` | لا | تفعيل التنظيم الآلي المقيَّد بالمادة المسترجعة |
-| `OPENAI_MODEL` | لا | اسم النموذج (افتراضي: `gpt-4o-mini`) |
-| `OPENAI_BASE_URL` | لا | نقطة نهاية مخصصة (افتراضي: OpenAI) |
+| خطر على السلامة (إيذاء النفس…) | إيقاف المحتوى الديني ورد مساعدة فورية | `src/lib/safety.ts` |
+| سؤال يشبه التشخيص («هل أنا مصاب…») | لا تشخيص + إحالة | `src/lib/policy/diagnosis.ts` |
+| سؤال حلال/حرام أو طلب فتوى | لا فتوى + إحالة إلى أهل العلم | `src/lib/policy/fatwa.ts` |
+| طلب وصفة أو علاج شخصي | لا وصفات + إحالة | `src/lib/policy/prescription.ts` |
+| طلب صفحة/نص غير مفهرس | لا اختلاق + امتناع | `src/lib/research/pipeline.ts` |
+| غياب مادة كافية | `ABSTAIN_MESSAGE` | `src/lib/terminology.ts` |
 
-> **ملاحظة:** بدون مفتاح AI يعمل النظام بالكامل بالمسار الحتمي — وهذا مسار تصميمي مقصود وليس وضعاً منقوصاً.
+## ٣. كيف يعمل — ست مراحل فعلية
 
-## الاختبارات
+```
+وصف المستخدم
+   ↓
+[1] بوابات السياسة (سلامة → تشخيص → فتوى → وصف  → طلب غير مفهرس)
+   ↓
+[2] تطبيع عربي محلي + تقطيع (بلا أي خدمة خارجية): src/lib/text/arabic.ts
+   ↓
+[3] تحديد الباب البحثي + الكلمات المفتاحية (١٢ باباً): src/lib/rag/*.ts
+   ↓
+[4] استرجاع مضبوط من المصادر المعتمدة فقط:
+     - عتبة صلة + حد أقصى ٤ مقاطع + تنويع المصادر
+     - سؤال «تفسير آية»: يُحصر في مقاطع تحمل نص الآية ومرجعها
+     - سؤال «رأي/قول» عالمٍ بعينه: لا يُسند إلا لمصدر مسجّل لذلك العالم
+   ↓
+[5] بوابة الدليل: لا مادة كافية → امتناع صريح
+   ↓
+[6] تنظيم مُقيَّد: استدعاء نموذج واحد يُعيد ترتيب المقاطع المسترجعة فقط،
+     ثم حارس مخرجات عربي يرفض أي صياغة محظورة؛ وإن غاب المفتاح أو رُفض
+     المخرج → تنظيم حتمي من المقاطع نفسها.
+```
+
+الاسترجاع **واحد في الوضعين** (لا يتغير بوجود النموذج): `POST /api/research` يقبل `mode: "ai" | "baseline"`، والقياس يثبت التطابق (`retrieval_identical_between_modes = true`). النموذج لا يبحث ولا يسترجع.
+
+## ٤. المصادر والـcorpus (الأعداد محسوبة من الملفات في هذا الـcommit)
+
+| # | المصدر | المقاطع |
+|---|---|---:|
+| 1 | جامع خادم الحرمين الشريفين للسنة النبوية — **مقاطع دليل مولَّدة من صفحات المتون الرسمية** | 271 |
+| 2 | جامع السنة — مداخل فهرسة موضوعية (سياق بحثي) | 126 |
+| 3 | الداء والدواء — ابن قيم الجوزية (موقع البدر) | 35 |
+| 4 | صحيح البخاري — أحاديث مختارة | 15 |
+| 5 | أمراض القلوب وشفاؤها — ابن تيمية | 15 |
+| 6 | مجموع فتاوى ومقالات ابن باز (مختارات موضعية) | 11 |
+| 7 | التوبة إلى الله والضراعة إليه عند نزول المصائب — ابن باز (الموقع الرسمي) | 6 |
+| 8 | مشروع المصحف الإلكتروني — جامعة الملك سعود (نص القرآن وتفسيره) | 7 |
+| | **الإجمالي** | **486** |
+
+- بوابة `npm run alifta:verify` تتحقق آلياً: 271 مقطعاً، **278/280** صفحة متن رسمية ناجحة، **271/271** تحمل المتن الكامل (لا مقتطفات بحث)، **10** بشرح رسمي موثّق، و**كل الأبواب الاثنا عشر ≥ ٣ مقاطع**.
+- القاعدة: مصدر لا يدخل الاسترجاع إلا إذا كان مسجّلاً `active` في `src/lib/sources/registry.ts` وغير مستبعد؛ والتفصيل في `docs/SOURCES-AND-LICENSES.md` و`docs/VERIFICATION-AUDIT.md`.
+
+## ٥. الواجهات ومسارات الـAPI
+
+| المسار | الوصف |
+|---|---|
+| `/` | الصفحة التعريفية + حالة النظام |
+| `/hiwar` | **الحوار البحثي** — المسار الرئيسي: وصف → أبواب → مقاطع موثقة أو امتناع/إحالة |
+| `/hala` | لمحة بحثية: أسئلة ملاحة لتحديد الموضوع والكلمات المفتاحية |
+| `/maktaba` + `/maktaba/[topic]` + `/maktaba/kutub/[slug]` | المكتبة: ١٢ باباً و٧ بطاقات مصادر |
+| `/lab` | مختبر الأدلة: المراحل الفعلية والمقاييس وطريقة القياس (مصمَّم للجنة) |
+| `/wasfa` | سياسة عدم الوصف |
+| `GET /api/health` | `{ ok, database, ai:{configured, mode}, corpus:{approvedChunks} }` |
+| `POST /api/research` | `{ query, mode?: "ai" \| "baseline" }` → مقاطع + نتيجة + رسائل السياسة |
+| `POST /api/benchmark/conflict` | فحص تعارض اصطناعي (يتطلب مزوّداً مُعدّاً، وإلا `503`) |
+
+## ٦. التشغيل السريع
 
 ```bash
-# تشغيل مجموعة الاختبار الكاملة
-npx vitest run
-
-# فحص TypeScript
-npx tsc --noEmit
-
-# بناء الإنتاج
-npm run build
+git clone https://github.com/ItsOkazaki/rafiq_al_qalb.git
+cd rafiq_al_qalb
+npm install                 # أو npm ci لتثبيت حرفي من package-lock
+npm run dev                 # http://localhost:3000
 ```
 
-المشروع يتضمن **40 اختبار آلي** يغطي:
-- مطابقة الأبواب والكلمات المفتاحية
-- الاسترجاع الفعلي وبيانات المصدر
-- تنفيذ الاعتماد والاستبعاد
-- حد الاسترجاع الأقصى
-- السلامة والفتوى والوصفات
-- المسار الحتمي بدون مفتاح AI
-- التوليد المقيَّد عند توفر المزود
+لا يحتاج التشغيل إلى أي مفتاح أو قاعدة بيانات: بلا مفتاح يعمل المسار الحتمي كاملاً. لإنتاج نسخة نهائية:
 
-## بنية المشروع
-
-```
-src/
-├── app/                    # صفحات Next.js (App Router)
-│   ├── hiwar/              # الحوار البحثي
-│   ├── hala/               # لمحة بحثية (استبانة)
-│   ├── maktaba/            # المكتبة المعتمدة + أبواب + مصادر
-│   ├── wasfa/              # سياسة عدم الوصف
-│   └── api/                # نقاط API (research + health)
-├── components/             # مكونات الواجهة
-├── lib/
-│   ├── ai/                 # مزوّد AI + المسار الحتمي
-│   ├── corpus/             # المتن المعتمد (chunks)
-│   ├── policy/             # سياسات الفتوى والوصف
-│   ├── rag/                # محرك الاسترجاع والتصنيف
-│   ├── research/           # مسار البحث (pipeline)
-│   ├── sources/            # سجل المصادر المعتمدة
-│   ├── text/               # معالجة اللغة العربية
-│   └── types.ts            # الأنواع المشتركة
-├── db/                     # قاعدة البيانات (Drizzle)
-tests/                      # اختبارات Vitest
-docs/                       # توثيق المشروع
-public/                     # الشعار والأصول الثابتة
+```bash
+npm run build && npm start
 ```
 
-## الترخيص
+**المتطلبات:** Node.js ≥ 22.9 (CI يستخدم 24)، npm، ولا شيء غير ذلك. FFmpeg أو خطوط خارجية غير مطلوبة.
 
-هذا مشروع بحثي مقدم ضمن تحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي.
+## ٧. الأوامر (كلها موجودة في `package.json` ومُشغَّلة فعلاً)
 
-**الخطوط:** Amiri, IBM Plex Sans Arabic, Aref Ruqaa — جميعها مرخصة بموجب [SIL Open Font License 1.1](https://scripts.sil.org/OFL).
+| الأمر | ماذا يفعل | يحتاج شبكة؟ |
+|---|---|---|
+| `npm run dev` | تشغيل التطوير | لا |
+| `npm run build` | بناء الإنتاج (يتحقق من TypeScript أيضاً) | لا |
+| `npm start` | تشغيل بناء الإنتاج | لا |
+| `npm run lint` | ESLint | لا |
+| `npm run typecheck` | `tsc --noEmit` | لا |
+| `npm test` | ٦٠ اختبار وحدة (Vitest: الاسترجاع، المسار، بطاقة الدليل) | لا |
+| `npm run smoke` | فحص زمن تشغيل: ٤٠ حالة + ١٠ فحوص صريحة | لا |
+| `npm run benchmark -- --url <URL> [--limit N]` | قياس حقيقي على الـAPI ويكتب `benchmarks/results/latest.json` | نعم (للـURL) |
+| `npm run verify:quran-font` | وجود خط حفص + مطابقة بصمته + ربط CSS | لا |
+| `npm run alifta:test` | ٣٣ اختبار انحدار للزاحف (Offline، DOM حقيقي) | لا |
+| `npm run alifta:manifest` | ١٧ هدفاً تغطي الأبواب الاثني عشر + العتبات | لا |
+| `npm run alifta:verify` | بوابة جودة corpus المولَّد | لا |
+| `npm run alifta:ingest` | سحب المتون الرسمية وبناء corpus (بوابات قبول قبل الكتابة) | نعم |
+| `npm run alifta:live-check` / `npm run alifta:capture` | فحص حي/حفظ fixtures من الموقع الرسمي | نعم |
 
-**المصادر المعتمدة:** المادة المسترجعة مقاطع قصيرة موثقة مع المصدر والموضع والرابط الرسمي. لا يُعاد توزيع أي كتاب كاملاً.
+## ٨. متغيرات البيئة (كلها اختيارية)
+
+انسخ `.env.example` إلى `.env.local`. القيم الحقيقية تبقى خارج Git.
+
+| المتغير | الوظيفة | الافتراضي |
+|---|---|---|
+| `DATABASE_URL` | تسجيل جلسات البحث في PostgreSQL (اختياري تماماً؛ غيابه لا يعطّل البحث) | — |
+| `AI_PROVIDER` | `gemini` \| `openrouter` \| `openai` | يُستنتج من المفتاح |
+| `GEMINI_API_KEY` / `GEMINI_CHAT_MODEL` | مزوّد التنظيم الأساسي | `gemini-3.5-flash-lite` |
+| `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | مزوّد بديل | `qwen/qwen3.8-27b:free` |
+| `OPENAI_API_KEY` / `OPENAI_MODEL` | مزوّد بديل | `gpt-4o-mini` |
+| `AI_TIMEOUT_MS` | مهلة استدعاء المزوّد (الحد الأدنى ٣٠٠٠) | `10000` في الكود (والمثال يضبط 20000) |
+| `NEXT_PUBLIC_SITE_URL` | روابط OG المطلقة | من `VERCEL_URL` |
+| `JINA_API_KEY` | رفع حدود Jina أثناء سحب جامع السنة عند الحجب (صيانة فقط) | — |
+| `ALLOW_CORPUS_SHRINK` | السماح صراحةً باستبدال corpus أكبر بأصغر بعد مراجعة يدوية | معطّل |
+
+## ٩. ما الذي تحقّق فعلاً (نتائج التشغيل في هذه النسخة)
+
+| الفحص | النتيجة |
+|---|---|
+| `npm ci` (من نسخة نظيفة) | تثبيت حرفي من `package-lock.json` بلا أخطاء — الرقم الفعلي يُطبع في سطر `added …` |
+| `npm run typecheck` / `npm run lint` | PASS / PASS |
+| `npm test` | **٦٠/٦٠** اختباراً (٣ ملفات) |
+| `npm run build` | PASS — ٢٧ صفحة ثابتة/مُسبقة التوليد + ٣ مسارات API، وبلا أخطاء أنواع |
+| `npm run smoke` | `{"ok":true,"benchmarkCases":40,"benchmarkFailures":0,"explicitChecks":10}` |
+| `npm run alifta:test` | **٣٣/٣٣** PASS |
+| `npm run alifta:manifest` | PASS — ١٧ هدفاً/١٢ باباً، العتبات ١٠٠ مقطع و٣ لكل باب |
+| `npm run alifta:verify` | PASS — ٢٧١ مقطعاً، ٢٧٨/٢٨٠ صفحة، ١٢/١٢ باباً فوق العتبة |
+| `npm run verify:quran-font` | PASS — خط حفص المُضمَّن مطابق لبصمته (`sha256`) |
+| `npm run build && npm start` + ٦ استدعاءات حية | مادة/امتناع/تشخيص/فتوى/سلامة — كلها في مسارها الصحيح |
+
+## ١٠. القياس (Benchmark)
+
+المجموعة ثابتة: `benchmarks/questions.json` — **٤٠ حالة** (أسئلة مباشرة، عامية، خارج النطاق، فتوى/سلامة/وصف، متعددة المصادر، ومحاولات دفع النظام لاختلاق صفحة). لا محادثات مستخدمين حقيقية.
+
+**آخر تشغيل موثّق — 2026-10-03، بناء إنتاج محلي بلا مفتاح مزوّد (المسار الحتمي):**
+`npm run benchmark -- --url http://127.0.0.1:3000`
+
+| المقياس | القيمة |
+|---|---:|
+| `outcome_accuracy` | **1.00** |
+| `abstention_accuracy` | **1.00** |
+| `retrieval_source_hit_at_4` | **1.00** |
+| `topic_hit` | **1.00** |
+| `retrieval_source_recall` | 0.9063 |
+| `retrieval_chunk_hit_at_4` | 0.6538 |
+| `retrieval_chunk_recall` | 0.3942 |
+| `retrieval_identical_between_modes` | true |
+| `model_organization_rate` | — (لا مفتاح محلياً؛ يُقاس على البيئة المنشورة) |
+
+الملف الكامل `benchmarks/results/latest.json` مُلتزَم في Git بوصفه الدليل الآلي للتشغيل (بلا أي تحرير يدوي)؛ ولا يتغير إلا بتشغيل جديد. قاعدة النزاهة موثقة في `docs/BENCHMARK.md`.
+
+## ١١. النشر
+
+- **المنصة:** Vercel — المشروع الحالي: <https://rafiq-al-qalbv2.vercel.app> (`GET /api/health` → `{"ok":true}`).
+- **تنبيه دقة:** النسخة المنشورة حالياً **أقدم من هذا الـcommit** (واجهتها و`/lab` يطابقان نسخة سابقة، ومساراتها القديمة
+  تسمّي طبقات لم تعد موجودة). إعادة نشر البناء النهائي على Vercel خطوة مطلوبة قبل التسليم ومُدرجة في
+  `docs/CHALLENGE-DELIVERY-CHECKLIST.md`؛ ولا يجوز تبديل الـURL في هذه الصفحة قبل النشر.
+- **مفتاح المزوّد:** بيئة الإنتاج مضبوطة بمفتاح مزوّد (بحسب إعداد الفريق)، وعليها يُقاس `model_organization_rate`؛ ولا تُنسب
+  أرقام النموذج إلى التشغيل المحلي الحتمي في القسم ١٠.
+- **بدون أي إعداد:** التطبيق ينشر ويعمل كاملاً بلا متغيرات؛ أضف `DATABASE_URL` فقط إن أردت تسجيل الجلسات.
+- الخطوات والتحقق بعد النشر في `docs/DEPLOYMENT.md`.
+
+## ١٢. تحديث الـcorpus (تلقائي ويدوي)
+
+- **آلياً:** `.github/workflows/refresh-alifta-html.yml` — عند push إلى `main` أو عبر `workflow_dispatch`: `npm ci` → اختبارات التطبيق → اختبارات الزاحف → فحص الـmanifest → السحب → `alifta:verify` → assert أن الـcorpus غير فارغ → التزام النتائج. آخر تشغيل موثّق له نجح في CI (Run `37140974876`، ٨ دقائق).
+- **يدوياً:** نفس الأوامر محلياً: `npm run alifta:test && npm run alifta:manifest && npm run alifta:ingest && npm run alifta:verify`.
+- **حماية البيانات:** أي تشغيل فاشل أو دون العتبة (١٠٠ مقطع، ٣ لكل باب) **لا يلمس** الـcorpus المعتمد؛ يكتب تشخيصه في `scripts/alifta-html/reports/` ويخرج بخطأ — مثبت باختبار انحدار آلي.
+
+## ١٣. الخطوط والتراخيص
+
+| العنصر | الترخيص |
+|---|---|
+| كود التطبيق | MIT (`LICENSE`) |
+| خطوط الواجهة (Amiri، IBM Plex Sans Arabic، Aref Ruqaa) | SIL OFL 1.1 عبر npm |
+| خط الآيات: KFGQPC HAFS Uthmanic Script v2.2 | ترخيص المجمع المضمَّن في ملف الخط: استخدام/نسخ/توزيع مجاناً، ويُمنع التعديل — لذلك يُخدَم بايتاً ببايت بلا تحويل ولا تجزئة. البصمة والتفاصيل في `public/fonts/README.md` و`docs/FONT-LICENSE.md` |
+| نصوص المصادر | مقتطفات قصيرة منسوبة مع روابطها الأصلية؛ انظر `docs/SOURCES-AND-LICENSES.md` و`docs/RIGHTS-AND-RELEASE-CHECK.md` |
+
+## ١٤. الخصوصية والأمان
+
+- لا حسابات ولا ملفات تعريف: الاستعلام لا يُربط بهوية، وسجل الجلسات (إن فُعّل) كمّي بحثي فقط.
+- عند توصيل مزوّد، يُرسل **الاستعلام + المقاطع المسترجعة** فقط لصياغة الملخّص؛ لا تُرسل بيانات هوية ولا ملفات.
+- الأسرار لا تدخل Git: `.env*` متجاهَل، والفحص الآلي في `docs/RIGHTS-AND-RELEASE-CHECK.md`.
+- لا سحب من الإنترنت المفتوح أثناء البحث، ولا تنفيذ أي كود من المصادر.
+
+## ١٥. ما لم يُوصَل بعد (بصراحة)
+
+| البند | الحالة |
+|---|---|
+| المستودع عام | **مفتوح** — مطلوب قبل التسليم |
+| تشغيل البنشمارك على البيئة المنشورة (بمفتاح) لقياس `model_organization_rate` | **مفتوح** — التشغيل المحلي الحالي حتمي |
+| فحص التعارض `POST /api/benchmark/conflict` | محلياً `CHECK` (بلا مزوّد)؛ يحتاج بيئة بمفتاح |
+| اختبار UX مع ٥–٨ مستخدمين | **مفتوح** — البروتوكول جاهز: `docs/UX-TEST-PLAN.md` |
+| فيديو العرض (≤ دقيقتان) | **مفتوح** — السيناريو جاهز: `docs/DEMO-SCRIPT.md` |
+| البحث الدلالي/embeddings | غير موصول بقصد؛ العميل موجود في `src/lib/ai/embeddings.ts` كأساس هندسي معلَّق، والاسترجاع الحالي لفظي/موضوعي فقط |
+| مسار Docling للملفات | اختياري وغير موصول بالتشغيل (`docs/OPTIONAL-DOCLING.md`) |
+| `alifta:live-check` / `alifta:ingest` في هذه البيئة | يحتاجان وصولاً لشبكة `sunna.alifta.gov.sa` (متوفر في CI) |
+
+## ١٦. بنية المستودع
+
+```
+src/app/            الصفحات (App Router) ومسارات API
+src/components/     مكونات الواجهة (بطاقة الدليل، الهيكل، الزخارف)
+src/lib/rag/        تحديد الأبواب، الكلمات المفتاحية، محرك الاسترجاع
+src/lib/corpus/     corpus المعتمد (486 مقطعاً: 271 مولَّداً من جامع السنة + 215 منسّقاً)
+src/lib/policy/     بوابات الفتوى/التشخيص/الوصف + السلامة
+src/lib/ai/         مزوّد النموذج + حارس المخرجات (embeddings غير موصول)
+src/lib/sources/    سجل المصادر المعتمدة والمستبعدات
+scripts/alifta-html/  الزاحف + 33 اختبار انحدار + بوابات الجودة
+benchmarks/         40 حالة ثابتة + مشغّل القياس
+docs/               فهرس + 31 وثيقة (يبدأ من docs/README.md)
+public/fonts/       خط حفص المُضمَّن + ترخيصه
+```
+
+## ١٧. خريطة التحكيم
+
+كل معيار تحكيم مربوط بدليل قابل للفتح في الكود عبر `docs/JUDGE-RUBRIC-MAP.md`، مع قاعدتي نزاهة: (١) ما قبل نافذة التحدي موثّق في `docs/PRE-CHALLENGE-BASELINE.md` ولا يُنسب للنافذة، (٢) لا رقم أداء بلا تشغيل حقيقي ينتجه.
 
 ---
 
-<div align="center">
+<details>
+<summary><strong>English summary</strong></summary>
 
-**بحث موثق، لوعظ مؤثر**
+**Rafiq Al-Qulub** is a grounded Islamic-research assistant for preachers and researchers in heart-related topics. It maps a user's description to one of 12 research doors, retrieves real passages **only** from a pre-approved, source-registered corpus, shows source + part/page + original link, and **abstains explicitly** when evidence is insufficient. It never diagnoses, issues fatwas, or prescribes treatment.
 
-رفيق القلوب — أداة حوارية للخطباء والوعاظ والمختصين وطلاب العلم
+- **Retrieval-first design:** the LLM never retrieves. It only re-organizes the passages that were already retrieved, under an Arabic output guard; without an API key the same answer is produced deterministically.
+- **Corpus:** 486 approved chunks — 271 generated from official Al-Ifta pages (full matn, 278/280 pages verified, 12/12 doors covered) plus 215 curated chunks from 7 registered sources.
+- **Reproducibility:** 60 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
+- **Last local benchmark (deterministic, no provider key):** outcome accuracy 1.00, abstention accuracy 1.00, source hit@4 1.00, topic hit 1.00, source recall 0.906, chunk hit@4 0.654.
+- **Status:** repository is currently private (public release pending), deployed benchmark run with a provider key is pending, UX testing and the demo video are open items — all tracked in `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
 
-</div>
-
-## Al-Ifta direct HTML ingestion
-
-The Saudi Sunnah source uses a no-dependency Node ingestion path. It fetches only official `sunna.alifta.gov.sa` pages, follows official result links to detail pages, cleans the HTML, deduplicates the text, preserves the official source URL, and generates `src/lib/corpus/generated/alifta-html-chunks.ts` for RAG retrieval.
-
-```bash
-npm run alifta:test       # offline regression tests on captured real pages
-npm run alifta:manifest   # manifest + quality-threshold guard
-npm run alifta:live-check # reachability probe of the configured targets
-npm run alifta:capture    # save live HTML fixtures + fetch diagnostics
-npm run alifta:ingest     # crawl individual hadith pages -> corpus
-npm run alifta:verify     # corpus quality gate (>=100 chunks, 12 doors)
-```
-
-Every stored record points at an individual official page (`BookToc/ViewMatnPage` or an
-official service page) — never at a subject/search-result page — and carries the complete
-matn from that page. An official explanation is stored only together with the exact
-commentary URL it was read from.
-
-Docling is optional for future document-heavy ingestion and is not required for the Al-Ifta runtime path.
+</details>
