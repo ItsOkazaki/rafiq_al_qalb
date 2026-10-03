@@ -4,18 +4,18 @@ PASS: generated corpus holds 271 records and is safe to commit.
 + git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 + git status --porcelain=v1
  M package-lock.json
+ M scripts/alifta-html/reports/last-commit.log
+ M scripts/alifta-html/reports/last-run.log
+ M src/lib/corpus/generated/alifta-html-chunks.json
  M src/lib/corpus/generated/alifta-html-chunks.ts
-?? src/lib/corpus/generated/alifta-html-chunks.json
-?? src/lib/corpus/generated/alifta-html-ledger.json
+ M src/lib/corpus/generated/alifta-html-ledger.json
 + git branch --show-current
 arena/01a1026c-rafiq-al-qalb
 + git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
 + git diff --cached --quiet
 + git commit -m 'chore: refresh Al-Ifta HTML corpus'
-[arena/01a1026c-rafiq-al-qalb 5affaa9] chore: refresh Al-Ifta HTML corpus
- 3 files changed, 18674 insertions(+), 2 deletions(-)
- create mode 100644 src/lib/corpus/generated/alifta-html-chunks.json
- create mode 100644 src/lib/corpus/generated/alifta-html-ledger.json
-+ git pull --rebase origin arena/01a1026c-rafiq-al-qalb
-error: cannot pull with rebase: You have unstaged changes.
-error: Please commit or stash them.
+[arena/01a1026c-rafiq-al-qalb dc2fa4d] chore: refresh Al-Ifta HTML corpus
+ 3 files changed, 549 insertions(+), 548 deletions(-)
++ git pull --rebase --autostash origin arena/01a1026c-rafiq-al-qalb
+From https://github.com/ItsOkazaki/rafiq_al_qalb
+ * branch            arena/01a1026c-rafiq-al-qalb -> FETCH_HEAD

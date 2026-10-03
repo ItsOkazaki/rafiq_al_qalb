@@ -21,12 +21,12 @@ commentary found        : 9
 duplicates merged       : 17
 chunks generated        : 271
 fetch methods           : {"direct-official-html":303,"jina-reader-official-url":1}
-failures by category    : {"commentary:error":35,"commentary:http-500":16,"detail:error":2}
+failures by category    : {"commentary:error":33,"commentary:timeout":2,"commentary:http-500":16,"detail:error":2}
 first failures:
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=5974&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
-  - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
-  - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
+  - [commentary/timeout] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=11769&inx=0 — This operation was aborted; Jina content rejected (no-commentary-markers)
+  - [commentary/timeout] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=11769&inx=0 — This operation was aborted; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11916&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=19741&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=19741&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)

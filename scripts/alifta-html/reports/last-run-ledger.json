@@ -1,7 +1,7 @@
 {
   "method": "official-html",
   "sourceId": "alifta-sunna-encyclopedia",
-  "generatedAt": "2026-10-03T17:32:19.205Z",
+  "generatedAt": "2026-10-03T17:42:14.092Z",
   "totalChunks": 271,
   "topicCounts": {
     "athar-al-dhunub": 78,
@@ -32,7 +32,8 @@
       "jina-reader-official-url": 1
     },
     "failuresByCategory": {
-      "commentary:error": 35,
+      "commentary:error": 33,
+      "commentary:timeout": 2,
       "commentary:http-500": 16,
       "detail:error": 2
     }
@@ -191,14 +192,14 @@
     {
       "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=11769&inx=0",
       "kind": "commentary",
-      "category": "error",
-      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+      "category": "timeout",
+      "message": "This operation was aborted; Jina content rejected (no-commentary-markers)"
     },
     {
       "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=11769&inx=0",
       "kind": "commentary",
-      "category": "error",
-      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+      "category": "timeout",
+      "message": "This operation was aborted; Jina content rejected (no-commentary-markers)"
     },
     {
       "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11916&inx=0",
