@@ -218,6 +218,9 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   const docFreq = buildDocumentFrequency(approved);
   const corpusSize = Math.max(approved.length, 1);
   const queryTokens = [...tokens].map((t) => ({ original: t, variants: tokenVariants(t) }));
+  const meaningfulQueryTokens = queryTokens.filter(
+    ({ original }) => !GENERIC_QUERY_TOKENS.has(normalizeArabic(original)),
+  ).length;
 
   const scored = approved
     .map((chunk) => {
@@ -299,8 +302,13 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       // سطر فهرسي قصير ليس مادة دليل: لا يُسترجع أصلاً.
       if (chunk.text.trim().length < MIN_PASSAGE_TEXT_LENGTH) return { chunk, score: -1, directMatch: false, relevance: false };
 
-      // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عامة عابرة.
-      const relevance = matchedTopicIds.size > 0 || (nonGenericMatches > 0 && strongLexicalMatch);
+      // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عابرة مشتركة.
+      // سؤال عن «تاريخ الدولة الأموية وعمارة قرطبة» يصادف كلمتين في متن حديث،
+      // لكنه لا يغطيه؛ فالمقطع ليس إسناداً له. نطلب كلمتين معنويتين مختلفتين
+      // وأن تغطّي المطابقات نصف كلمات السؤال المعنوية على الأقل.
+      const coverage = meaningfulQueryTokens > 0 ? nonGenericMatches / meaningfulQueryTokens : 0;
+      const relevance =
+        matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && strongLexicalMatch);
       return { chunk, score, directMatch, relevance };
     })
     .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.directMatch)
