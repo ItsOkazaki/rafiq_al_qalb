@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x628;&#x646; &#x62D;&#x628;&#x627;&#x646; - HadithWeb</title>
+    <link rel="stylesheet" href="/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <script src="/js/siteBefore.js?v=2sWMWJa1WPRlJY117GTcfJYlYQQMUvREESj6SRWNIrg"></script>
+</head>
+<body>
+    <div class="container" style="height:100%;width:100%">
+        <main role="main" class="pb-3" style="height:100%;width:100%">
+            
+
+
+
+
+<style>
+    .serviceMatnImg {
+        height: 27pt;
+    }
+</style>
+
+<link rel="stylesheet" href="/css/Modal.css" />
+
+<style>
+
+    /* Add Animation */
+    @-webkit-keyframes animatetop {
+        from {
+            top: -300px;
+            opacity: 0
+        }
+
+        to {
+            top: 0;
+            opacity: 1
+        }
+    }
+
+    @keyframes animatetop {
+        from {
+            top: -300px;
+            opacity: 0
+        }
+
+        to {
+            top: 0;
+            opacity: 1
+        }
+    }
+</style>
+
+<style>
+    .menuback {
+        display: none; /* Hidden by default */
+        position: fixed; /*on top */
+        padding-top: 30px; /* Stay in place */
+        z-index: 1; /* Sit /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+
+
+    .navbarnew {
+        padding: .25rem .75rem;
+        font-size: 1.25rem;
+        line-height: 1;
+        background-color: transparent;
+        border: 1px solid transparent;
+        border-radius: .25rem;
+        transition: box-shadow .15s ease-in-out;
+    }
+</style>
+
+<link rel="stylesheet" href="/css/tree.css" />
+<script src="/js/IndexDB.js"></script>
+
+<script>
+
+    var textColor, backColor;
+    if (window.localStorage.getItem("night") == null || window.localStorage.getItem("night") == "0") {
+        textColor = window.localStorage.getItem("TextColor");
+        backColor = GetBackRealColor(window.localStorage.getItem("BackColor"));
+    }
+    else {
+        textColor = "white";
+        backColor = "black";
+    }
+
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = '.divMainContentCss { color: ' + textColor +
+        ';font-Family:' + (window.localStorage.getItem("fontface") == null ? "AbdoMaster_Regular" : window.localStorage.getItem("fontface")) +
+        ';font-Size:' + ((window.localStorage.getItem("fontsize") == null ? "16" : window.localStorage.getItem("fontsize")) + "px") +
+        ';width:100%' + ' }' +
+        'body{background-Color:' + backColor + '}';
+
+    document.getElementsByTagName('head')[0].appendChild(style);
+
+
+    /* When the user clicks on the button,
+     toggle between hiding and showing the dropdown content */
+    function generalMenuShow() {
+        document.getElementById("generalDropdown").classList.toggle("generalshow");
+    }
+
+    function dropUpMenuShow() {
+        document.getElementById("ServiceDropup").classList.toggle("generalshow");
+    }
+
+
+    function copyDivToClipboard() {
+        var range = document.createRange();
+        range.selectNode(document.getElementById("divMainContent"));
+        window.getSelection().removeAllRanges(); // clear current selection
+        window.getSelection().addRange(range); // to select text
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();// to deselect
+
+        alert('تم النسخ');
+    }
+
+
+    function share() {
+        if (navigator.share) {
+            navigator.share({
+                title: '&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x628;&#x646; &#x62D;&#x628;&#x627;&#x646;',
+                text: "test"
+            })
+                .then(alert("done"))
+                .catch(alert("fail"));
+        }
+
+    }
+
+</script>
+<style>
+    .mainMenuImage {
+        width: 100%
+    }
+</style>
+<div id="mySidenavFull" class="menuback">
+</div>
+<div id="mySidenav" class="sidenav">
+    <table height="100%" width="100%" style="border-bottom:1px solid #999;border-top:1px solid #999;border-right:1px solid #999;border-left:1px solid #999;
+            padding-right:20px;
+            padding-left:20px;
+            position:absolute;
+            top: 0;
+            background-image: url('/Images/Main/MainMenu/Menu Back.png');background-size:cover
+           ">
+        <tr>
+            <td align="center" valign="top">
+                <table height="100%">
+
+                    <tbody>
+                        <tr style="height: 33%">
+                            <td>
+
+
+                            </td>
+                        </tr>
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/">
+                                    <img src="/Images/Main/MainMenu/Home-Icon.png" id="imgMenuMain" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Book/IndexMatnBooks">
+                                    <img src="/Images/Main/MainMenu/Icon-1.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Book/IndexServiceSections">
+                                    <img src="/Images/Main/MainMenu/Icon-2.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Subjects/ViewSubjectLevel?ParentId=1&amp;IsLeaf=False">
+                                    <img src="/Images/Main/MainMenu/Icon-3.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Search/TextSearchView">
+                                    <img src="/Images/Main/MainMenu/Icon-4.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+                        
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/Settings">
+                                    <img src="/Images/Main/MainMenu/Icon-5.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/Note">
+                                    <img src="/Images/Main/MainMenu/Icon-6.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/Favourite">
+                                    <img src="/Images/Main/MainMenu/Icon-7.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/About">
+                                    <img src="/Images/Main/MainMenu/Icon-8.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                            </td>
+                        </tr>
+
+
+                        <tr style="height: 0;">
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<script>
+        function openNav() {
+
+            document.getElementById("mySidenavFull").style.display = "block";
+            var width = document.getElementById("imgMenuMain").width;
+            document.getElementById("mySidenav").style.width = "android" == "ipad" ? "64%" : "69%"//(width + 40) + "px";
+
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0px";
+        }
+
+
+
+</script>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+
+            <h2>إضافة تعليق</h2>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body" id="divNoteContainer">
+            <textarea name="Text1" rows="5" id="txtHadithNote" style="resize:none;width:100%" maxlength="1000"></textarea>
+            <br />
+            <input type="button" id="Addcomment" onclick="AddNewNote()" value="إضافة" />
+        </div>
+    </div>
+</div>
+
+
+<table width="100%" height="30px" style="background-color:#8c6023; position: fixed;
+            left: 0px;
+            right:0px;
+           top: 60px;">
+    <tr>
+        <td style="padding-right:3px">
+            <label class="solonodepath">
+                <a id='linkPath' href="\BookToc\ViewBookTocLevel?BookId=10&ParentId=31977&IsLeaf=False"  target="_self">ذكر الإخبار عما يجب على المرء من تعقيب الاستغفار كل عثرة وإن كان المرء مشمرا في أنواع الطاعات</a>
+            </label>
+
+        </td>
+        <td width="30px" align="right" style="padding-left:3px;">
+
+            <div id="divFloatContent" style="right:0;bottom:0;">
+
+                <table style="width:23pt;height:8pt;" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td valign="top">
+                                <div class="dropdown" style="width:23pt;height:8pt;">
+
+                                    <a href="#" onclick="generalMenuShow()">
+                                        <img class="generaldropbtn" src="/Images/Main/General/dots.png" width="23" height="8" style="padding-left:4px">
+                                    </a>
+
+                                    <div id="generalDropdown" class="generaldropdown-content" style="background-image:url(/Images/Main/General/Back.png);background-size:contain;">
+                                        <table cellpadding="0" cellspacing="0" width="52" height="194">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="center" valign="middle" style="padding-right:5pt">
+                                                        <table cellpadding="1" cellspacing="0" width="23" height="155">
+                                                            <tbody>
+                                                                <tr><td><a href="#" id="btnModalNote"><img src="/Images/Main/General/Notes.png" width="23" height="23" /></a></td></tr>
+                                                                <tr><td><a href="#" onclick="setFavourite('31978','&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x628;&#x646; &#x62D;&#x628;&#x627;&#x646;', '930 ', '&#x625;&#x650;&#x646;&#x651;&#x64E; &#x627;&#x644;&#x652;&#x639;&#x64E;&#x628;&#x652;&#x62F;&#x64E; &#x625;&#x650;&#x630;&#x64E;&#x627; &#x623;&#x64E;&#x62E;&#x652;&#x637;&#x64E;&#x623;&#x64E; &#x62E;&#x64E;&#x637;&#x650;&#x64A;&#x626;&#x64E;&#x629;&#x64B; &#x646;&#x64F;&#x643;&#x650;&#x62A;&#x64E; &#x641;&#x650;&#x64A; &#x642;&#x64E;&#x644;&#x652;&#x628;&#x650;&#x647;&#x650; &#x646;&#x64F;&#x643;&#x652;&#x62A;&#x64E;&#x629;&#x64C;', 'Main')"><img id="imgFavourite" src="/Images/Main/General/Favorite-N.png" width="23" height="23" /></a></td></tr>
+                                                                <tr><td><a href="#" onclick="copyDivToClipboard()"><img src="/Images/Main/General/Copy.png" width="23" height="23" /></a></td></tr>
+                                                                <tr><td><a href="/BookToc/socialshare" target="_self"><img src="/Images/Main/General/Share.png" width="23" height="23" /></a></td></tr>
+                                                                <tr><td></td></tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- Modal content -->
+
+        </td>
+    </tr>
+</table>
+
+
+<table width="100%" height="100%" cellpadding="0" cellspacing="0">
+    <tbody>
+        <tr style="height:60px">
+            <td colspan="5" style="margin-right:0;padding-right:0;">
+
+                <header>
+                    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 py-0" style="left:0;right:0">
+                        <div class="container" style="left:0;right:0">
+                            <table width="100%" height="58px" cellpadding="0" cellspacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td width="16" height="58">
+                                            <img src="/Images/Main//Header/R_Unit_Header.png" width="16" height="58" style="position:absolute;top: 0;" />
+                                        </td>
+                                        <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58; width:53px" valign="middle">
+                                            <button class="navbarnew" type="button" id="menuBtn" onclick="openNav()">
+                                                <img src="/Images/Main/Header/menu.png" id="imgmenuBtn" style="height:15pt" />
+                                            </button>
+                                        </td>
+
+                                        <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58;" align="center">
+                                                <a href="\BookToc\ViewBookTocLevel?BookId=10&amp;ParentId=0&amp;IsLeaf=False" target="_self" class="HeaderTitle"> <div id="mainTitle">&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x628;&#x646; &#x62D;&#x628;&#x627;&#x646;</div> </a>
+
+                                        </td>
+
+
+                                        <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58;" width="30" align="center">
+                                            <a href="/Search/TextSearchView?MatnBookId=10&amp;BookType=MatnBooks">
+                                                <img src="/Images/Main/Header/Search.png" style="height:15pt" />
+                                            </a>
+                                        </td>
+
+                                        <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58" width="20" align="center">
+                                            <a onclick="HistoryBack();" style="color:black;width:100%;vertical-align:middle;align-content:center;" id="linkBack"><img src="/Images/Main/Header/Back.png" style="height:15pt" /></a>
+                                        </td>
+                                        <td width="16" height="58">
+                                            <img src="/Images/Main/Header/L_Unit_Header.png" style="position:absolute;top:0;" width="16" height="58" />
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </nav>
+                </header>
+            </td>
+        </tr>
+        <tr height="37px">
+            <td colspan="5">
+            </td>
+        </tr>
+        <tr height="7px">
+            <td colspan="5">
+            </td>
+        </tr>
+        <tr>
+            <td><img src="/Images/Main/HadithFrame/R-U-Corner.png" width="43" height="28" /></td>
+            <td style="background-image: url(/Images/Main/HadithFrame/U-Unit.png);background-size:contain" align="center" height="28"></td>
+            <td align="center" width="88"><img src="/Images/Main/HadithFrame/M-U.png" width="88" height="28" /></td>
+            <td style="background-image: url(/Images/Main/HadithFrame/U-Unit.png);background-size:contain" align="center" height="28"></td>
+            <td valign="bottom"><img src="/Images/Main/HadithFrame/L-U-Corner.png" width="43" height="28" /></td>
+        </tr>
+
+        <tr>
+            <td style="background-image:url(/Images/Main/HadithFrame/R-Unit.png);background-size:contain" width="43"></td>
+            <td colspan="3" valign="top">
+
+                <div id="divMainFloatContent" style="float:right;height:100%;">
+
+                    <div style="overflow:auto;" id="divMainView">
+                        <div id="divMainContentDiac" style="visibility:collapse;height:0px">
+                            <?xml version="1.0" encoding="utf-16"?><span><span />ذِكْرُ الْإِخْبَارِ عَمَّا يَجِبُ عَلَى الْمَرْءِ مِنْ تَعْقِيبِ الِاسْتِغْفَارِ كُلَّ <span>عَثْرَةٍ </span>، وَإِنْ كَانَ الْمَرْءُ مُشَمِّرًا فِي أَنْوَاعِ الطَّاعَاتِ <br /><span ID="TarqeemMatboa1" name="TarqeemMatboa1" class="HadithNum">930 </span>- <span><span><span><span>أَخْبَرَنَا </span></span>إِسْمَاعِيلُ بْنُ دَاوُدَ بْنِ وَرْدَانَ <span>بِمِصْرَ </span>قَالَ : <span><span>حَدَّثَنَا </span></span>عِيسَى بْنُ حَمَّادٍ قَالَ : <span><span>أَخْبَرَنَا </span></span>اللَّيْثُ <span><span>عَنِ </span></span>ابْنِ عَجْلَانَ <span>عَنِ </span>الْقَعْقَاعِ بْنِ حَكِيمٍ <span><span>عَنْ </span></span>أَبِي صَالِحٍ <span><span>عَنْ </span></span>أَبِي هُرَيْرَةَ ، عَنْ رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ أَنَّهُ قَالَ : <span><span class="Matn"><span>إِنَّ الْعَبْدَ إِذَا أَخْطَأَ خَطِيئَةً نُكِتَ فِي قَلْبِهِ <span>نُكْتَةٌ </span></span>، فَإِنْ هُوَ نَزَعَ وَاسْتَغْفَرَ وَتَابَ صُقِلَتْ ، فَإِنْ عَادَ زِيدَ فِيهَا ، فَإِنْ عَادَ زِيدَ فِيهَا حَتَّى تَعْلُوَ فِيهِ ، فَهُوَ الرَّانُ الَّذِي ذَكَرَ اللهُ : <span class="Quran">
+      {
+    </span><span title="المطففين: 14" class="Quran">كَلا بَلْ رَانَ عَلَى قُلُوبِهِمْ مَا كَانُوا يَكْسِبُونَ </span><span class="Quran">
+      }
+    </span></span></span>. </span></span><br /><span name="PartPageSpan" class="Page" Title="رقم الجزء/رقم الصفحة">
+      [3/211]
+    </span></span>
+                        </div>
+                        <div id="divMainContent" style="line-height: 210%; " class="divMainContentCss">
+                            <?xml version="1.0" encoding="utf-16"?><span><span />ذِكْرُ الْإِخْبَارِ عَمَّا يَجِبُ عَلَى الْمَرْءِ مِنْ تَعْقِيبِ الِاسْتِغْفَارِ كُلَّ <span>عَثْرَةٍ </span>، وَإِنْ كَانَ الْمَرْءُ مُشَمِّرًا فِي أَنْوَاعِ الطَّاعَاتِ <br /><span ID="TarqeemMatboa1" name="TarqeemMatboa1" class="HadithNum">930 </span>- <span><span><span><span>أَخْبَرَنَا </span></span>إِسْمَاعِيلُ بْنُ دَاوُدَ بْنِ وَرْدَانَ <span>بِمِصْرَ </span>قَالَ : <span><span>حَدَّثَنَا </span></span>عِيسَى بْنُ حَمَّادٍ قَالَ : <span><span>أَخْبَرَنَا </span></span>اللَّيْثُ <span><span>عَنِ </span></span>ابْنِ عَجْلَانَ <span>عَنِ </span>الْقَعْقَاعِ بْنِ حَكِيمٍ <span><span>عَنْ </span></span>أَبِي صَالِحٍ <span><span>عَنْ </span></span>أَبِي هُرَيْرَةَ ، عَنْ رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ أَنَّهُ قَالَ : <span><span class="Matn"><span>إِنَّ الْعَبْدَ إِذَا أَخْطَأَ خَطِيئَةً نُكِتَ فِي قَلْبِهِ <span>نُكْتَةٌ </span></span>، فَإِنْ هُوَ نَزَعَ وَاسْتَغْفَرَ وَتَابَ صُقِلَتْ ، فَإِنْ عَادَ زِيدَ فِيهَا ، فَإِنْ عَادَ زِيدَ فِيهَا حَتَّى تَعْلُوَ فِيهِ ، فَهُوَ الرَّانُ الَّذِي ذَكَرَ اللهُ : <span class="Quran">
+      {
+    </span><span title="المطففين: 14" class="Quran">كَلا بَلْ رَانَ عَلَى قُلُوبِهِمْ مَا كَانُوا يَكْسِبُونَ </span><span class="Quran">
+      }
+    </span></span></span>. </span></span><br /><span name="PartPageSpan" class="Page" Title="رقم الجزء/رقم الصفحة">
+      [3/211]
+    </span></span>
+                        </div>
+                    </div>
+                </div>
+
+            </td>
+            <td style="background-image: url(/Images/Main/HadithFrame/L-Unit.png);background-size:contain" width="43"></td>
+        </tr>
+
+        <tr>
+            <td><img src="/Images/Main/HadithFrame/R-D-Corner.png" width="43" height="28" /></td>
+            <td style="background-image:url(/Images/Main/HadithFrame/D-Unit.png);padding-right:5px;background-size:contain" height="28" align="right" valign="bottom">
+                    <a id="PagePrevURL" href="/BookToc/ViewMatnPage?BookID=10&amp;mainId=31976"><img src="/Images/Main/HadithFrame/Prev.png" width="28" height="28" /></a>
+
+            </td>
+            <td width="88"><img src="/Images/Main/HadithFrame/M-D.png" width="88" height="28" /></td>
+            <td style="background-image: url(/Images/Main/HadithFrame/D-Unit.png);padding-left:5px;background-size:contain" height="28" align="left" valign="bottom">
+                    <a id="PageNextURL" href="/BookToc/ViewMatnPage?bookId=10&amp;mainId=31980"><img src="/Images/Main/HadithFrame/Next.png" width="28" height="28" /></a>
+            </td>
+            <td><img src="/Images/Main/HadithFrame/L-D-Corner.png" width="43" height="28" /></td>
+        </tr>
+
+        <tr style="height:5px">
+            <td></td>
+        </tr>
+
+        <tr style="height:47px">
+            <td colspan="5">
+                <table width="100%" height="47px" cellpadding="0" cellspacing="0" id="tblServices" style="background-color:white">
+                    <tbody>
+                        <tr>
+                            <td width="5" height="53">
+                                <img src="/Images/Main/Service/R_Unit_Foter.png" width="5" height="53" />
+                            </td>
+                            <td style="background-image:url(/Images/Main/Service/M_Unit_Foter.png);background-size:contain;background-repeat:repeat-x" height="47px">
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tbody>
+                                        <tr height="48">
+                                            <td width="16%" align="center">
+                                                    <img src="/Images/Main/Service/explain-D.png" class="serviceMatnImg" />
+                                            </td>
+                                            <td width="16%" align="center">
+                                                    <a class="nav-link text-dark" href="/MatnService/Takhreeg?mainId=31978"><img src="/Images/Main/Service/Takhreej.png" class="serviceMatnImg" /></a>
+                                            </td>
+
+                                            <td width="16%" align="center">
+                                                    <a href="#" onclick="HighlightDocument('Rwah')" class="nav-link text-dark">
+                                                        <img src="/Images/Main/Service/narrators.png" class="serviceMatnImg" />
+                                                    </a>
+
+                                            </td>
+
+                                            <td width="16%" align="center">
+
+                                                <a href="#" onclick="document.getElementById('modalAnalysis').style.display = 'block';" class="nav-link text-dark">
+                                                    <img src="/Images/Main/Service/Analysis.png" class="serviceMatnImg" />
+                                                </a>
+
+                                            </td>
+
+
+
+                                            <td width="16%" align="center">
+                                                <a href="#" onclick="SetDiac()">
+                                                    <img id="imgDiac" src="/Images/Main/Service/Tashkeel-D.png" class="serviceMatnImg" />
+                                                </a>
+                                            </td>
+
+                                            <td width="16%" align="center">
+                                                <div class="dropdown" style="height: 8pt;  ">
+
+                                                    <a href="#" onclick="dropUpMenuShow()">
+                                                        <img class="generaldropbtn" src="/Images/Main/Service/More Services.png" width="23" height="8" style="padding-left:4px">
+                                                    </a>
+
+                                                    <div id="ServiceDropup" class="dropup-content" style="border: 1px solid; box-shadow: 1px 1px 10px #888888; background-color: white;">
+                                                        <table cellpadding="0" cellspacing="0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td align="right" valign="middle" style="padding-right: 0pt; white-space: nowrap;">
+                                                                        <table cellpadding="0" cellspacing="0">
+                                                                            <tbody>
+
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a class="nav-link service-menu" href="/MatnService/MatnComparison?mainId=31978">
+                                                                                                &#x645;&#x642;&#x627;&#x631;&#x646;&#x629; &#x627;&#x644;&#x645;&#x62A;&#x648;&#x646;
+
+                                                                                            </a>
+
+                                                                                        </td>
+                                                                                    </tr>
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a class="nav-link service-menu" href="/MatnService/MatnShawahed?mainId=31978">
+                                                                                                &#x627;&#x644;&#x634;&#x648;&#x627;&#x647;&#x62F;
+                                                                                            </a>
+                                                                                        </td>
+                                                                                    </tr>
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a class="nav-link service-menu" href="/MatnService/CompoundMatn?mainId=31978&amp;inx=0">
+                                                                                                &#x645;&#x62A;&#x646; &#x645;&#x62C;&#x645;&#x639;
+
+                                                                                            </a>
+
+                                                                                        </td>
+                                                                                    </tr>
+
+
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a class="nav-link service-menu" href="/MatnService/Asaneed?mainId=31978">
+                                                                                                &#x627;&#x644;&#x625;&#x633;&#x646;&#x627;&#x62F;
+                                                                                            </a>
+                                                                                        </td>
+                                                                                    </tr>
+
+
+
+
+
+
+
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a href="#" onclick="HighlightDocument('Ghareeb')" class="nav-link service-menu" style="color: #753400; font-family:NotoKufiArabic">
+                                                                                                &#x63A;&#x631;&#x64A;&#x628; &#x627;&#x644;&#x62D;&#x62F;&#x64A;&#x62B;
+                                                                                            </a>
+
+                                                                                        </td>
+                                                                                    </tr>
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a href="#" onclick="HighlightDocument('Places')" class="nav-link service-menu" style="color: #753400; font-family:NotoKufiArabic">
+                                                                                                &#x627;&#x644;&#x623;&#x645;&#x627;&#x643;&#x646; &#x648;&#x627;&#x644;&#x628;&#x644;&#x62F;&#x627;&#x646;
+                                                                                            </a>
+                                                                                        </td>
+                                                                                    </tr>
+
+
+
+
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a class="nav-link service-menu" href="/MatnService/Subject?mainId=31978">
+                                                                                                &#x627;&#x644;&#x631;&#x628;&#x637; &#x627;&#x644;&#x645;&#x648;&#x636;&#x648;&#x639;&#x64A;
+                                                                                            </a>
+
+                                                                                        </td>
+                                                                                    </tr>
+
+
+
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <a href="#" onclick="HighlightDocument('Tafseer')" class="nav-link service-menu" style="color: #753400; font-family:NotoKufiArabic">
+                                                                                                &#x62A;&#x641;&#x633;&#x64A;&#x631; &#x627;&#x644;&#x622;&#x64A;&#x627;&#x62A;
+                                                                                            </a>
+                                                                                        </td>
+                                                                                    </tr>
+
+
+
+
+
+
+
+
+
+
+
+                                                                                <tr><td></td></tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+
+                            <td width="5" height="53" align="center">
+                                <img id="imgDiac" src="/Images/Main/Service/L_Unit_Foter.png" width="5" height="53" />
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+
+            </td>
+        </tr>
+
+
+        <tr height="39px">
+            <td colspan="5">
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+
+<table width="100%" height="39px" style="background-color:#8c6023; position: fixed;
+            left: 0px;
+            right:0px;
+            bottom: 0px;">
+    <tr>
+        <td colspan="5" height="39">
+            <img src="/Images/Main/common/Footer-2.png" height="39" style="width:100%" />
+        </td>
+
+    </tr>
+</table>
+
+
+
+
+<div id="modalAnalysis" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2> &#x62A;&#x62D;&#x644;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x62F;&#x64A;&#x62B; </h2>
+            <span id="modalAnalysisClose" class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body" id="divAnalysis">
+            <ul>
+                <li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;الحديث</span><ul class="nested active"><li> <a href="#" onclick="HighlightDocumentAnalyzer('مرفوع')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;حديث مرفوع للنبي صلى الله عليه وسلم</a> </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('سنة_قولية')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;سنة قولية</a> </li><li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;متن</span><ul class="nested active"><li> <a href="#" onclick="HighlightDocumentAnalyzer('متن_مرفوع')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;مرفوع</a> </li> </ul>  </li><li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;رقم الحديث</span><ul class="nested active"><li> <a href="#" onclick="HighlightDocumentAnalyzer('رقم_حديث_حرف')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;ترقيم شركة حرف :933 </a> </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('رقم_حديث_مطبوع')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;ترقيم طبعة  مؤسسة الرسالة:930 </a> </li> </ul>  </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('طرف')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;الأطراف</a> </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('صيغة_تحديث')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;صيغة تحديث</a> </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('آية')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;آيات القرآن الكريم</a> </li> </ul>  </li><li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;الرواة</span><ul class="nested active"><li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;راوي الحديث</span><ul class="nested active"><li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;راوي أعلى</span><ul class="nested active"><li> <a href="#" onclick="HighlightDocumentAnalyzer('راوي_أعلى_مرفوع')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;راوي أعلى مرفوع</a> </li> </ul>  </li> </ul>  </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('راوي')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;رواة الحديث</a> </li><li> <a href="#" onclick="HighlightDocumentAnalyzer('شيخ_المصنف')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;أحد شيوخ المصنف</a> </li> </ul>  </li><li><span class="caret caret-down" style="--main-image:url('/Images/Main/tree/GeneralTree/Tree icon-01.png')">&nbsp;&nbsp;الأعلام والأماكن</span><ul class="nested active"><li> <a href="#" onclick="HighlightDocumentAnalyzer('46')" class="nav-link text-dark" ><img src="/Images/Main/tree/GeneralTree/Tree icon-03.png" width="20" height="20" style="display: inline;" />&nbsp;&nbsp;الأماكن</a> </li> </ul>  </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    ///adapt width and height in the  view
+    document.getElementById("divMainView").style.height = ((ClientHeight - (230 + 39/*footer height*/)) + "px");
+    document.getElementById("divAnalysis").style.height = ((ClientHeight - 195) + "px");
+    /////////////////////////////////////////////////
+   ///Update page setting
+    LoadDatabaseInit().then(function (result) {
+        var mainId = '31978';
+        GetNote(mainId);
+        isFavourite(mainId, 'Main');
+        AddHistory(window.location.href, 'BookToc', 'ViewMatnPage');
+    });
+
+    LoadDiac();
+
+    ////////////////////////////////////////////////////
+    var modalAnalysis = document.getElementById("modalAnalysis");
+
+    ////////////////////////////////////////////////////
+    window.addEventListener('click', function (event) {
+        if (!event.target.matches('.generaldropbtn')) {
+            var dropdowns = document.getElementsByClassName("generaldropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('generalshow')) {
+                    openDropdown.classList.remove('generalshow');
+                }
+            }
+
+            dropdowns = document.getElementsByClassName("dropup-content");
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('generalshow')) {
+                    openDropdown.classList.remove('generalshow');
+                }
+            }
+        }
+
+        if (event.target == modalAnalysis) {
+            modalAnalysis.style.display = "none";
+        }
+    });
+
+
+
+    // Get the modal
+    var modalMatn = document.getElementById("modal");
+    // Get the button that opens the modal
+    var btnMatn = document.getElementById("btnModalNote");
+    // Get the <span> element that closes the modal
+    var spanMatnTimes = document.getElementsByClassName("modal-close")[0];
+    var spanAnalyzerTimes = document.getElementById("modalAnalysisClose");
+
+    // When the user clicks the button, open the modal
+    btnMatn.onclick = function () {
+        modalMatn.style.display = "block";    }
+
+    // When the user clicks on <span> (x), close the modal
+    spanMatnTimes.onclick = function () {
+        modalMatn.style.display = "none";
+    }
+
+    spanAnalyzerTimes.onclick = function () {
+        modalAnalysis.style.display = "none";
+    }
+
+
+
+    ///////////////////////////
+    function AddNewNote() {
+        AddNote('31978', '&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x628;&#x646; &#x62D;&#x628;&#x627;&#x646;', '930 ', '&#x625;&#x650;&#x646;&#x651;&#x64E; &#x627;&#x644;&#x652;&#x639;&#x64E;&#x628;&#x652;&#x62F;&#x64E; &#x625;&#x650;&#x630;&#x64E;&#x627; &#x623;&#x64E;&#x62E;&#x652;&#x637;&#x64E;&#x623;&#x64E; &#x62E;&#x64E;&#x637;&#x650;&#x64A;&#x626;&#x64E;&#x629;&#x64B; &#x646;&#x64F;&#x643;&#x650;&#x62A;&#x64E; &#x641;&#x650;&#x64A; &#x642;&#x64E;&#x644;&#x652;&#x628;&#x650;&#x647;&#x650; &#x646;&#x64F;&#x643;&#x652;&#x62A;&#x64E;&#x629;&#x64C;', document.getElementById("txtHadithNote").value);
+        modalMatn.style.display = "none";
+    }
+
+    /////////////////////////
+
+    function LoadDiac() {
+        var diac = window.localStorage.getItem("diac");
+        if (diac == null || diac == "1") {
+            document.getElementById("imgDiac").src = "/Images/Main/Service/Tashkeel-D.png";
+        }
+        else {
+            Removediac();
+            document.getElementById("imgDiac").src = "/Images/Main/Service/Tashkeel.png";
+        }
+    }
+
+    function SetDiac() {
+        var diac = window.localStorage.getItem("diac");
+        if (diac == null || diac == "1") {
+            Removediac();
+            document.getElementById("imgDiac").src = "/Images/Main/Service/Tashkeel.png";
+            window.localStorage.setItem("diac", "0");
+
+        }
+        else {
+            window.localStorage.setItem("diac", "1");
+            //window.location.reload();
+            //alert("reload");
+            document.getElementById("imgDiac").src = "/Images/Main/Service/Tashkeel-D.png";
+            document.getElementById("divMainContent").innerHTML= document.getElementById("divMainContentDiac").innerHTML;
+
+        }
+
+    }
+
+
+    function HighlightDocument(tagName) {
+        var url = "/BookToc/GetMatnPageHighlightWithLink?MainID=" + "31978" + "&highlighttag=" + tagName;
+
+        url = url.replace(/&amp;/g , "&");
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function (docResult) {
+
+                    var spandoc = document.getElementById('divMainContent');
+                    spandoc.innerHTML = docResult;
+
+                    spandoc = document.getElementById('divMainContentDiac');
+                    spandoc.innerHTML = docResult;
+
+                    LoadDiac();
+
+                    HistoryAddHighlight(tagName, '', '');
+
+                },
+                failure: function (response) {
+                },
+                error: function (response) {
+                }
+            });
+    }
+
+
+    function HighlightDocumentAnalyzer(ItemId) {
+        var url = "/BookToc/GetMatnPageWithAnalyzerId?MainID=" + "31978" + "&AnalyzerId=" + ItemId;
+
+        document.getElementById("modalAnalysis").style.display = "none";
+
+        url = url.replace(/&amp;/g , "&");
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function (docResult) {
+
+                    var spandoc = document.getElementById('divMainContent');
+                    spandoc.innerHTML = docResult;
+
+                    spandoc = document.getElementById('divMainContentDiac');
+                    spandoc.innerHTML = docResult;
+                    LoadDiac();
+                    HistoryAddHighlight(tagName, '', '');
+
+                },
+                failure: function (response) {
+                },
+                error: function (response) {
+                }
+            });
+    }
+
+    function ResetDocument() {
+        HighlightDocument("");
+    }
+
+
+
+
+</script>
+
+<script src="/js/tree.js?v=MVcf7p1-Ys7hUpbahh1ZDq87S8ZtqK1uvvgxU18lsCI"></script>
+
+        </main>
+    </div>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/site.js?v=ThDzE0YWWMTtXqqky2Imd37lNaplOjEq2QDxUP8RQAE"></script>
+    <script>
+        if (history.length == 1) {
+            document.getElementById("linkBack").style.display = "none";
+        }
+
+    </script>
+
+
+    
+</body>
+</html>
