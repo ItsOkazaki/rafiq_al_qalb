@@ -37,6 +37,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OFFLINE = path.join(__dirname, 'fixtures', 'offline');
 const read = (file) => fs.readFile(path.join(__dirname, file), 'utf8');
 const readOffline = (file) => fs.readFile(path.join(OFFLINE, file), 'utf8');
+/** Pages captured verbatim from the live official site (npm run alifta:capture). */
+const readFixture = (file) => fs.readFile(path.join(__dirname, 'fixtures', file), 'utf8');
 
 let passed = 0;
 const failures = [];
@@ -56,6 +58,15 @@ function test(name, fn) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+/**
+ * The official pages sometimes order combining marks differently (ن + shadda + fatha
+ * vs ن + fatha + shadda). Compare diacritic-insensitively so the assertions test the
+ * text, not the byte order of tashkeel.
+ */
+function hasNorm(haystack, needle) {
+  return normalizeForDedupe(haystack).includes(normalizeForDedupe(needle));
 }
 
 function eq(actual, expected, message) {
@@ -387,6 +398,85 @@ runs.push(test('ingest() merges duplicate hadiths instead of duplicating them', 
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
+}));
+
+// ── Regression tests on pages captured verbatim from the live official site ───
+// These guard the failure that produced 4 chunks: the site keeps hidden panels
+// (note modal, analysis tree) BEFORE the hadith frame in the DOM, so a scanner
+// that stops at the first piece of chrome extracts nothing at all.
+runs.push(test('live subject page: individual links discovered with entities decoded', async () => {
+  const links = extractSubjectLinks(await readFixture('subject-tawba.html'), OFFICIAL, 40);
+  assert(links.length >= 28, `expected >=28 results, got ${links.length}`);
+  assert(links.every((l) => !l.url.includes('&amp;')), 'no HTML entities survive into the URL');
+  assert(links.every((l) => /^https:\/\/sunna\.alifta\.gov\.sa\/BookToc\/ViewMatnPage\?/.test(l.url)), 'individual matn pages only');
+  const target = links.find((l) => l.url === 'https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=8804');
+  assert(target, 'mainId=8804 discovered from the real subject page');
+  eq(normalizeForDedupe(target.title), normalizeForDedupe('لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ'), 'short excerpt kept as the result title');
+}));
+
+runs.push(test('live detail page mainId=8804: full matn 5673, single copy, no truncation', async () => {
+  const html = await readFixture('detail-bukhari-8804.html');
+  const url = 'https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=8804';
+  const verdict = validateDetailPage(html, { hint: 'لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ', url });
+  eq(verdict.ok, true, 'accepted as the requested page');
+  const matn = verdict.matn;
+  eq(matn.number, '5673', 'hadith number read from the page');
+  assert(normalizeForDedupe(matn.text).startsWith(normalizeForDedupe('حَدَّثَنَا أَبُو الْيَمَانِ')), 'isnad kept');
+  assert(hasNorm(matn.text, 'فَسَدِّدُوا وَقَارِبُوا'), 'middle of the matn kept');
+  assert(normalizeForDedupe(matn.text.trim()).endsWith(normalizeForDedupe('فَلَعَلَّهُ أَنْ يَسْتَعْتِبَ')), 'matn not truncated');
+  eq(normalizeForDedupe(matn.text).split(normalizeForDedupe('لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ')).length - 1, 1, "site's duplicate rendering collapsed");
+  assert(matn.text.length > 'لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ'.length * 4, 'full matn, not the search excerpt');
+  assert(!matn.text.includes('تحليل الحديث') && !matn.text.includes('إضافة تعليق'), 'page chrome excluded');
+}));
+
+runs.push(test('live detail page mainId=5507: the complete hadith 3470, not the search snippet', async () => {
+  const html = await readFixture('detail-bukhari-5507.html');
+  const url = 'https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=5507';
+  const hint = 'كَانَ فِي بَنِي إِسْرَائِيلَ رَجُلٌ قَتَلَ تِسْعَةً وَتِسْعِينَ إِنْسَانًا';
+  const verdict = validateDetailPage(html, { hint, url });
+  eq(verdict.ok, true, 'accepted as the requested page');
+  eq(verdict.matn.number, '3470', 'hadith number read from the page');
+  assert(hasNorm(verdict.matn.text, 'كَانَ فِي بَنِي إِسْرَائِيلَ رَجُلٌ قَتَلَ تِسْعَةً وَتِسْعِينَ إِنْسَانًا'), 'the search excerpt is inside the full matn');
+  assert(hasNorm(verdict.matn.text, 'فَأَدْرَكَهُ الْمَوْتُ فَنَاءَ بِصَدْرِهِ نَحْوَهَا'), 'continuation kept');
+  assert(hasNorm(verdict.matn.text, 'فَاخْتَصَمَتْ فِيهِ مَلَائِكَةُ الرَّحْمَةِ وَمَلَائِكَةُ الْعَذَابِ'), 'rest of the matn kept');
+  assert(normalizeForDedupe(verdict.matn.text.trim()).endsWith(normalizeForDedupe('فَغُفِرَ لَهُ')), 'matn not truncated');
+  assert(verdict.matn.text.length > hint.length * 2, `full matn (${verdict.matn.text.length}) far exceeds the snippet (${hint.length})`);
+}));
+
+runs.push(test('live detail page mainId=31978: Ibn Hibban matn 930 extracted whole', async () => {
+  const html = await readFixture('detail-ibn-hibban-31978.html');
+  const url = 'https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=10&mainId=31978';
+  const verdict = validateDetailPage(html, { url });
+  eq(verdict.ok, true, 'accepted');
+  eq(verdict.matn.number, '930', 'hadith number read from the page');
+  assert(verdict.matn.text.length > 400, `full matn expected, got ${verdict.matn.text.length}`);
+}));
+
+runs.push(test('live detail pages expose the official sharh service as the first commentary candidate', async () => {
+  for (const mainId of ['5507', '8804']) {
+    const html = await readFixture(`detail-bukhari-${mainId}.html`);
+    const links = extractCommentaryLinks(html, `${OFFICIAL}BookToc/ViewMatnPage?bookId=1&mainId=${mainId}`);
+    assert(links.length >= 1, `commentary candidate for mainId=${mainId}`);
+    eq(links[0].url, `${OFFICIAL}MatnService/HadithServiceData?serviceId=6&mainId=${mainId}&inx=0`, 'serviceId=6 first');
+  }
+}));
+
+runs.push(test('live service page: official Fath al-Bari explanation, matn excluded', async () => {
+  const html = await readFixture('service-fath-al-bari-8804.html');
+  const url = `${OFFICIAL}MatnService/HadithServiceData?serviceId=6&mainId=8804&inx=0`;
+  const verdict = validateCommentaryPage(html, { url });
+  eq(verdict.ok, true, 'validated as official commentary');
+  assert(hasNorm(verdict.explanation, 'قَوْلُهُ'), 'commentary markers kept');
+  assert(hasNorm(verdict.explanation, 'هُوَ أَبُو عُبَيْدٍ مَوْلَى ابْنِ أَزْهَرَ'), 'commentary body kept');
+  assert(!hasNorm(verdict.explanation, 'حَدَّثَنَا أَبُو الْيَمَانِ'), 'repeated matn excluded');
+  assert(verdict.explanation.length > 1000, `substantial official explanation, got ${verdict.explanation.length}`);
+}));
+
+runs.push(test('live detail page rejects a request for a different mainId', async () => {
+  const html = await readFixture('detail-bukhari-8804.html');
+  const verdict = validateDetailPage(html, { hint: 'لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ', url: `${OFFICIAL}BookToc/ViewMatnPage?bookId=1&mainId=12345` });
+  eq(verdict.ok, false, 'rejected');
+  assert(verdict.reason.includes('mainId-12345'), `reason names the mismatch: ${verdict.reason}`);
 }));
 
 await Promise.all(runs);
