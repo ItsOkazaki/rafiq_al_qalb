@@ -6,7 +6,7 @@
   "timeoutMs": 12000,
   "fetchAttempts": 3,
   "jinaFallback": true,
-  "maxCommentaryFetches": 30,
+  "maxCommentaryFetches": 60,
   "maxExplanationChars": 6000,
   "minimumChunks": 100,
   "minimumChunksPerTopic": 3,
@@ -99,6 +99,72 @@
         "qaswat-al-qalb",
         "al-hamm-wal-qalaq",
         "hudur-al-qalb"
+      ]
+    },
+    {
+      "kind": "subject",
+      "label": "أمراض القلوب وشفاؤها",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
+      "topicIds": [
+        "qaswat-al-qalb",
+        "athar-al-dhunub"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "إِنَّمَا جُعِلَ الْإِذْنُ مِنْ قِبَلِ الْأَبْصَارِ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=9182",
+      "topicIds": [
+        "al-nazar-ghad"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "إِنَّمَا جُعِلَ الِاسْتِئْذَانُ مِنْ أَجْلِ الْبَصَرِ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=9666",
+      "topicIds": [
+        "al-nazar-ghad"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "أَنَّ رَجُلًا اطَّلَعَ مِنْ بَعْضِ حُجَرِ النَّبِيِّ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=9667",
+      "topicIds": [
+        "al-nazar-ghad"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "لَوِ اطَّلَعَ فِي بَيْتِكَ أَحَدٌ ، وَلَمْ تَأْذَنْ لَهُ ، خَذَفْتَهُ بِحَصَاةٍ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=10620",
+      "topicIds": [
+        "al-nazar-ghad"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "حُجِبَتِ النَّارُ بِالشَّهَوَاتِ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=10051",
+      "topicIds": [
+        "hasm-al-shahwa",
+        "qaswat-al-qalb"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "حُفَّتِ الْجَنَّةُ بِالْمَكَارِهِ ، وَحُفَّتِ النَّارُ بِالشَّهَوَاتِ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=2&mainId=20112",
+      "topicIds": [
+        "hasm-al-shahwa"
+      ]
+    },
+    {
+      "kind": "page",
+      "label": "حُفَّتِ النَّارُ بِالشَّهَوَاتِ",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=10&mainId=31560",
+      "topicIds": [
+        "hasm-al-shahwa"
       ]
     }
   ],

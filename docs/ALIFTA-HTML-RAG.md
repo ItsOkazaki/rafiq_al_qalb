@@ -23,12 +23,32 @@ Official sunna.alifta.gov.sa HTML
 ## Commands
 
 ```bash
-npm run alifta:test
-npm run alifta:manifest
-npm run alifta:live-check
-npm run alifta:ingest
-npm run alifta:verify
+npm run alifta:test       # offline regression tests (real captured DOM, no network)
+npm run alifta:manifest   # manifest + quality-threshold guard
+npm run alifta:live-check # reachability probe
+npm run alifta:capture    # save live HTML fixtures + fetch diagnostics
+npm run alifta:ingest     # crawl individual hadith pages -> corpus + ledger
+npm run alifta:verify     # corpus quality gate
 ```
+
+### What counts as evidence
+
+An individual page is accepted only when it provably is the page that was requested:
+
+- it references its own `mainId` (a redirect to the home page or an error page does not),
+- a complete matn can be extracted from it,
+- the extracted matn matches the excerpt that the subject page advertised.
+
+The official page renders each matn twice (vocalized + plain); the duplicate copy is
+collapsed, and the search-result excerpt is kept separately as `hadithText`. The complete
+matn is stored in `hadithFullText` and is never truncated. Commentary is discovered from
+the service bar (image-only anchors) and from the `serviceId=6` «شرح» service; it is stored
+in `explanationText` only with its exact `explanationSourceUrl`. When no official
+commentary is reachable the field stays empty — nothing is generated.
+
+`npm run alifta:ingest` prints a run report (subjects processed, links discovered, detail
+pages attempted/succeeded/rejected, commentary found, duplicates merged, failures by
+category) and writes the same data to `src/lib/corpus/generated/alifta-html-ledger.json`.
 
 No new npm dependency is required. Node's built-in `fetch` is used. The crawler keeps a session cookie jar and sends a browser-style user agent plus the official subject page as the HTTP Referer.
 
