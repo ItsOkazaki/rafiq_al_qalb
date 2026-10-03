@@ -106,6 +106,10 @@ jobs:
           # app's corpus directory) so the exact problems can be inspected offline.
           if [ "${{ steps.verify.outcome }}" = "failure" ] && [ -f src/lib/corpus/generated/alifta-html-chunks.json ]; then
             cp src/lib/corpus/generated/alifta-html-chunks.json scripts/alifta-html/reports/last-run-corpus.json
+          else
+            # A green run commits the corpus itself; drop the failure-only copy so no
+            # stale rejected corpus is left next to the verified one.
+            rm -f scripts/alifta-html/reports/last-run-corpus.json
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -75,15 +75,6 @@
     },
     {
       "kind": "page",
-      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
-      "label": "مادة حديثية مرتبطة بغض البصر والشهوة",
-      "topicIds": [
-        "al-nazar-ghad",
-        "hasm-al-shahwa"
-      ]
-    },
-    {
-      "kind": "page",
       "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
       "label": "مادة حديثية مرتبطة بالخشوع وحضور القلب",
       "topicIds": [
