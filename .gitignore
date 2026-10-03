@@ -22,5 +22,10 @@ coverage/
 # scripts/alifta-html/fixtures/*.html is committed for offline regression tests.
 scripts/alifta-html/fixtures/live/
 
+# Per-run ingestion diagnostics. CI publishes a rejected run with `git add -f`
+# on purpose; locally they must not dirty a working tree.
+scripts/alifta-html/reports/last-run-corpus.json
+scripts/alifta-html/reports/last-run-failure.json
+
 # Next.js generated type declarations (regenerated on every build)
 next-env.d.ts

@@ -2,7 +2,7 @@
 
 ## مرجعية الخط القرآني
 
-يعتمد عرض النص القرآني في الواجهة على **QPC Hafs / Uthmanic Hafs** وفق رواية حفص عن عاصم، مع عزل طبقة النص القرآني عن خط الواجهة العام. توثيق Quran Foundation يذكر QPC Hafs Unicode ويحدد ملف `UthmanicHafs1Ver18.woff2` للعرض الويب. كما يصف مجمع الملك فهد خط حفص بأنه خط حاسوبي مخصص لعرض القرآن بالرسم العثماني وبترميز Unicode.
+يعتمد عرض النص القرآني في الواجهة على **QPC Hafs / Uthmanic Hafs** وفق رواية حفص عن عاصم، مع عزل طبقة النص القرآني عن خط الواجهة العام. الخط المستخدم هو `UthmanicHafs_V22`، وهو **مُضمَّن محلياً** في `public/fonts/UthmanicHafs_V22.ttf` بلا أي تعديل، ويُخدَم من الملف المحلي أولاً؛ ويبقى رابط QUL بديلاً بعيداً أخيراً موثَّقاً (`docs/FONT-LICENSE.md`). بوابة `npm run verify:quran-font` تتحقق من وجوده ومن مطابقة بصمته. كما يصف مجمع الملك فهد خط حفص بأنه خط حاسوبي مخصص لعرض القرآن بالرسم العثماني وبترميز Unicode.
 
 المشروع لا يطلب من النموذج توليد آيات أو علامات وقف. الآية تُخزن في `quranText` كبيان مستقل، وتظهر في كتلة موسومة بوضوح **نص قرآني موثّق — رواية حفص عن عاصم**.
 
@@ -32,6 +32,6 @@
 ## Saudi source additions (2026-10-02)
 
 - Primary Quran reference: King Fahd Complex developer platform and its Hafs Unicode data/font.
-- Requested web font baseline: `UthmanicHafs_V22`.
+- Web font baseline in use: `UthmanicHafs_V22`, bundled unmodified in `public/fonts/UthmanicHafs_V22.ttf` (sha256-checked by `npm run verify:quran-font`); a documented remote QUL fallback remains last in the CSS chain.
 - Primary Sunnah source registry entry: `alifta-sunna-encyclopedia` for `https://sunna.alifta.gov.sa/`.
 - Docling is an ingestion-time document parser/chunker; it is not a religious source and is not imported by the Next.js runtime.

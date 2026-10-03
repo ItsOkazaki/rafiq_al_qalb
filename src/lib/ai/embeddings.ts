@@ -1,4 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
+// NOT WIRED INTO THE RUNTIME PATH.
+// This client is kept as reviewed engineering groundwork for a future hybrid
+// retrieval step; nothing in `src/app` or `src/lib/rag` imports it today, and
+// the shipped retrieval is lexical/topic-based only (see docs/ARCHITECTURE.md).
+// Do not describe embeddings as part of the current pipeline.
+//
 // Embedding client with Gemini / OpenRouter / OpenAI support.
 // Gemini retrieval is batched in small groups so one Vercel request does not
 // depend on a very large batch succeeding. Query/document prefixes follow the

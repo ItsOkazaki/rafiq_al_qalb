@@ -13,7 +13,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import fs from 'node:fs/promises';
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   cleanText,
@@ -31,6 +33,7 @@ import {
   normalizeForDedupe,
   errorCategory,
   MIN_FULL_HADITH_CHARS,
+  assessIngestion,
   ingest,
 } from './ingest.mjs';
 
@@ -500,6 +503,58 @@ runs.push(test('a fragment is refused instead of being published as the complete
   const lenient = validateDetailPage(html, { hint: '', url, minMatnChars: 10 });
   eq(lenient.ok, true, 'same page validates when a fragment is explicitly allowed');
   assert(lenient.matn.text.length < MIN_FULL_HADITH_CHARS, `fixture really is a fragment (${lenient.matn.text.length})`);
+}));
+
+runs.push(test('a rejected run may not replace the committed corpus', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'alifta-ingest-'));
+  const reports = path.join(dir, 'reports');
+  const corpusDir = path.join(dir, 'corpus');
+  await fs.mkdir(corpusDir, { recursive: true });
+  const committed = JSON.stringify([{ id: 'existing-1' }, { id: 'existing-2' }], null, 2) + '\n';
+  await fs.writeFile(path.join(corpusDir, 'alifta-html-chunks.json'), committed, 'utf8');
+
+  // A real (offline) CLI run: one target that cannot be fetched, thresholds unchanged,
+  // pointed at the throwaway directory through the documented test-only overrides.
+  const manifest = path.join(dir, 'manifest.json');
+  await fs.writeFile(manifest, JSON.stringify({
+    sourceId: 'alifta-sunna-encyclopedia',
+    baseUrl: OFFICIAL,
+    targets: [{ kind: 'subject', url: `${OFFICIAL}Search/ViewSubjectHits?subjectId=1`, label: 'اختبار', topicIds: ['al-tawba'] }],
+    timeoutMs: 1500, fetchAttempts: 1, requestDelayMs: 0, fallbackDelayMs: 0, maxCommentaryFetches: 0,
+    minimumChunks: 100, minimumChunksPerTopic: 3, requiredTopicIds: ['al-tawba'],
+  }, null, 2), 'utf8');
+
+  const exitCode = await new Promise((resolve) => {
+    const child = spawn(process.execPath, [path.join(__dirname, 'ingest.mjs'), manifest], {
+      env: { ...process.env, ALIFTA_CORPUS_OUT_DIR: corpusDir, ALIFTA_REPORTS_DIR: reports, JINA_API_KEY: '' },
+      stdio: 'ignore',
+    });
+    child.on('exit', (code) => resolve(code));
+  });
+  eq(exitCode, 1, 'a run below the threshold exits non-zero');
+  const after = await fs.readFile(path.join(corpusDir, 'alifta-html-chunks.json'), 'utf8');
+  eq(after, committed, 'the previously committed corpus file is byte-identical');
+  const failure = JSON.parse(await fs.readFile(path.join(reports, 'last-run-failure.json'), 'utf8'));
+  eq(failure.rejected, true, 'the rejected run is recorded as rejected');
+  assert(failure.reason.includes('minimum is 100'), `reason explains the threshold: ${failure.reason}`);
+  await fs.rm(dir, { recursive: true, force: true });
+}));
+
+runs.push(test('a valid run may not silently shrink the corpus by more than half', () => {
+  const topics = { 'al-tawba': 5 };
+  const valid = assessIngestion({ rowCount: 120, topicCounts: topics, minimum: 100, minimumPerTopic: 3, existingCount: 200 });
+  eq(valid.ok, true, 'a full run is accepted');
+  const boundary = assessIngestion({ rowCount: 100, topicCounts: topics, minimum: 100, minimumPerTopic: 3, existingCount: 271 });
+  eq(boundary.ok, false, 'a run below the 50% floor of a fuller corpus is refused');
+  const shrunk = assessIngestion({ rowCount: 120, topicCounts: topics, minimum: 100, minimumPerTopic: 3, existingCount: 400 });
+  eq(shrunk.ok, false, 'a <50% run is refused');
+  assert(shrunk.reason.includes('ALLOW_CORPUS_SHRINK=1'), `override is documented in the reason: ${shrunk.reason}`);
+  const overridden = assessIngestion({ rowCount: 120, topicCounts: topics, minimum: 100, minimumPerTopic: 3, existingCount: 400, allowShrink: true });
+  eq(overridden.ok, true, 'an explicit override is honoured');
+  const weakDoor = assessIngestion({ rowCount: 120, topicCounts: { 'al-tawba': 1 }, minimum: 100, minimumPerTopic: 3, existingCount: 0 });
+  eq(weakDoor.ok, false, 'weak topic coverage is refused');
+  const tooSmall = assessIngestion({ rowCount: 9, topicCounts: topics, minimum: 100, minimumPerTopic: 3, existingCount: 0 });
+  eq(tooSmall.ok, false, 'a below-minimum run is refused');
 }));
 
 runs.push(test('crawler and corpus verifier agree on the minimum length of a full matn', async () => {

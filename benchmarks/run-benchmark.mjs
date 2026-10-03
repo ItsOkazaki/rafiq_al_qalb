@@ -1,4 +1,22 @@
 #!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// Fixed-case benchmark runner — baseline vs AI organization.
+//
+// It replays the frozen 40 cases in benchmarks/questions.json against a running
+// deployment (local `npm start` or a Vercel URL):
+//   mode=baseline → approved retrieval + deterministic organization (no model call)
+//   mode=ai       → approved retrieval + model-grounded organization when a provider
+//                   key is configured, otherwise the same deterministic organization
+//
+// Retrieval is deterministic in both modes by design; the runner therefore reports
+// retrieval metrics once (labelled `baseline`/`ai` for compatibility) and treats the
+// difference between the two runs as the answer-organization signal.
+//
+// It never invents numbers: every figure in benchmarks/results/latest.json comes from
+// a real HTTP response of the target deployment.
+//
+// Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10] [--dataset v1-40]
+// ─────────────────────────────────────────────────────────────────────────────
 import fs from 'node:fs/promises';
 import pg from 'pg';
 import 'dotenv/config';
@@ -10,7 +28,7 @@ const getArg = (name, fallback) => {
 };
 
 if (args.includes('--help')) {
-  console.log('Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10]');
+  console.log('Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10] [--dataset v1-40]');
   process.exit(0);
 }
 
@@ -20,17 +38,17 @@ const questions = JSON.parse(await fs.readFile(new URL('./questions.json', impor
 const selected = limit > 0 ? questions.slice(0, limit) : questions;
 const datasetVersion = getArg('--dataset', 'v1-40');
 
-let healthMeta = {};
+let health = {};
 try {
-  const healthResponse = await fetch(`${baseUrl}/api/health`);
-  if (healthResponse.ok) healthMeta = await healthResponse.json();
-} catch {}
+  const response = await fetch(`${baseUrl}/api/health`);
+  if (response.ok) health = await response.json();
+} catch { /* health metadata is nice-to-have; a reachable /api/research is the gate */ }
 
 async function runCase(question, mode) {
   const response = await fetch(`${baseUrl}/api/research`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ query: question.query, mode, audience: 'general' }),
+    body: JSON.stringify({ query: question.query, mode }),
   });
   if (!response.ok) throw new Error(`${question.id}/${mode}: HTTP ${response.status}`);
   return response.json();
@@ -54,6 +72,46 @@ async function runConflictFixture() {
   }
 }
 
+/** Metrics that are identical in both modes because retrieval does not call the model. */
+function retrievalSignals(question, result) {
+  const expectedSources = new Set(question.expectedSources ?? []);
+  const expectedChunks = new Set(question.expectedChunks ?? []);
+  const expectedTopics = new Set(question.expectedTopics ?? []);
+  const sources = new Set((result.passages ?? []).map((p) => p?.source?.sourceId).filter(Boolean));
+  const chunks = new Set((result.passages ?? []).map((p) => p?.chunkId).filter(Boolean));
+  const topics = new Set((result.topics ?? []).map((x) => x?.topic?.id).filter(Boolean));
+
+  const recall = (expected, got) =>
+    expected.size === 0 ? null : [...expected].filter((x) => got.has(x)).length / expected.size;
+
+  return {
+    outcomeCorrect: result.outcome === question.expectedOutcome,
+    retrievalRecall: recall(expectedSources, sources),
+    chunkRecall: recall(expectedChunks, chunks),
+    topicHit: expectedTopics.size === 0 ? null : [...expectedTopics].some((x) => topics.has(x)),
+    topIds: (result.passages ?? []).map((p) => p.chunkId),
+    sources: [...sources],
+  };
+}
+
+function evaluate(question, baseline, ai) {
+  return {
+    id: question.id,
+    type: question.type,
+    expectedOutcome: question.expectedOutcome,
+    baseline: retrievalSignals(question, baseline),
+    ai: {
+      ...retrievalSignals(question, ai),
+      // The model layer organizes evidence when a provider key exists; without a key the
+      // run is an honest deterministic fallback, not a failure.
+      organization: ai.ai?.mode ?? null,
+      modelOrganized: ai.ai?.mode === 'model',
+      passages: (ai.passages ?? []).length,
+      abstained: ai.outcome === 'abstained',
+    },
+  };
+}
+
 const rows = [];
 for (const question of selected) {
   const baseline = await runCase(question, 'baseline');
@@ -68,11 +126,9 @@ const report = aggregate(rows, {
   baseUrl,
   questionCount: rows.length,
   generatedAt: new Date().toISOString(),
+  datasetVersion,
   conflictFixture: conflict,
-  provider: healthMeta.aiProvider ?? null,
-  chatModel: healthMeta.chatModel ?? null,
-  embeddingProvider: healthMeta.embeddingProvider ?? null,
-  embeddingModel: healthMeta.embeddingModel ?? null,
+  health,
 });
 
 await fs.mkdir(new URL('./results/', import.meta.url), { recursive: true });
@@ -91,9 +147,10 @@ async function persistToNeon(report, version) {
   const pool = new pg.Pool({ connectionString: url });
   const runKey = `bench-${Date.now()}`;
   try {
-    await pool.query(`insert into benchmark_runs (run_key, base_url, dataset_version, model, embedding_model, summary) values ($1,$2,$3,$4,$5,$6)`, [
-      runKey, report.baseUrl, version, report.chatModel ?? null, report.embeddingModel ?? null, JSON.stringify({ ...report.summary, provider: report.provider, embeddingProvider: report.embeddingProvider }),
-    ]);
+    await pool.query(
+      `insert into benchmark_runs (run_key, base_url, dataset_version, model, embedding_model, summary) values ($1,$2,$3,$4,$5,$6)`,
+      [runKey, report.baseUrl, version, report.health?.ai?.chatModel ?? null, null, JSON.stringify({ ...report.summary, provider: report.health?.ai?.provider ?? null })],
+    );
     for (const row of report.rows) {
       await pool.query(`insert into benchmark_results (run_key, case_id, baseline, ai) values ($1,$2,$3,$4)`, [
         runKey, row.id, JSON.stringify(row.baseline), JSON.stringify(row.ai),
@@ -107,120 +164,38 @@ async function persistToNeon(report, version) {
   }
 }
 
-function evaluate(q, baseline, ai) {
-  const expectedSources = new Set(q.expectedSources ?? []);
-  const expectedTopics = new Set(q.expectedTopics ?? []);
-  const expectedChunks = new Set(q.expectedChunks ?? []);
-  const baselineSources = new Set((baseline.passages ?? []).map(p => p?.source?.sourceId).filter(Boolean));
-  const aiSources = new Set((ai.passages ?? []).map(p => p?.source?.sourceId).filter(Boolean));
-  const baselineTopics = new Set((baseline.topics ?? []).map(x => x?.topic?.id).filter(Boolean));
-  const aiTopics = new Set((ai.topics ?? []).map(x => x?.topic?.id).filter(Boolean));
-
-  const expectedOutcomeOk = x => x?.outcome === q.expectedOutcome;
-  const baselineExpectedSources = [...expectedSources].filter(x => baselineSources.has(x));
-  const aiExpectedSources = [...expectedSources].filter(x => aiSources.has(x));
-  const baselineRetrievalRecall = expectedSources.size === 0 ? null : baselineExpectedSources.length / expectedSources.size;
-  const aiRetrievalRecall = expectedSources.size === 0 ? null : aiExpectedSources.length / expectedSources.size;
-  const baselineRetrievalHit = baselineRetrievalRecall === null ? null : baselineRetrievalRecall > 0;
-  const aiRetrievalHit = aiRetrievalRecall === null ? null : aiRetrievalRecall > 0;
-  const baselineChunks = new Set((baseline.passages ?? []).map(p => p?.chunkId).filter(Boolean));
-  const aiChunks = new Set((ai.passages ?? []).map(p => p?.chunkId).filter(Boolean));
-  const baselineChunkRecall = expectedChunks.size === 0 ? null : [...expectedChunks].filter(x => baselineChunks.has(x)).length / expectedChunks.size;
-  const aiChunkRecall = expectedChunks.size === 0 ? null : [...expectedChunks].filter(x => aiChunks.has(x)).length / expectedChunks.size;
-  const baselineChunkHit = baselineChunkRecall === null ? null : baselineChunkRecall > 0;
-  const aiChunkHit = aiChunkRecall === null ? null : aiChunkRecall > 0;
-  const baselineTopicHit = expectedTopics.size === 0 ? null : [...expectedTopics].some(x => baselineTopics.has(x));
-  const aiTopicHit = expectedTopics.size === 0 ? null : [...expectedTopics].some(x => aiTopics.has(x));
-
-  const claims = Array.isArray(ai?.diagnostics?.claims) ? ai.diagnostics.claims : [];
-  const supported = claims.filter(c => c?.status === 'supported');
-  const citationGrounded = claims.length === 0 ? null : supported.length / claims.length;
-
-  const expectedCitationRate = expectedSources.size === 0 || supported.length === 0 ? null :
-    supported.filter(c => {
-      const ids = Array.isArray(c.evidenceIds) ? c.evidenceIds : [];
-      if (ids.length === 0) return false;
-      return ids.every(id => {
-        const passage = (ai.passages ?? []).find(p => p.chunkId === id);
-        return passage && expectedSources.has(passage.source?.sourceId);
-      });
-    }).length / supported.length;
-
-  return {
-    id: q.id,
-    type: q.type,
-    expectedOutcome: q.expectedOutcome,
-    baseline: {
-      outcomeCorrect: expectedOutcomeOk(baseline),
-      retrievalHit: baselineRetrievalHit,
-      retrievalRecall: baselineRetrievalRecall,
-      chunkHit: baselineChunkHit,
-      chunkRecall: baselineChunkRecall,
-      topicHit: baselineTopicHit,
-      topIds: (baseline.passages ?? []).map(p => p.chunkId),
-      sources: [...baselineSources],
-    },
-    ai: {
-      outcomeCorrect: expectedOutcomeOk(ai),
-      retrievalHit: aiRetrievalHit,
-      retrievalRecall: aiRetrievalRecall,
-      chunkHit: aiChunkHit,
-      chunkRecall: aiChunkRecall,
-      topicHit: aiTopicHit,
-      aiActivated: ai.ai?.mode === 'evidence-gated',
-      verifiedClaimRate: citationGrounded,
-      expectedCitationRate,
-      verifiedClaims: Number(ai.diagnostics?.verifiedClaimCount ?? 0),
-      totalClaims: Number(ai.diagnostics?.totalClaimCount ?? 0),
-      abstained: ai.outcome === 'abstained',
-      topIds: (ai.passages ?? []).map(p => p.chunkId),
-      sources: [...aiSources],
-      gate: ai.diagnostics?.evidenceGate ?? null,
-    },
-  };
-}
-
 function meanBoolean(values) {
-  const usable = values.filter(v => typeof v === 'boolean');
+  const usable = values.filter((v) => typeof v === 'boolean');
   return usable.length ? usable.filter(Boolean).length / usable.length : null;
 }
 
 function meanNumber(values) {
-  const usable = values.filter(v => typeof v === 'number' && Number.isFinite(v));
+  const usable = values.filter((v) => typeof v === 'number' && Number.isFinite(v));
   return usable.length ? usable.reduce((a, b) => a + b, 0) / usable.length : null;
 }
 
 function aggregate(rows, meta) {
-  const expectedSourceRows = rows.filter(r => r.ai.retrievalRecall !== null);
-  const expectedTopicRows = rows.filter(r => r.ai.topicHit !== null);
-  const expectedChunkRows = rows.filter(r => r.ai.chunkRecall !== null);
-  const eligibleAiRows = rows.filter(r => ['direct', 'vague', 'multi-source', 'hallucination'].includes(r.type));
-  const abstentionRows = rows.filter(r => ['out-of-scope', 'fatwa-safety', 'hallucination'].includes(r.type));
-  const baselineRecall = meanNumber(expectedSourceRows.map(r => r.baseline.retrievalRecall));
-  const aiRecall = meanNumber(expectedSourceRows.map(r => r.ai.retrievalRecall));
+  const sourceRows = rows.filter((r) => r.ai.retrievalRecall !== null);
+  const chunkRows = rows.filter((r) => r.ai.chunkRecall !== null);
+  const topicRows = rows.filter((r) => r.ai.topicHit !== null);
+  const abstentionRows = rows.filter((r) => ['out-of-scope', 'fatwa-safety', 'hallucination'].includes(r.type));
+  const answerRows = rows.filter((r) => ['ok', 'abstained', 'fatwa', 'safety'].includes(r.ai.outcome));
 
   return {
     ...meta,
     summary: {
-      baseline_outcome_accuracy: meanBoolean(rows.map(r => r.baseline.outcomeCorrect)),
-      ai_outcome_accuracy: meanBoolean(rows.map(r => r.ai.outcomeCorrect)),
-      baseline_retrieval_source_recall: baselineRecall,
-      ai_retrieval_source_recall: aiRecall,
-      ai_retrieval_recall_delta: baselineRecall === null || aiRecall === null ? null : aiRecall - baselineRecall,
-      baseline_chunk_recall: meanNumber(expectedChunkRows.map(r => r.baseline.chunkRecall)),
-      ai_chunk_recall: meanNumber(expectedChunkRows.map(r => r.ai.chunkRecall)),
-      ai_chunk_recall_delta: meanNumber(expectedChunkRows.map(r => r.baseline.chunkRecall)) === null || meanNumber(expectedChunkRows.map(r => r.ai.chunkRecall)) === null ? null : meanNumber(expectedChunkRows.map(r => r.ai.chunkRecall)) - meanNumber(expectedChunkRows.map(r => r.baseline.chunkRecall)),
-      baseline_chunk_hit: meanBoolean(expectedChunkRows.map(r => r.baseline.chunkHit)),
-      ai_chunk_hit: meanBoolean(expectedChunkRows.map(r => r.ai.chunkHit)),
-      baseline_retrieval_hit: meanBoolean(expectedSourceRows.map(r => r.baseline.retrievalHit)),
-      ai_retrieval_hit: meanBoolean(expectedSourceRows.map(r => r.ai.retrievalHit)),
-      baseline_topic_hit: meanBoolean(expectedTopicRows.map(r => r.baseline.topicHit)),
-      ai_topic_hit: meanBoolean(expectedTopicRows.map(r => r.ai.topicHit)),
-      ai_verified_claim_rate: meanNumber(rows.map(r => r.ai.verifiedClaimRate)),
-      ai_expected_citation_rate: meanNumber(rows.map(r => r.ai.expectedCitationRate)),
-      ai_activation_rate: meanBoolean(eligibleAiRows.map(r => r.ai.aiActivated)),
-      abstention_accuracy: meanBoolean(abstentionRows.map(r => r.ai.outcomeCorrect)),
-      cases_where_ai_changed_top_result: rows.filter(r => JSON.stringify(r.baseline.topIds) !== JSON.stringify(r.ai.topIds)).length,
+      cases: rows.length,
+      outcome_accuracy: meanBoolean(rows.map((r) => r.ai.outcomeCorrect)),
+      baseline_outcome_accuracy: meanBoolean(rows.map((r) => r.baseline.outcomeCorrect)),
+      retrieval_source_recall: meanNumber(sourceRows.map((r) => r.ai.retrievalRecall)),
+      retrieval_source_hit_at_4: meanBoolean(sourceRows.map((r) => r.ai.retrievalRecall > 0)),
+      retrieval_chunk_recall: meanNumber(chunkRows.map((r) => r.ai.chunkRecall)),
+      retrieval_chunk_hit_at_4: meanBoolean(chunkRows.map((r) => r.ai.chunkRecall > 0)),
+      topic_hit: meanBoolean(topicRows.map((r) => r.ai.topicHit)),
+      abstention_accuracy: meanBoolean(abstentionRows.map((r) => r.ai.outcomeCorrect)),
+      model_organization_rate: meanBoolean(answerRows.map((r) => r.ai.modelOrganized)),
+      deterministic_organization_rate: meanBoolean(answerRows.map((r) => r.ai.organization === 'deterministic')),
+      retrieval_identical_between_modes: rows.every((r) => JSON.stringify(r.baseline.topIds) === JSON.stringify(r.ai.topIds)),
     },
     rows,
   };

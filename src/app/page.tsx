@@ -274,8 +274,8 @@ export default function HomePage() {
               },
               {
                 label: "نموذج الذكاء الاصطناعي",
-                value: "Google Gemini 1.5 Flash",
-                note: "مزوّد الذكاء الاصطناعي الأساسي لتنظيم وتلخيص المادة المسترجعة بأسلوب حواري دقيق.",
+                value: "Google Gemini (gemini-3.5-flash-lite افتراضياً، قابل للتغيير بمتغيّرات البيئة)",
+                note: "مزوّد بديل عند الحاجة (OpenRouter/OpenAI)، ومسؤوليته الوحيدة صياغة ملخّص مقيَّد بالمقاطع المسترجعة ثم يمر على فحص أمني ولغوي؛ وإن غاب المفتاح يعمل المسار الحتمي نفسه دون نموذج.",
               },
               {
                 label: "آلية الامتناع والتحقق (Guarded Generation)",
@@ -285,7 +285,7 @@ export default function HomePage() {
               {
                 label: "الواجهة والنشر",
                 value: "Next.js 16 (App Router) — Vercel",
-                note: "الخطوط المستخدمة: Amiri + IBM Plex Sans Arabic + Aref Ruqaa، وجميعها مرخّصة بموجب SIL Open Font License (OFL).",
+                note: "خطوط الواجهة: Amiri + IBM Plex Sans Arabic + Aref Ruqaa بترخيص SIL OFL، وخط الآيات KFGQPC Uthmanic Hafs v2.2 مُضمَّن في المستودع بترخيص المجمع (يُخدَم بلا تعديل).",
               },
             ].map(({ label, value, note }) => (
               <div key={label} className="rounded-2xl border border-parchment-300 bg-parchment-50/95 p-6 shadow-manuscript">

@@ -1,36 +1,61 @@
 # AI models and responsibilities
 
-## Required AI responsibilities
+This page describes the AI layer **as it exists in this repository**. Anything that is
+not wired into the runtime path is listed as such on purpose.
 
-1. **Research planning:** تحويل السؤال العربي/العامي إلى intent وsemantic query وأسئلة فرعية.
-2. **Semantic retrieval:** embeddings فوق الـ approved corpus.
-3. **Hybrid retrieval:** دمج الاسترجاع اللفظي والدلالي قبل إعادة الترتيب.
-4. **Re-ranking:** النموذج يعيد ترتيب الأدلة المرشحة وفق خطة البحث.
-5. **Evidence gate:** قرار كفاية الدليل يمر عبر النموذج + فحوص التغطية الحتمية.
-6. **Claim generation:** كل ادعاء يحمل IDs من المقاطع المسترجعة فقط.
-7. **Claim verification:** مرور مستقل يوسم الادعاءات supported/partial/unsupported/conflicting.
-8. **Conflict detection:** رصد التوتر بين المصادر دون تقرير أيها أصح.
+## The one AI responsibility in the current runtime
 
-## Provider-neutral architecture
+Exactly one model call participates in a research request:
 
-The application supports three provider families through one interface:
+**Grounded answer organization** (`src/lib/ai/provider.ts#generateGroundedSummary`)
+receives the user's description plus the retrieved approved passages, and returns an
+Arabic-only organized brief.
 
-- **Gemini Developer API** — recommended free-tier capable setup. Primary chat: `gemini-3.5-flash-lite`; automatic fallback: `gemini-3.1-flash-lite`; default embedding: `gemini-embedding-2`.
-- **OpenRouter** — optional free setup. Default chat: `qwen/qwen3.8-27b:free`; default embedding: `liquid/lfm-2.5-embedding-350m:free`.
-- **OpenAI** — retained as a direct/competition deployment option when API credit is available.
+Hard constraints enforced in code:
 
-The RAG, evidence gate, claim schema, verification rules, and safety policies do not change when the provider changes.
+- `temperature: 0`; the model never sees anything except the retrieved passages.
+- The system prompt forbids diagnosis, fatwas, personal prescriptions, invented
+  citations, non-Arabic scripts, links, HTML and Markdown.
+- A post-guard (`sanitizeStrictArabicOutput` + `isFramingSafe`) rejects mixed-script or
+  banned-framing output. Rejected output is never shown; the deterministic brief is used.
+- The UI labels the model layer explicitly: «ملخّص مولّد بالذكاء الاصطناعي — ليس من نص المصدر».
 
-## Free-tier truth
+There is **no AI planner, no AI re-ranking, no AI evidence gate and no AI claim verifier**
+in the request path. Retrieval, thresholds, abstention and the corpus filter are
+deterministic code. See `docs/ARCHITECTURE.md`.
 
-“Free” means no token charge for the selected free-tier route, **not unlimited usage**. Google applies RPM/TPM/RPD limits per project. OpenRouter currently advertises a 50-request/day free-plan platform limit, and free model availability can vary. Treat these as operational constraints rather than guarantees of unlimited service.
+## Provider matrix
+
+| Provider | When it is used | Chat model default | Env |
+|---|---|---|---|
+| Google Gemini | Primary when `GEMINI_API_KEY` is present (or `AI_PROVIDER=gemini`) | `gemini-3.5-flash-lite` (`GEMINI_CHAT_MODEL` / `GEMINI_MODEL`) | `GEMINI_API_KEY`, `AI_TIMEOUT_MS` |
+| OpenAI | Fallback inside the same request when a Gemini call returns nothing and `OPENAI_API_KEY` exists; also primary if `AI_PROVIDER=openai` | `gpt-4o-mini` (`OPENAI_MODEL`) | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
+| OpenRouter | Optional alternative provider (`AI_PROVIDER=openrouter`) | `qwen/qwen3.8-27b:free` (`OPENROUTER_MODEL`) | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
+
+`getAIConfig()` resolves the provider from `AI_PROVIDER` when set, otherwise from whichever
+key is present (Gemini → OpenRouter → OpenAI).
+
+## Response modes reported to the client
+
+| `ai.mode` | Meaning |
+|---|---|
+| `model` | The grounded summary passed the strict Arabic/framing guard and is displayed with an AI label. |
+| `deterministic` | No key, provider failure, or guard rejection: the brief is assembled literally from the retrieved passages. |
+
+## Free-tier reality
+
+Gemini free tier and OpenRouter free models are rate-limited (RPM/TPM/RPD and daily
+request caps). The application is built so that a rate limit degrades to the
+deterministic path instead of producing an ungrounded answer. Treat “free” as an
+operational constraint, not as a guarantee.
 
 ## Privacy note
 
-Some OpenRouter free endpoints document that prompts/outputs or embeddings may be retained or used to train the underlying provider model. Do not send secrets or unnecessary personal data through free providers. For the competition, keep the approved corpus and evaluation metadata controlled and use the provider whose data policy the team accepts.
+Some free provider routes document that prompts may be retained or used to improve the
+provider's models. Do not send secrets or unnecessary personal data through them. The
+prompt built here contains the user's description and short approved-source excerpts only.
 
+## Cost per question
 
-### Gemini free-tier reliability note
-The default challenge configuration is deliberately token-friendly: local query planning, lexical/topic retrieval first, 6 rerank candidates, 3 final passages, and no embedding call unless explicitly enabled. This keeps the normal question path to about three Gemini calls (rerank → grounded claim generation → verification) instead of spending quota on planning and full-corpus embeddings.
-
-When embeddings are enabled, the Gemini embedding path batches small groups and validates response counts. Gemini 408/429/5xx responses use a limited retry budget and may fall back to the secondary free-tier chat model; a provider failure never weakens the evidence gate because the pipeline can fall back to approved deterministic retrieval.
+One chat request in the normal path (plus the deterministic fallback when no key is
+configured, which costs nothing). No embedding requests are issued by the runtime.

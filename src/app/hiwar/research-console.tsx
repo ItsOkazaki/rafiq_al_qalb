@@ -128,7 +128,7 @@ export function ResearchConsole() {
           <svg viewBox="0 0 24 24" className="animate-ornament size-10 stroke-brass-400" fill="none" strokeWidth="1.2">
             <path d="M12 3l2.2 5.4 5.8.6-4.4 3.8 1.3 5.7L12 15.4l-4.9 3.1 1.3-5.7L4 9l5.8-.6L12 3z" strokeLinejoin="round" />
           </svg>
-          <p className="text-sm text-parchment-200/60">يحدد الباب البحثي، ويستخرج الكلمات، ويستدعي Gemini لتنظيم المادة…</p>
+          <p className="text-sm text-parchment-200/60">يحدد الباب البحثي، ويستخرج الكلمات، ويسترجع المادة المعتمدة، ثم ينظّمها…</p>
         </div>
       )}
 

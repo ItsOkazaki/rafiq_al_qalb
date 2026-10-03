@@ -108,8 +108,12 @@ export function SiteFooter() {
               </p>
             </div>
           </div>
-          <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/6 pt-6 text-center text-xs text-parchment-200/40">
+          <div className="mt-10 flex flex-col items-center gap-3 border-t border-white/6 pt-6 text-center text-xs text-parchment-200/40">
             <p>هذه مادة للبحث والدراسة، وليست تشخيصاً ولا فتوى ولا وصفاً لعلاج شخصي.</p>
+            <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+              <Link href="/lab" className="link-brass">مختبر الأدلة (للجنة)</Link>
+              <Link href="/wasfa" className="link-brass">سياسة عدم الوصف</Link>
+            </p>
             <p>رفيق القلوب — مشروع بحثي لتحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي.</p>
           </div>
         </div>

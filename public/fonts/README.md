@@ -1,22 +1,26 @@
-# Quran font asset
+# خط النص القرآني (QPC Hafs V22)
 
-Bundle the QPC Hafs V22 file here as either:
+هذا المجلد يحتوي ملف الخط المضمَّن الذي يُعرض به النص القرآني في التطبيق:
 
-- `UthmanicHafs_V22.woff2` (preferred for web)
-- `UthmanicHafs_V22.ttf` (also supported directly)
+| الملف | الوصف |
+|---|---|
+| `UthmanicHafs_V22.ttf` | KFGQPC HAFS Uthmanic Script — Version 2.2، غير معدَّل، 297,688 بايت |
+| `UthmanicHafs_V22.LICENSE.txt` | نص الترخيص المضمَّن في الملف + المصدر والبصمة |
 
-The project expects this local asset in production so Quran rendering does not depend on a third-party network request.
+- **البصمة (sha256):** `a6e59510dcaf3ec99db49427321a035ed94af555ffc7d27e7f430b5fd5e179f8`
+- **الترخيص:** اتفاقية المستخدم النهائي المضمَّنة في الخط (name ID 13): استخدام ونسخ وتوزيع
+  مجاناً، مع منع البيع أو التعديل أو التحويل. لذلك **لا** يُحوَّل الملف إلى WOFF2 ولا يُجزَّأ.
+- **التحقق:** `npm run verify:quran-font` يفحص وجود الملف وبصمته وربط `globals.css` به.
+- **بديل بعيد موثَّق:** `src/app/globals.css` يُبقي رابط QUL كنهاية أخيرة إن غاب الملف المحلي؛
+  الترتيب: الملف المحلي أولاً، ثم البديل البعيد.
 
-The CSS prefers this local asset first and uses the documented V22 web-font fallback only when the local file is absent. Before final submission, bundle the exact V22 font binary here and verify its checksum against the source distribution.
+## قواعد العرض
 
-Reference source requested for this project:
-https://github.com/nuqayah/qpc-fonts/tree/master/text-mushafs/UthmanicHafs_V22
+- الخط يرسم الرسم العثماني ولا ينشئ علامات وقف غير موجودة في النص. العلامات تأتي من النص
+  القرآني الموثَّق نفسه، لا من الخط.
+- لا يُستبدل الخط بخط آخر لعرض الآيات (مثل Amiri)؛ العرض القرآني يبقى بالرسم العثماني الرسمي.
+- أي استبدال للملف يتطلب تحديث البصمة في هذا الملف وفي `scripts/verify-quran-font.mjs`
+  و`docs/FONT-LICENSE.md`.
 
-Primary authority for the Quran font/data:
-https://qurancomplex.gov.sa/en/techquran/dev/
-
-## Competition-release requirement
-
-Do not rely on the remote fallback for the final demo. Place the exact `UthmanicHafs_V22.ttf` from the QPC Hafs V22 distribution in this directory and optionally convert it to WOFF2. The application no longer falls back to Amiri for Quran text. This prevents a Quran quotation embedded in Ibn Baz or another source from silently rendering in a different Arabic font.
-
-The font only controls glyph rendering; it does not create missing waqf marks. Waqf/orthographic marks must come from the verified Quran text itself. For this reason, source prose quotations are rendered with the same Hafs font, but they are not rewritten to add marks that are absent from the source.
+مرجع المصدر المطلوب لهذا المشروع:
+`https://github.com/nuqayah/qpc-fonts/tree/master/text-mushafs/UthmanicHafs_V22`

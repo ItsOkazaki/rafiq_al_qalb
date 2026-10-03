@@ -12,6 +12,11 @@ import "./globals.css";
 import { SiteFooter, SiteHeader } from "@/components/chrome";
 
 export const metadata: Metadata = {
+  // يجعل روابط الصور الاجتماعية (Open Graph/Twitter) مطلقة على أي بيئة نشر.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL
+      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
+  ),
   title: {
     default: "رفيق القلوب — أداة حوارية لاسترجاع المادة العلمية الموثقة",
     template: "%s — رفيق القلوب",
@@ -43,7 +48,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link
           rel="preload"
-          href="https://static-cdn.tarteel.ai/qul/fonts/UthmanicHafs_V22.ttf"
+          href="/fonts/UthmanicHafs_V22.ttf"
           as="font"
           type="font/ttf"
           crossOrigin="anonymous"

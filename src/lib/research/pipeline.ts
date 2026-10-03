@@ -23,7 +23,18 @@ const BROWSE_SUGGESTIONS = TOPICS.slice(0, 4).map((t) => ({
   title: t.title,
 }));
 
-export async function runResearch(rawQuery: string): Promise<ResearchResult> {
+/**
+ * وضع التنظيم:
+ * ‏`ai` (الافتراضي) — مادة الدليل ثم نموذج مقيَّد إن وُجد مفتاح، وإلا التنظيم الحتمي.
+ * ‏`baseline` — التنظيم الحتمي دائماً؛ يُستعمل في القياس المقارن فقط (Benchmark).
+ */
+export type ResearchMode = "ai" | "baseline";
+
+export async function runResearch(
+  rawQuery: string,
+  options: { mode?: ResearchMode } = {},
+): Promise<ResearchResult> {
+  const mode: ResearchMode = options.mode === "baseline" ? "baseline" : "ai";
   const query = (rawQuery ?? "").trim().slice(0, 1000);
 
   const base: ResearchResult = {
@@ -128,7 +139,8 @@ export async function runResearch(rawQuery: string): Promise<ResearchResult> {
   const keywords = extractKeywords(normalizedQuery, topics, passages);
 
   // ٦) التنظيم الآلي: مقيَّد بالمادة إن وُجد مزود، وإلا التنظيم الحتمي.
-  const grounded = await generateGroundedSummary(query, passages);
+  // في وضع baseline لا يُستدعى النموذج إطلاقاً — للقياس المقارن فقط.
+  const grounded = mode === "ai" ? await generateGroundedSummary(query, passages) : null;
   const ai = grounded
     ? { mode: "model" as const, text: grounded.text }
     : { mode: "deterministic" as const, text: buildResearchBrief(topics, passages) };

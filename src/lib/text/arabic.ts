@@ -6,6 +6,9 @@ const TASHKEEL = /[ً-ْٰـ]/g;
 export function normalizeArabic(input: string): string {
   return input
     .replace(TASHKEEL, "")
+    // علامات ترقيم عربية داخل نطاق الحروف Unicode (، ؛ ؟ ٪ ٫ ٬ ٭ ۔):
+    // بلا إزالتها تلتصق بالكلمة فتصير «بلاء؟» وحدةً لا تطابق «بلاء» في المتن.
+    .replace(/[\u060C\u061B\u061F\u066A-\u066D\u06D4]/g, " ")
     .replace(/[أإآٱ]/g, "ا")
     .replace(/ؤ/g, "و")
     .replace(/ئ/g, "ي")

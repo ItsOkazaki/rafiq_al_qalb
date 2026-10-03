@@ -17,7 +17,13 @@ curl -X POST http://localhost:3000/api/benchmark/conflict \
   -H 'content-type: application/json'
 ```
 
-النجاح التجريبي هو أن يعيد endpoint تعارضاً واحداً على الأقل من نوع `explicit-contradiction` أو نوع مناسب يختاره verifier، مع الالتزام بالمقاطع الاصطناعية نفسها.
+إن لم يُضبط مزوّد AI على البيئة المستهدفة يعيد الـendpoint الحالة `503` برسالة صريحة —
+وهذا سلوك مقصود لا خطأ.
+
+النجاح التجريبي هو أن يعيد endpoint تعارضاً واحداً على الأقل من نوع `explicit-contradiction`،
+مع الالتزام بالمقطعين الاصطناعيين نفسيهما. النتيجة تُسجَّل كما هي (PASS/CHECK) في تقرير
+الـbenchmark (`npm run benchmark`).
+
 
 ## ما لا نفعله
 

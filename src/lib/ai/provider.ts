@@ -120,7 +120,8 @@ export interface GroundedResult {
 }
 
 async function callGemini(prompt: string, systemPrompt: string, apiKey: string): Promise<string | null> {
-  const model = env("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
+  // Same precedence as getAIConfig(): GEMINI_CHAT_MODEL wins over the GEMINI_MODEL alias.
+  const model = env("GEMINI_CHAT_MODEL") ?? env("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   try {
