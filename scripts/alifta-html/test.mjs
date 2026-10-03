@@ -11,6 +11,13 @@ if (!cleanText('<p>اختبار&nbsp; نظيف</p>').includes('اختبار نظ
 const markdown = '[1 - حديث التوبة](https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=5507)';
 const mdLinks = extractSubjectLinks(markdown, 'https://sunna.alifta.gov.sa/', 30);
 if (mdLinks.length !== 1 || mdLinks[0].title !== 'حديث التوبة') throw new Error('Markdown fallback link extraction failed');
+
+const escapedHtml = '<a href="https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&amp;mainId=5507">3470 - كَانَ فِي بَنِي إِسْرَائِيلَ رَجُلٌ قَتَلَ تِسْعَةً وَتِسْعِينَ إِنْسَانًا صحيح البخاري</a>';
+const escapedLinks = extractSubjectLinks(escapedHtml, 'https://sunna.alifta.gov.sa/', 30);
+if (escapedLinks.length !== 1) throw new Error('HTML-escaped Al-Ifta link extraction failed');
+if (escapedLinks[0].url !== 'https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=5507') {
+  throw new Error(`HTML entity was not decoded in Al-Ifta URL: ${escapedLinks[0].url}`);
+}
 console.log('PASS: direct HTML extractor fixture');
 
 const detailFixture = await fs.readFile(path.join(process.cwd(), 'scripts/alifta-html/test-detail-fixture.html'), 'utf8');

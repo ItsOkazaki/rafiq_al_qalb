@@ -184,7 +184,13 @@ function extractCommentaryLinks(pageHtml, baseUrl) {
 }
 
 function toAbsoluteUrl(href, baseUrl) {
-  try { return new URL(href, baseUrl).toString(); } catch { return null; }
+  try {
+    // Subject pages return href attributes with HTML entities such as &amp;.
+    // Decode them before URL parsing so ?bookId=1&amp;mainId=5507 becomes
+    // the real ?bookId=1&mainId=5507 URL. Without this, Al-Ifta can return HTTP 500.
+    const normalizedHref = decodeEntities(String(href || '').trim());
+    return new URL(normalizedHref, baseUrl).toString();
+  } catch { return null; }
 }
 
 function extractSubjectLinks(html, baseUrl, maxResults) {
