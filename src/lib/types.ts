@@ -55,6 +55,14 @@ export interface CorpusChunk {
   /** نص الآية الموثق عند توفره، منفصل عن نص التفسير حتى لا تختلط الطبقتان. */
   quranText?: string;
   quranReference?: string;
+  /** Short hadith excerpt shown separately from source explanation when available. */
+  hadithText?: string;
+  /** Full hadith text retained for retrieval/evidence when available. */
+  hadithFullText?: string;
+  /** Explanation/commentary extracted from the same official Al-Ifta page/service. */
+  explanationText?: string;
+  /** Exact official Al-Ifta URL for the explanation service/page, when different. */
+  explanationSourceUrl?: string;
 }
 
 /** باب بحثي في التصنيف الهرمي الموحّد (اثنا عشر باباً). */
@@ -96,6 +104,10 @@ export interface RetrievedPassage {
   /** النص القرآني المميز عن التفسير عند توفره. */
   quranText?: string;
   quranReference?: string;
+  hadithText?: string;
+  hadithFullText?: string;
+  explanationText?: string;
+  explanationSourceUrl?: string;
   chapter: string;
   page?: string;
   citationStatus?: CitationStatus;

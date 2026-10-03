@@ -55,8 +55,45 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
         </section>
       )}
 
-      {/* Main source text */}
-      <p className="passage-text text-parchment-100/90 leading-relaxed">{renderPassageText(passage.text, { hideMarkedQuran: Boolean(passage.quranText) })}</p>
+      {/* Hadith + explanation: keep the short hadith visually separate from source commentary. */}
+      {passage.hadithText ? (
+        <section className="mb-5 space-y-4" aria-label="النص الحديثي وشرح المصدر">
+          <div className="rounded-xl border border-brass-400/30 bg-forest-950/45 px-5 py-5 shadow-inner">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/8 pb-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brass-300/35 bg-brass-400/10 px-3 py-1 text-[10px] font-bold text-brass-200">
+                مقطع الحديث من نتيجة الجامع
+              </span>
+              {passage.hadithFullText && passage.hadithFullText !== passage.hadithText && (
+                <span className="text-[10px] font-medium text-parchment-200/60">النص الكامل محفوظ ضمن الدليل</span>
+              )}
+            </div>
+            <p className="mt-4 passage-text text-parchment-50 leading-[2.15]" dir="rtl" lang="ar">{passage.hadithText}</p>
+          </div>
+
+          {passage.explanationText ? (
+            <div className="rounded-xl border border-white/10 bg-white/5 px-5 py-5">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 text-xs font-bold text-brass-200">
+                  <FileText className="size-3.5" strokeWidth={2} />
+                  شرح مرتبط بالمادة الأصلية
+                </span>
+                {passage.explanationSourceUrl && (
+                  <Link href={passage.explanationSourceUrl} target="_blank" rel="noopener noreferrer" className="link-brass text-[10px] font-medium">
+                    فتح صفحة الشرح <ExternalLink className="inline size-3 ms-1" strokeWidth={2} />
+                  </Link>
+                )}
+              </div>
+              <p className="passage-text text-parchment-100/90 leading-[1.95]">{passage.explanationText}</p>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-white/8 bg-black/5 px-4 py-3 text-[11px] leading-6 text-parchment-200/65">
+              تعرض هذه البطاقة المقطع الحديثي الموجز من نتيجة الجامع؛ لا يُضاف شرح من خارج الصفحة الرسمية. افتح المصدر الأصلي للوصول إلى خدمات الشروح المتاحة إن وُجدت.
+            </div>
+          )}
+        </section>
+      ) : (
+        <p className="passage-text text-parchment-100/90 leading-relaxed">{renderPassageText(passage.text, { hideMarkedQuran: Boolean(passage.quranText) })}</p>
+      )}
       {isIndex && (
         <p className="mt-3 rounded-lg border border-brass-400/20 bg-brass-400/5 px-3 py-2 text-[10px] leading-5 text-parchment-200/65">هذا مدخل فهرسة موضوعية مأخوذ من نتائج جامع السنة الرسمي، وليس نص الحديث الكامل. افتح الأصل للتحقق من المتن والموضع.</p>
       )}
