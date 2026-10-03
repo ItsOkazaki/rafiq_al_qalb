@@ -43,8 +43,9 @@ export function buildResearchBrief(
 
   lines.push("أبرز ما تضمنته المادة المسترجعة من المصدر المعتمد:");
   passages.forEach((p, i) => {
+    const sourceText = p.hadithText?.trim() ? p.hadithText : p.text;
     lines.push(
-      `${i + 1}. ${firstSentences(p.text)} (الموضع: ${normalizeArabicPunctuation(p.chapter)})`,
+      `${i + 1}. ${firstSentences(sourceText)} (الموضع: ${normalizeArabicPunctuation(p.chapter)})`,
     );
   });
   lines.push("");
