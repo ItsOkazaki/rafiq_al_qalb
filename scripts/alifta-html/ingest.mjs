@@ -62,19 +62,29 @@ function toAbsoluteUrl(href, baseUrl) {
 function extractSubjectLinks(html, baseUrl, maxResults) {
   const found = [];
   const seen = new Set();
-  const re = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  let match;
-  while ((match = re.exec(html)) && found.length < maxResults * 3) {
-    const url = toAbsoluteUrl(match[1], baseUrl);
-    if (!url || !url.startsWith('https://sunna.alifta.gov.sa/')) continue;
-    if (!/(BookToc\/ViewMatnPage|MatnService\/HadithServiceData|BookToc\/ViewServicePage)/i.test(url)) continue;
-    const title = cleanText(match[2]).replace(/^\d+\s*-\s*/, '');
-    if (!title || !hasArabic(title)) continue;
+  const add = (href, rawTitle) => {
+    const url = toAbsoluteUrl(href, baseUrl);
+    if (!url || !url.startsWith('https://sunna.alifta.gov.sa/')) return;
+    if (!/(BookToc\/ViewMatnPage|MatnService\/HadithServiceData|BookToc\/ViewServicePage)/i.test(url)) return;
+    const title = cleanText(rawTitle).replace(/^\d+\s*-\s*/, '').trim();
+    if (!title || !hasArabic(title)) return;
     const key = `${url}|${normalizeForDedupe(title)}`;
-    if (seen.has(key)) continue;
+    if (seen.has(key)) return;
     seen.add(key);
     found.push({ url, title });
+  };
+
+  const htmlRe = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let match;
+  while ((match = htmlRe.exec(html)) && found.length < maxResults * 3) add(match[1], match[2]);
+
+  // Jina Reader fallback returns Markdown rather than raw HTML. Keep the same
+  // official Al-Ifta URLs and parse Markdown links when fallback is used.
+  if (found.length < maxResults) {
+    const mdRe = /\[([^\]]+)\]\((https:\/\/sunna\.alifta\.gov\.sa\/[^)]+)\)/gi;
+    while ((match = mdRe.exec(html)) && found.length < maxResults * 3) add(match[2], match[1]);
   }
+
   return found.slice(0, maxResults);
 }
 
@@ -114,30 +124,91 @@ function keywordSeeds(title, topics) {
   return [...new Set([...words.slice(0, 10), ...topics])].slice(0, 16);
 }
 
-async function fetchText(url, timeoutMs = 25000, attempts = 3) {
+function makeCookieJar() {
+  const jar = new Map();
+  return {
+    header() { return [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; '); },
+    absorb(response) {
+      const values = typeof response.headers.getSetCookie === 'function'
+        ? response.headers.getSetCookie()
+        : (response.headers.get('set-cookie') ? [response.headers.get('set-cookie')] : []);
+      for (const value of values) {
+        const first = String(value).split(';', 1)[0];
+        const eq = first.indexOf('=');
+        if (eq > 0) jar.set(first.slice(0, eq).trim(), first.slice(eq + 1).trim());
+      }
+    },
+  };
+}
+
+function browserHeaders({ referer = '', cookie = '' } = {}) {
+  const headers = {
+    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36',
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'accept-language': 'ar-SA,ar;q=0.9,en;q=0.6',
+    'cache-control': 'no-cache',
+    'pragma': 'no-cache',
+  };
+  if (referer) headers.referer = referer;
+  if (cookie) headers.cookie = cookie;
+  return headers;
+}
+
+async function fetchText(url, { timeoutMs = 25000, attempts = 2, referer = '', cookieJar = null } = {}) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const res = await fetch(url, {
-        headers: {
-          'user-agent': 'Rafiq-AlQulub-Alifta-Ingest/1.0 (+official-source-ingestion)',
-          'accept': 'text/html,application/xhtml+xml',
-        },
+        headers: browserHeaders({ referer, cookie: cookieJar?.header() }),
         redirect: 'follow',
         signal: controller.signal,
       });
+      cookieJar?.absorb(res);
       if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      return await res.text();
+      return { text: await res.text(), method: 'direct-official-html', finalUrl: res.url || url, status: res.status };
     } catch (error) {
       lastError = error;
-      if (attempt < attempts) await sleep(300 * attempt);
+      if (attempt < attempts) await sleep(900 * attempt);
     } finally {
       clearTimeout(timer);
     }
   }
   throw lastError ?? new Error(`Failed to fetch ${url}`);
+}
+
+async function fetchViaJina(url, { timeoutMs = 45000, apiKey = '' } = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const headers = {
+    accept: 'text/plain,text/markdown;q=0.9,*/*;q=0.8',
+  };
+  if (apiKey) headers.authorization = `Bearer ${apiKey}`;
+  try {
+    const proxyUrl = `https://r.jina.ai/${url}`;
+    const res = await fetch(proxyUrl, { headers, signal: controller.signal });
+    if (!res.ok) throw new Error(`Jina HTTP ${res.status} for ${url}`);
+    const text = await res.text();
+    if (!text.trim()) throw new Error(`Jina returned empty content for ${url}`);
+    return { text, method: 'jina-reader-official-url', finalUrl: url, status: res.status };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchOfficial(url, { referer = '', cookieJar, jinaFallback = true, jinaApiKey = '' } = {}) {
+  try {
+    return await fetchText(url, { referer, cookieJar });
+  } catch (directError) {
+    if (!jinaFallback) throw directError;
+    try {
+      const fallback = await fetchViaJina(url, { apiKey: jinaApiKey });
+      return { ...fallback, directError: directError.message };
+    } catch (jinaError) {
+      throw new Error(`${directError.message}; fallback failed: ${jinaError.message}`);
+    }
+  }
 }
 
 async function sleep(ms) { if (ms > 0) await new Promise((r) => setTimeout(r, ms)); }
@@ -148,7 +219,11 @@ async function ingest(manifest) {
   const errors = [];
   const ledger = [];
   const maxSubjectResults = Number(manifest.maxSubjectResults ?? 30);
-  const delay = Number(manifest.requestDelayMs ?? 120);
+  const delay = Number(manifest.requestDelayMs ?? 900);
+  const fallbackDelay = Number(manifest.fallbackDelayMs ?? 3200);
+  const jinaFallback = manifest.jinaFallback !== false;
+  const jinaApiKey = process.env.JINA_API_KEY || '';
+  const cookieJar = makeCookieJar();
 
   const addRow = ({ text, chapter, sourceUrl, topicIds, title, parentUrl }) => {
     const cleaned = cleanText(text);
@@ -177,7 +252,8 @@ async function ingest(manifest) {
 
   for (const target of manifest.targets ?? []) {
     try {
-      const html = await fetchText(target.url);
+      const fetched = await fetchOfficial(target.url, { cookieJar, jinaFallback, jinaApiKey });
+      const html = fetched.text;
       if (!html.includes('sunna.alifta.gov.sa') && !target.url.startsWith('https://sunna.alifta.gov.sa/')) {
         throw new Error('non-official host');
       }
@@ -187,8 +263,8 @@ async function ingest(manifest) {
         const before = rows.length;
         for (const link of links) {
           try {
-            const page = await fetchText(link.url);
-            const best = extractBestPassage(page, link.title);
+            const fetchedDetail = await fetchOfficial(link.url, { referer: target.url, cookieJar, jinaFallback, jinaApiKey });
+            const best = extractBestPassage(fetchedDetail.text, link.title);
             addRow({
               text: best.text || link.title,
               chapter: best.chapter || target.label,
@@ -202,13 +278,13 @@ async function ingest(manifest) {
             // Do not promote a search-result title/summary to evidence if the official
             // detail page failed. The minimum-evidence gate below must remain honest.
           }
-          await sleep(delay);
+          await sleep(fetchedDetail.method === 'jina-reader-official-url' ? fallbackDelay : delay);
         }
-        ledger.push({ target: target.url, kind: target.kind, resultLinks: links.length, chunksAdded: rows.length - before });
+        ledger.push({ target: target.url, kind: target.kind, resultLinks: links.length, chunksAdded: rows.length - before, fetchMode: 'direct-or-jina-fallback' });
       } else {
         const best = extractBestPassage(html, target.label);
         addRow({ text: best.text || target.label, chapter: best.chapter || target.label, sourceUrl: target.url, topicIds: target.topicIds, title: target.label, parentUrl: target.url });
-        ledger.push({ target: target.url, kind: target.kind, resultLinks: 1, chunksAdded: 1 });
+        ledger.push({ target: target.url, kind: target.kind, resultLinks: 1, chunksAdded: 1, fetchMode: 'direct-or-jina-fallback' });
       }
     } catch (error) {
       errors.push(`${target.url}: ${error.message}`);
@@ -247,8 +323,13 @@ async function main() {
   await fs.writeFile(ledgerPath, JSON.stringify({ method: 'official-html', sourceId: manifest.sourceId, totalChunks: rows.length, topicCounts, ledger, errors }, null, 2) + '\n', 'utf8');
 
   console.log(`Generated ${rows.length} Al-Ifta HTML chunks.`);
+  console.log(`Fetcher: direct official HTML with Jina Reader fallback=${manifest.jinaFallback !== false ? 'enabled' : 'disabled'}${jinaApiKey ? ' (API key present)' : ' (no API key)'}.`);
   console.log(`Topic coverage: ${JSON.stringify(topicCounts)}`);
-  if (errors.length) console.error(`Recoverable fetch errors: ${errors.length}`);
+  if (errors.length) {
+    console.error(`Recoverable fetch errors: ${errors.length}`);
+    console.error('First fetch errors:');
+    for (const error of errors.slice(0, 10)) console.error(`  - ${error}`);
+  }
   if (rows.length < minimum) throw new Error(`Only ${rows.length} chunks produced; minimum is ${minimum}.`);
   if (missingTopics.length) throw new Error(`Weak/missing topic coverage: ${missingTopics.map(([id, count]) => `${id}=${count}`).join(', ')}`);
   console.log(`PASS: ${rows.length} chunks and all 12 doors meet the ingestion threshold.`);

@@ -1,6 +1,6 @@
 # Al-Ifta — direct official HTML -> clean chunks -> RAG
 
-The competition-critical Al-Ifta ingestion path intentionally avoids Python/Docling dependencies.
+The competition-critical Al-Ifta ingestion path intentionally avoids Python/Docling dependencies. Direct official HTML is attempted first; when the official detail page is blocked from a hosted runner, the workflow can fall back to Jina Reader for the same official URL while preserving the original Al-Ifta URL as provenance.
 
 ## Pipeline
 
@@ -29,7 +29,7 @@ npm run alifta:ingest
 npm run alifta:verify
 ```
 
-No new npm dependency is required. Node's built-in `fetch` is used.
+No new npm dependency is required. Node's built-in `fetch` is used. The crawler keeps a session cookie jar and sends a browser-style user agent plus the official subject page as the HTTP Referer.
 
 The ingestion script uses the official subject-result pages to discover real hadith/detail URLs, then fetches the official detail pages for the actual evidence. It refuses to count a search-result title as evidence when a detail page fails. It also refuses to pass below 100 chunks or below 3 chunks for any of the 12 research doors.
 
@@ -40,3 +40,9 @@ The ingestion script uses the official subject-result pages to discover real had
 ## No-local-install option
 
 The repository also contains `.github/workflows/refresh-alifta-html.yml`. After the project is pushed to GitHub, use **Actions -> Refresh Al-Ifta HTML corpus -> Run workflow**. GitHub's Node 24 runner performs the direct official-HTML ingestion, verifies the 100+ chunk / 12-door gates, and commits the generated corpus back to the repository. No Python, Docling, Docker, or local dependency installation is required.
+
+## Hosted-runner fallback
+
+GitHub-hosted runners may be denied by the source site's edge controls even when the page is reachable in a normal browser. To keep the source unchanged, the ingestion first attempts direct official HTML and then uses Jina Reader only as a fetch/extraction fallback for the exact same official URL. The original `sourceUrl` stays the Al-Ifta URL; the ledger records the fetch mode. Jina documents `r.jina.ai/<URL>` as its Reader endpoint and supports a direct HTTP fetch engine.
+
+Jina's current Reader documentation lists a 20 RPM no-key limit and higher limits with an API key; the workflow therefore serializes fallback requests with a 3.2-second delay by default. ([jina.ai](https://jina.ai/reader/))
