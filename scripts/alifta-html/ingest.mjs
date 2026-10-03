@@ -96,8 +96,20 @@ function stripTags(html) {
  * HTML → readable text. Whitespace is normalized without touching Arabic letters,
  * diacritics (tashkeel), tatweel, or Arabic punctuation.
  */
+/**
+ * Reader-converted pages turn footnote markers into markdown links, so a matn can
+ * arrive as «[(1)](https://...#Foot_1)». Evidence text must never carry page chrome:
+ * image syntax is dropped, a link keeps only its label, and bare URLs are removed.
+ */
+function stripMarkupArtifacts(text) {
+  return String(text ?? '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)\]\(\s*(?:https?:)?\/\/[^)]*\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, ' ');
+}
+
 function cleanText(raw) {
-  return stripTags(raw)
+  return stripMarkupArtifacts(stripTags(raw))
     .replace(/[\u200B-\u200D\uFEFF]/g, '')
     .replace(/[ \t\u00a0]+/g, ' ')
     .replace(/ ?\n ?/g, '\n')

@@ -480,6 +480,17 @@ runs.push(test('live detail page rejects a request for a different mainId', asyn
   assert(verdict.reason.includes('mainId-12345'), `reason names the mismatch: ${verdict.reason}`);
 }));
 
+runs.push(test('cleanText strips reader markup so no URL can reach the evidence text', () => {
+  const withFootnote = 'وَبِإِسْنَادِهِ [(1)](https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=8&mainId=158820#Foot_1)عَنْ أَبِي هُرَيْرَةَ';
+  const cleaned = cleanText(withFootnote);
+  assert(!/https?:\/\//i.test(cleaned), `URL removed: ${cleaned}`);
+  assert(hasNorm(cleaned, 'وَبِإِسْنَادِهِ'), 'matn text kept');
+  assert(hasNorm(cleaned, 'عَنْ أَبِي هُرَيْرَةَ'), 'matn text after the marker kept');
+  assert(cleaned.includes('(1)'), 'footnote number itself is part of the printed text');
+  assert(!/https?:\/\//i.test(cleanText('راجع https://sunna.alifta.gov.sa/x هنا')), 'bare URL removed');
+  assert(!/https?:\/\//i.test(cleanText('نص ![صورة](https://x.y/a.png) بعدها')), 'image syntax removed');
+}));
+
 runs.push(test('a fragment is refused instead of being published as the complete matn', async () => {
   const html = await readOffline('detail-short-matn-777.html');
   const url = `${OFFICIAL}BookToc/ViewMatnPage?bookId=1&mainId=777`;
