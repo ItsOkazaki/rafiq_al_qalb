@@ -183,7 +183,10 @@ export async function generateGroundedSummary(
       const quranBlock = p.quranText
         ? `\nالنص القرآني الموثّق (للاطلاع فقط — لا تعِد كتابته ولا تعدّل علاماته): ${p.quranText}`
         : "";
-      return `[مقطع ${i + 1}]\nالمصدر: ${p.source.title}\nالموضع: ${p.chapter}${quranBlock}\nالمادة: ${p.text}`;
+      const roleNote = p.role === "index"
+        ? "\nطبيعة المقطع: مدخل فهرسة موضوعية من الجامع الرسمي؛ لا يُعامل كنص حديث كامل ولا كاقتباس مكتفٍ بذاته، ولا يجوز اختراع متن أو نسبة حكم إليه من هذا المدخل وحده."
+        : "";
+      return `[مقطع ${i + 1}]\nالمصدر: ${p.source.title}\nالموضع: ${p.chapter}${roleNote}${quranBlock}\nالمادة: ${p.text}`;
     })
     .join("\n\n");
 

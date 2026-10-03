@@ -4,8 +4,7 @@
 // إن لم توجد مادة كافية → يمتنع ولا يخترع.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { CHUNKS } from "@/lib/corpus/chunks";
-import { DOCLING_CHUNKS } from "@/lib/corpus/docling-chunks";
+import { ALL_CHUNKS } from "@/lib/corpus/chunks";
 import { TOPICS } from "@/lib/rag/topics";
 import { APPROVED_SOURCES, getSourceById, isRetrievableSourceId, isExcludedSourceTitle } from "@/lib/sources/registry";
 import { normalizeArabic, tokenizeArabic } from "@/lib/text/arabic";
@@ -169,7 +168,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
     (opts.matchedTopics ?? identifyTopics(query)).map((m) => m.topic.id),
   );
 
-  const corpus = opts.corpus ?? [...CHUNKS, ...DOCLING_CHUNKS];
+  const corpus = opts.corpus ?? ALL_CHUNKS;
   let approved = filterApproved(corpus);
 
   // طلب قرآني محدد لا يُسند إلى تفسير عام أو كتاب آخر؛ لا بد من مقطع يحمل
@@ -267,6 +266,10 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       }
       score += Math.min(weightedHits, 8);
 
+      // مداخل الفهرسة مفيدة لتوجيه البحث لكنها ليست بديلاً عن المتن الكامل؛
+      // نخفضها قليلاً حتى تتقدم الأدلة الفعلية عند وجودها.
+      if (chunk.role === "index") score -= 1.0;
+
       // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عامة عابرة.
       const relevance = matchedTopicIds.size > 0 || (nonGenericMatches > 0 && strongLexicalMatch);
       return { chunk, score, directMatch, relevance };
@@ -309,6 +312,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       page: chunk.page,
       citationStatus: chunk.citationStatus ?? "chapter-only",
       excerptType: chunk.excerptType,
+      role: chunk.role,
       keywords: chunk.keywords,
       score,
       source: {

@@ -5,6 +5,7 @@ import type { RetrievedPassage } from "@/lib/types";
 
 export function PassageCard({ passage, index }: { passage: RetrievedPassage; index?: number }) {
   const isLiteral = passage.excerptType === "literal";
+  const isIndex = passage.role === "index";
   return (
     <article className="card-manuscript relative overflow-hidden rounded-2xl p-6 text-parchment-100 sm:p-7">
       {/* Gold left bar */}
@@ -27,7 +28,7 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
             : "bg-brass-400/10 border border-brass-400/25 text-brass-300"
         }`}>
           <FileText className="size-3" strokeWidth={2} />
-          {isLiteral ? "نص موثق من الأصل" : "عرض بحثي موجّه للموضع"}
+          {isIndex ? "مدخل فهرسة موضوعية من الجامع" : isLiteral ? "نص موثق من الأصل" : "عرض بحثي موجّه للموضع"}
         </span>
         <span className="ms-auto text-[11px] font-medium text-parchment-200/65">
           {passage.chapter}{passage.page ? ` — ${passage.page}` : ""}
@@ -55,7 +56,10 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
       )}
 
       {/* Main source text */}
-      <p className="passage-text text-parchment-100/90 leading-relaxed">{renderPassageText(passage.text)}</p>
+      <p className="passage-text text-parchment-100/90 leading-relaxed">{renderPassageText(passage.text, { hideMarkedQuran: Boolean(passage.quranText) })}</p>
+      {isIndex && (
+        <p className="mt-3 rounded-lg border border-brass-400/20 bg-brass-400/5 px-3 py-2 text-[10px] leading-5 text-parchment-200/65">هذا مدخل فهرسة موضوعية مأخوذ من نتائج جامع السنة الرسمي، وليس نص الحديث الكامل. افتح الأصل للتحقق من المتن والموضع.</p>
+      )}
 
       {/* Source metadata */}
       <div className="mt-6 space-y-4 rounded-xl glass p-5">
@@ -119,11 +123,13 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
 }
 
 
-function renderPassageText(text: string) {
+function renderPassageText(text: string, options: { hideMarkedQuran?: boolean } = {}) {
   const parts = text.split(/(﴿[^﴾]+﴾)/g);
   return parts.map((part, index) =>
     /^﴿[^﴾]+﴾$/.test(part)
-      ? <span key={index} className="quran-inline" dir="rtl">{part}</span>
+      ? options.hideMarkedQuran
+        ? null
+        : <span key={index} className="quran-inline" dir="rtl" lang="ar" translate="no">{part}</span>
       : <Fragment key={index}>{part}</Fragment>,
   );
 }

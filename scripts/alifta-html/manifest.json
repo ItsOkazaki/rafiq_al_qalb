@@ -1,0 +1,63 @@
+{
+  "sourceId": "alifta-sunna-encyclopedia",
+  "baseUrl": "https://sunna.alifta.gov.sa/",
+  "maxSubjectResults": 35,
+  "requestDelayMs": 120,
+  "minimumChunks": 100,
+  "minimumChunksPerTopic": 3,
+  "requiredTopicIds": [
+    "athar-al-dhunub", "qaswat-al-qalb", "al-tawba", "takrar-al-dhanb",
+    "al-ghafla", "dhikr-athar", "al-hamm-wal-qalaq", "khushu-tadabbur",
+    "hudur-al-qalb", "al-tadawi-bil-quran", "al-nazar-ghad", "hasm-al-shahwa"
+  ],
+  "targets": [
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
+      "label": "التوبة من الذنوب",
+      "topicIds": ["athar-al-dhunub", "al-tawba", "takrar-al-dhanb"]
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
+      "label": "الحلق والجلوس في المساجد",
+      "topicIds": ["al-ghafla", "dhikr-athar", "khushu-tadabbur", "hudur-al-qalb"]
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
+      "label": "شروط التداوي بالرقى والتمائم",
+      "topicIds": ["al-tadawi-bil-quran", "khushu-tadabbur"]
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
+      "label": "من آداب الدعاء الدعاء بالمأثور",
+      "topicIds": ["al-hamm-wal-qalaq", "hudur-al-qalb"]
+    },
+    {
+      "kind": "page",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=3&mainId=91900",
+      "label": "باب ما يؤمر به من غض البصر",
+      "topicIds": ["al-nazar-ghad", "hasm-al-shahwa"]
+    },
+    {
+      "kind": "page",
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
+      "label": "مادة حديثية مرتبطة بغض البصر والشهوة",
+      "topicIds": ["al-nazar-ghad", "hasm-al-shahwa"]
+    },
+    {
+      "kind": "page",
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
+      "label": "مادة حديثية مرتبطة بالخشوع وحضور القلب",
+      "topicIds": ["khushu-tadabbur", "hudur-al-qalb"]
+    },
+    {
+      "kind": "page",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewServicePage?BookID=43&mainId=393972",
+      "label": "عمدة القاري — الرحمة وقساوة القلب",
+      "topicIds": ["qaswat-al-qalb", "al-hamm-wal-qalaq", "hudur-al-qalb"]
+    }
+  ]
+}

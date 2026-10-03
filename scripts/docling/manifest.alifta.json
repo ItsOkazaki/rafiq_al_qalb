@@ -1,0 +1,150 @@
+{
+  "sources": [
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "athar-al-dhunub",
+        "al-tawba",
+        "takrar-al-dhanb"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "al-ghafla",
+        "dhikr-athar",
+        "khushu-tadabbur"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "al-tadawi-bil-quran",
+        "khushu-tadabbur"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33769",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33769",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "al-tawba",
+        "takrar-al-dhanb"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33778",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33778",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "al-tawba",
+        "takrar-al-dhanb"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Subjects/ViewSubjectLevel?IsLeaf=True&ParentId=34269",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Subjects/ViewSubjectLevel?IsLeaf=True&ParentId=34269",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "dhikr-athar",
+        "al-ghafla",
+        "hudur-al-qalb"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
+      "sourceUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "al-hamm-wal-qalaq",
+        "hudur-al-qalb",
+        "al-ghafla"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=3&mainId=91900",
+      "sourceUrl": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=3&mainId=91900",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "al-nazar-ghad",
+        "hasm-al-shahwa"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
+      "sourceUrl": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "hasm-al-shahwa",
+        "al-nazar-ghad"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
+      "sourceUrl": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
+      "category": "حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "khushu-tadabbur",
+        "hudur-al-qalb"
+      ]
+    },
+    {
+      "sourceId": "alifta-sunna-encyclopedia",
+      "input": "https://sunna.alifta.gov.sa/BookToc/ViewServicePage?BookID=43&mainId=393972",
+      "sourceUrl": "https://sunna.alifta.gov.sa/BookToc/ViewServicePage?BookID=43&mainId=393972",
+      "category": "شرح حديث نبوي",
+      "status": "active",
+      "topicIds": [
+        "qaswat-al-qalb",
+        "al-hamm-wal-qalaq",
+        "hudur-al-qalb"
+      ]
+    }
+  ],
+  "output": "./generated/alifta-docling-chunks.json",
+  "minimumChunksBySource": {
+    "alifta-sunna-encyclopedia": 100
+  },
+  "outputTs": "./src/lib/corpus/generated/alifta-docling-chunks.ts",
+  "minimumChunksPerTopic": 3,
+  "requiredTopicIds": [
+    "athar-al-dhunub",
+    "qaswat-al-qalb",
+    "al-tawba",
+    "takrar-al-dhanb",
+    "al-ghafla",
+    "dhikr-athar",
+    "al-hamm-wal-qalaq",
+    "khushu-tadabbur",
+    "hudur-al-qalb",
+    "al-tadawi-bil-quran",
+    "al-nazar-ghad",
+    "hasm-al-shahwa"
+  ]
+}

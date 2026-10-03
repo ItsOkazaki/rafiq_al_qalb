@@ -11,6 +11,8 @@
 import type { CorpusChunk } from "@/lib/types";
 import { BINBAZ_MAJMOU_CHUNKS } from "@/lib/corpus/binbaz-majmou";
 import { BUKHARI_IBN_TAYMIYYAH_CHUNKS } from "@/lib/corpus/bukhari-ibn-taymiyyah";
+import { ALIFTA_SUNNA_CHUNKS } from "@/lib/corpus/alifta-sunna";
+import { GENERATED_ALIFTA_HTML_CHUNKS } from "@/lib/corpus/generated/alifta-html-chunks";
 
 const SRC = "albadr-daa-dawaa";
 
@@ -598,12 +600,16 @@ export const CHUNKS: CorpusChunk[] = [
 
   ...BINBAZ_MAJMOU_CHUNKS,
   ...BUKHARI_IBN_TAYMIYYAH_CHUNKS,
+  ...ALIFTA_SUNNA_CHUNKS,
 ];
 
+// Direct official-HTML Al-Ifta evidence is appended to the approved corpus when generated.
+export const ALL_CHUNKS: CorpusChunk[] = [...CHUNKS, ...GENERATED_ALIFTA_HTML_CHUNKS];
+
 export function getChunksByTopic(topicId: string): CorpusChunk[] {
-  return CHUNKS.filter((c) => c.topics.includes(topicId));
+  return ALL_CHUNKS.filter((c) => c.topics.includes(topicId));
 }
 
 export function getChunksBySource(sourceId: string): CorpusChunk[] {
-  return CHUNKS.filter((c) => c.sourceId === sourceId);
+  return ALL_CHUNKS.filter((c) => c.sourceId === sourceId);
 }

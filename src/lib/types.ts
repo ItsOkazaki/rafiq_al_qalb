@@ -19,6 +19,8 @@ export interface RegisteredSource {
   verificationUrl?: string;
   verificationLabel?: string;
   status: SourceStatus;
+  /** مصادر تقنية داخلية يمكن إبقاؤها خارج المكتبة العامة مع استمرار إتاحة وظائفها الداخلية. */
+  showInLibrary?: boolean;
   approvedBy: string;
   approvedAt: string; // ISO date
   notes: string;
@@ -27,6 +29,7 @@ export interface RegisteredSource {
 /** مقطع نصي من المصدر المعتمد مع بيانات الموضع (إحالة على مستوى الفصل). */
 export type CitationStatus = "verified-page" | "chapter-only";
 export type ExcerptType = "literal" | "curated-summary";
+export type CorpusRole = "evidence" | "index";
 
 export interface CorpusChunk {
   id: string;
@@ -38,6 +41,14 @@ export interface CorpusChunk {
   citationStatus?: CitationStatus;
   /** literal = مطابق لأصل موثق؛ curated-summary = عرض بحثي موجّه للأصل. */
   excerptType: ExcerptType;
+  /** index = موضوعي/فهرسي للتوجيه؛ evidence = مادة مناسبة للتوليد. */
+  role?: CorpusRole;
+  /** بيانات منشأ للمقاطع التي جرى توليدها من HTML الرسمي دون إدخال أداة خارجية في runtime. */
+  htmlIngestion?: {
+    method: "official-html";
+    sourcePage: string;
+    fetchedAt: string;
+  };
   topics: string[];
   keywords: string[];
   text: string;
@@ -89,6 +100,8 @@ export interface RetrievedPassage {
   page?: string;
   citationStatus?: CitationStatus;
   excerptType?: ExcerptType;
+  /** index = مدخل فهرسة موضوعية؛ evidence = مادة مناسبة للتوليد. */
+  role?: CorpusRole;
   keywords: string[];
   score: number;
   source: PassageSourceMeta;

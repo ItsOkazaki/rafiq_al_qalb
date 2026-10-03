@@ -44,6 +44,7 @@ export default async function TopicPage({
       page: c.page,
       citationStatus: c.citationStatus ?? "chapter-only",
       excerptType: c.excerptType,
+      role: c.role,
       keywords: c.keywords,
       score: 10 - i,
       source: {
@@ -89,7 +90,7 @@ export default async function TopicPage({
 
       <section className="mt-8 space-y-6">
         <p className="text-sm font-semibold text-parchment-200/82">
-          المادة المسترجعة في هذا الباب — {passages.length} مقاطع من المصدر المعتمد:
+          المادة المفهرسة في هذا الباب — {passages.filter((p) => p.role !== "index").length} مقاطع أدلة و{passages.filter((p) => p.role === "index").length} مداخل فهرسة موضوعية من المصدر المعتمد:
         </p>
         {passages.map((p, i) => (
           <PassageCard key={p.chunkId} passage={p} index={i} />

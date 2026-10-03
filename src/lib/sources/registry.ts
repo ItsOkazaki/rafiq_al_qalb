@@ -23,10 +23,11 @@ export const APPROVED_SOURCES: RegisteredSource[] = [
     verificationUrl: "https://qurancomplex.gov.sa/en/techquran/dev/",
     verificationLabel: "فتح منصة مطوري القرآن الرسمية",
     status: "active",
+    showInLibrary: false,
     approvedBy: "سياسة رفيق القلوب للمصادر السعودية الأولية",
     approvedAt: "2026-10-02",
     notes:
-      "المصدر المرجعي الأعلى للنص القرآني برواية حفص في طبقة العرض. تنص منصة المطورين على أن بيانات aya_text تستخدم خط kfgqpc_hafs_uthmanic_script، وأنها مخصصة لعرض الآيات نصياً. لا يُنشئ الذكاء الاصطناعي نص الآية ولا يعدّل رسمها أو علامات الوقف."
+      "مرجع تقني داخلي لعرض النص القرآني الموثق برواية حفص؛ لا يظهر كبطاقة في مكتبة المستخدم. تنص منصة المطورين على أن بيانات aya_text تستخدم Unicode Uthmanic Hafs لعرض الآيات، ولا يُنشئ الذكاء الاصطناعي نص الآية ولا يعدّل رسمها أو علامات الوقف."
   },
   {
     id: "alifta-sunna-encyclopedia",
@@ -43,7 +44,7 @@ export const APPROVED_SOURCES: RegisteredSource[] = [
     approvedBy: "سياسة رفيق القلوب للمصادر السعودية الأولية",
     approvedAt: "2026-10-02",
     notes:
-      "مصدر سعودي أولي للسنة. تصف الصفحة الرسمية البرنامج بأنه يضم 33 كتاباً من أمهات كتب السنة و57 كتاباً خدمياً، مع التخريج، وشجرة الموضوعات، والشروح، والحكم على الحديث، والبحث النصي. يظهر في سجل المصادر كمصدر نشط، ولا تُسترجع منه مادة إلا عندما توجد مقاطع corpus فعلية تحمل هذا المعرّف وبيانات موضعها."
+      "مصدر سعودي أولي للسنة. تصف الصفحة الرسمية البرنامج بأنه يضم 33 كتاباً من أمهات كتب السنة و57 كتاباً خدمياً، مع التخريج، وشجرة الموضوعات، والشروح، والحكم على الحديث، والبحث النصي. في corpus الحالي توجد أكثر من 100 مداخل فهرسة موضوعية مرتبطة بالأبواب الاثني عشر، وتُعامل مداخل الفهرسة كدلائل وصول لا كمتون حديث كاملة."
   },
   {
     id: "albadr-daa-dawaa",
@@ -169,10 +170,10 @@ export function isExcludedSourceTitle(title: string): boolean {
 
 /**
  * المصادر العامة الظاهرة للمستخدم: فعّالة، غير مستبعدة، ولها مادة قابلة
- * للاسترجاع. المصدر قيد التوثيق يبقى داخلياً ولا يظهر كأنه مستخدم.
+ * للاسترجاع. المصادر التقنية الداخلية يمكن إبقاؤها خارج واجهة المكتبة.
  */
 export const ACTIVE_SOURCES: RegisteredSource[] = APPROVED_SOURCES.filter(
-  (source) => source.status === "active" && !isExcludedSourceTitle(source.title),
+  (source) => source.status === "active" && source.showInLibrary !== false && !isExcludedSourceTitle(source.title),
 );
 
 export function getActiveSourceBySlug(slug: string): RegisteredSource | undefined {

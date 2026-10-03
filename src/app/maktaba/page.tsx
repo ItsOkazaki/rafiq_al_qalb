@@ -34,7 +34,7 @@ export default function MaktabaPage() {
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> تسجيل صريح في السجل قبل أي استرجاع.</li>
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> ارتباط بجهة رسمية أو موثوقة يمكن الرجوع إليها.</li>
             <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> وفهرسة على مستوى المواضع — لا أرقام صفحات بلا تحقق.</li>
-            <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> ظاهر للمستخدم دائماً: الاسم، الموضع، ورابط الأصل.</li>
+            <li className="flex gap-2"><BadgeCheck className="mt-1 size-4 shrink-0 text-brass-500" /> المصدر العام الظاهر: الاسم، الموضع، ورابط الأصل؛ والمراجع التقنية تبقى داخلية.</li>
           </ul>
         </section>
 
@@ -46,7 +46,9 @@ export default function MaktabaPage() {
         </h2>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {ACTIVE_SOURCES.map((s) => {
-            const count = getChunksBySource(s.id).length;
+            const sourceChunks = getChunksBySource(s.id);
+            const evidenceCount = sourceChunks.filter((c) => c.role !== "index").length;
+            const indexCount = sourceChunks.filter((c) => c.role === "index").length;
             return (
               <div key={s.id} className="card-manuscript flex flex-col rounded-2xl p-6">
                 <div className="flex flex-wrap items-center gap-2">
@@ -57,7 +59,7 @@ export default function MaktabaPage() {
                 <p className="mt-1 text-xs text-parchment-200/65">{s.author}</p>
                 <dl className="mt-4 space-y-1.5 rounded-xl border border-parchment-300 bg-parchment-200/50 p-4 text-xs leading-6 text-ink-600">
                   <div className="flex gap-2"><dt className="font-semibold text-ink-700">الناشر المعتمد:</dt><dd>{s.publisher}</dd></div>
-                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">المقاطع المفهرسة:</dt><dd>{count} مقطعاً مستخدماً في الاسترجاع</dd></div>
+                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">المادة المفهرسة:</dt><dd>{indexCount > 0 ? `${indexCount} مدخل فهرسة موضوعية` : `${evidenceCount} مقطع دليل`}</dd></div>
                 </dl>
                 <p className="mt-3 text-[11px] leading-6 text-parchment-200/55">{s.notes}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-parchment-300 pt-4">
@@ -97,7 +99,6 @@ export default function MaktabaPage() {
                 </span>
               </div>
               <h3 className="heading-display mt-4 text-lg font-bold leading-8 text-parchment-50 group-hover:text-brass-200">{t.title}</h3>
-              <p className="mt-2 line-clamp-2 text-xs leading-6 text-parchment-200/65">{t.description}</p>
               <p className="mt-2 line-clamp-2 text-xs leading-6 text-parchment-200/65">{t.description}</p>
             </Link>
           ))}

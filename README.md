@@ -218,3 +218,17 @@ public/                     # الشعار والأصول الثابتة
 رفيق القلوب — أداة حوارية للخطباء والوعاظ والمختصين وطلاب العلم
 
 </div>
+
+## Al-Ifta direct HTML ingestion
+
+The Saudi Sunnah source uses a no-dependency Node ingestion path. It fetches only official `sunna.alifta.gov.sa` pages, follows official result links to detail pages, cleans the HTML, deduplicates the text, preserves the official source URL, and generates `src/lib/corpus/generated/alifta-html-chunks.ts` for RAG retrieval.
+
+```bash
+npm run alifta:test
+npm run alifta:manifest
+npm run alifta:live-check
+npm run alifta:ingest
+npm run alifta:verify
+```
+
+Docling is optional for future document-heavy ingestion and is not required for the Al-Ifta runtime path.
