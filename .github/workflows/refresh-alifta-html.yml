@@ -107,7 +107,8 @@ jobs:
               echo "No corpus changes to commit."
             else
               git commit -m "chore: refresh Al-Ifta HTML corpus"
-              git pull --rebase origin "${GITHUB_REF_NAME}"
+              # npm install on Node 24 rewrites package-lock.json; keep it out of the rebase.
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
               git push origin "HEAD:${GITHUB_REF_NAME}"
             fi
           } 2>&1 | tee scripts/alifta-html/reports/last-commit.log
@@ -141,6 +142,7 @@ jobs:
             echo "No report changes to commit."
           else
             git commit -m "chore(alifta): publish last ingestion report"
-            git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            # npm install on Node 24 rewrites package-lock.json; keep it out of the rebase.
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
             git push || echo "::warning::could not push the ingestion report"
           fi
