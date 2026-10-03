@@ -163,6 +163,21 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
     }
   });
 
+  it("مقاطع الجامع المولّدة تدخل ALL_CHUNKS بصفاتها الكاملة", async () => {
+    const { ALL_CHUNKS } = await import("@/lib/corpus/chunks");
+    const { GENERATED_ALIFTA_HTML_CHUNKS } = await import("@/lib/corpus/generated/alifta-html-chunks");
+    const ids = new Set(ALL_CHUNKS.map((chunk) => chunk.id));
+    expect(GENERATED_ALIFTA_HTML_CHUNKS.length).toBeGreaterThan(0);
+    for (const chunk of GENERATED_ALIFTA_HTML_CHUNKS) {
+      expect(ids.has(chunk.id)).toBe(true);
+      expect(isRetrievableSourceId(chunk.sourceId)).toBe(true);
+      expect(chunk.hadithFullText?.length ?? 0).toBeGreaterThan(60);
+      expect(chunk.sourceUrl).toMatch(/BookToc\/ViewMatnPage|MatnService\/HadithServiceData|BookToc\/ViewServicePage/);
+      expect(chunk.sourceUrl).not.toMatch(/Search\/|Subjects\//);
+      if (chunk.explanationText) expect(chunk.explanationSourceUrl).toMatch(/^https:\/\/sunna\.alifta\.gov\.sa\//);
+    }
+  });
+
   it("المادة المفهرسة كلها من المصدر الوحيد الفعّال", () => {
     for (const c of CHUNKS) {
       const src = getSourceById(c.sourceId);

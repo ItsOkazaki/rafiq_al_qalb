@@ -73,7 +73,10 @@ jobs:
 
       - name: Ingest official Al-Ifta HTML
         if: ${{ inputs.mode != 'capture' }}
-        run: npm run alifta:ingest
+        run: |
+          set -o pipefail
+          mkdir -p scripts/alifta-html/reports
+          npm run alifta:ingest 2>&1 | tee scripts/alifta-html/reports/last-run.log
 
       - name: Verify corpus
         if: ${{ inputs.mode != 'capture' }}
@@ -82,6 +85,28 @@ jobs:
       - name: Typecheck generated corpus
         if: ${{ inputs.mode != 'capture' }}
         run: npm run typecheck
+
+      - name: Publish ingestion report (also on failure)
+        if: ${{ always() && inputs.mode != 'capture' }}
+        run: |
+          set -uo pipefail
+          mkdir -p scripts/alifta-html/reports
+          if [ -f src/lib/corpus/generated/alifta-html-ledger.json ]; then
+            cp src/lib/corpus/generated/alifta-html-ledger.json scripts/alifta-html/reports/last-run-ledger.json
+          fi
+          if [ -f scripts/alifta-html/fixtures/live/capture-report.json ]; then
+            cp scripts/alifta-html/fixtures/live/capture-report.json scripts/alifta-html/reports/last-capture-report.json
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/alifta-html/reports || true
+          if git diff --cached --quiet; then
+            echo "No report changes to commit."
+          else
+            git commit -m "chore(alifta): publish last ingestion report"
+            git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            git push || echo "::warning::could not push the ingestion report"
+          fi
 
       - name: Commit generated corpus
         if: ${{ inputs.mode != 'capture' }}
