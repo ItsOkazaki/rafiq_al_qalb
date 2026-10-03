@@ -262,8 +262,9 @@ async function ingest(manifest) {
         if (!links.length) throw new Error(`No official result links found on ${target.url}`);
         const before = rows.length;
         for (const link of links) {
+          let fetchedDetail = null;
           try {
-            const fetchedDetail = await fetchOfficial(link.url, { referer: target.url, cookieJar, jinaFallback, jinaApiKey });
+            fetchedDetail = await fetchOfficial(link.url, { referer: target.url, cookieJar, jinaFallback, jinaApiKey });
             const best = extractBestPassage(fetchedDetail.text, link.title);
             addRow({
               text: best.text || link.title,
@@ -278,7 +279,7 @@ async function ingest(manifest) {
             // Do not promote a search-result title/summary to evidence if the official
             // detail page failed. The minimum-evidence gate below must remain honest.
           }
-          await sleep(fetchedDetail.method === 'jina-reader-official-url' ? fallbackDelay : delay);
+          await sleep(fetchedDetail?.method === 'jina-reader-official-url' ? fallbackDelay : delay);
         }
         ledger.push({ target: target.url, kind: target.kind, resultLinks: links.length, chunksAdded: rows.length - before, fetchMode: 'direct-or-jina-fallback' });
       } else {
@@ -323,6 +324,7 @@ async function main() {
   await fs.writeFile(ledgerPath, JSON.stringify({ method: 'official-html', sourceId: manifest.sourceId, totalChunks: rows.length, topicCounts, ledger, errors }, null, 2) + '\n', 'utf8');
 
   console.log(`Generated ${rows.length} Al-Ifta HTML chunks.`);
+  const jinaApiKey = process.env.JINA_API_KEY || '';
   console.log(`Fetcher: direct official HTML with Jina Reader fallback=${manifest.jinaFallback !== false ? 'enabled' : 'disabled'}${jinaApiKey ? ' (API key present)' : ' (no API key)'}.`);
   console.log(`Topic coverage: ${JSON.stringify(topicCounts)}`);
   if (errors.length) {
