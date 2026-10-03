@@ -4,12 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "corpus = ingest + verify + commit corpus; capture = save live HTML fixtures for offline tests"
+        description: "corpus = capture + ingest + verify + commit; capture = only save live HTML fixtures"
         type: choice
         default: corpus
         options:
           - corpus
           - capture
+  # Session/automation branch: a push re-runs the pipeline end to end.
+  # Generated paths are ignored so the bot's own commit cannot re-trigger a run.
+  push:
+    branches:
+      - arena/01a1026c-rafiq-al-qalb
+    paths-ignore:
+      - "src/lib/corpus/generated/**"
+      - "scripts/alifta-html/fixtures/**"
+      - "**.md"
 
 permissions:
   contents: write
@@ -45,8 +54,8 @@ jobs:
       - name: Manifest check
         run: npm run alifta:manifest
 
-      - name: Capture live Al-Ifta HTML fixtures
-        if: ${{ inputs.mode == 'capture' }}
+      - name: Capture live Al-Ifta HTML (fixtures + fetch diagnostics)
+        continue-on-error: true
         run: npm run alifta:capture
 
       - name: Ingest official Al-Ifta HTML
@@ -61,31 +70,19 @@ jobs:
         if: ${{ inputs.mode != 'capture' }}
         run: npm run typecheck
 
-      - name: Commit generated corpus
-        if: ${{ inputs.mode != 'capture' }}
+      - name: Commit generated corpus and fixtures
         run: |
           set -euo pipefail
-          node scripts/alifta-html/assert-corpus-not-empty.mjs
+          if [ "${{ inputs.mode }}" != "capture" ]; then
+            node scripts/alifta-html/assert-corpus-not-empty.mjs
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
+          git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json scripts/alifta-html/fixtures || true
           if git diff --cached --quiet; then
-            echo "No corpus changes to commit."
+            echo "No generated changes to commit."
           else
             git commit -m "chore: refresh Al-Ifta HTML corpus"
-            git push
-          fi
-
-      - name: Commit captured fixtures
-        if: ${{ inputs.mode == 'capture' }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scripts/alifta-html/fixtures
-          if git diff --cached --quiet; then
-            echo "No fixture changes to commit."
-          else
-            git commit -m "test: refresh captured Al-Ifta HTML fixtures"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push
           fi
