@@ -17,3 +17,7 @@ coverage/
 
 # Local deployment archives
 *.zip
+
+# Live Al-Ifta captures are diagnostic-only; a curated subset in
+# scripts/alifta-html/fixtures/*.html is committed for offline regression tests.
+scripts/alifta-html/fixtures/live/
