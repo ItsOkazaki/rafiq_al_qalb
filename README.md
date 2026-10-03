@@ -193,7 +193,9 @@ npm run build && npm start
 
 ## ١٢. تحديث الـcorpus (تلقائي ويدوي)
 
-- **آلياً:** `.github/workflows/refresh-alifta-html.yml` — عند push إلى `main` أو عبر `workflow_dispatch`: `npm ci` → اختبارات التطبيق → اختبارات الزاحف → فحص الـmanifest → السحب → `alifta:verify` → assert أن الـcorpus غير فارغ → التزام النتائج. آخر تشغيل موثّق له نجح في CI (Run `37140974876`، ٨ دقائق).
+- **آلياً:** `.github/workflows/refresh-alifta-html.yml` — عند push إلى `main` أو عبر `workflow_dispatch`: `npm ci` → اختبارات التطبيق → اختبارات الزاحف → فحص الـmanifest → السحب → `alifta:verify` → assert أن الـcorpus غير فارغ → التزام النتائج. آخر تشغيل موثّق نجح على GitHub Actions (Run `37140974876`) استخدم `npm install` + `--autostash`؛
+  النسخة الحالية من الملف تستخدم `npm ci` مع `--autostash` كذلك، وأُعيد إنتاج خطوات git الخاصة به محلياً
+  على مستودع متباعد مع ملف قفل متسخ (PASS)، ويُشغَّل الملف كاملاً عند أول push إلى `main`.
 - **يدوياً:** نفس الأوامر محلياً: `npm run alifta:test && npm run alifta:manifest && npm run alifta:ingest && npm run alifta:verify`.
 - **حماية البيانات:** أي تشغيل فاشل أو دون العتبة (١٠٠ مقطع، ٣ لكل باب) **لا يلمس** الـcorpus المعتمد؛ يكتب تشخيصه في `scripts/alifta-html/reports/` ويخرج بخطأ — مثبت باختبار انحدار آلي.
 
