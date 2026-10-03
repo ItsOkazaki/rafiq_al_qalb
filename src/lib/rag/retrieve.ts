@@ -16,6 +16,13 @@ export const MAX_PASSAGES = 4;
 /** العتبة الدنيا لقبول المقطع — لكن القبول يتطلب أيضاً صلة مباشرة أو موضوعية واضحة. */
 export const MIN_PASSAGE_SCORE = 3;
 
+/**
+ * الحد الأدنى لطول نص المقطع المسترجَع.
+ * المداخل الفهرسية الموجزة جداً (سطر واحد من نتيجة بحث) تصلح للتوجيه فقط،
+ * ولا تُعرض كمادة دليل؛ فوجودها في النتيجة يُفقد البطاقة معناها.
+ */
+export const MIN_PASSAGE_TEXT_LENGTH = 40;
+
 const GENERIC_QUERY_TOKENS = new Set([
   "الله", "الناس", "العبد", "العباد", "الدنيا", "الاخره", "شيء", "امر", "امور",
   "موضوع", "موضوعات", "بحث", "ماده", "مادة", "العلم", "العلمية", "الحديث", "السؤال",
@@ -71,6 +78,23 @@ function tokenVariants(token: string): string[] {
 
 function isQuranSpecificQuery(norm: string): boolean {
   return QURAN_QUERY_HINTS.some((hint) => hint && norm.includes(hint));
+}
+
+/** إشارات طلب تفسير/معنى نص قرآني بعينه، لا مجرد ذكر القرآن في السؤال. */
+const QURAN_REQUEST_CUES = [
+  "تفسير", "تفسيرا", "معنى", "معاني", "شرح", "اعراب", "سبب النزول", "سبب نزول",
+  "قراءه", "قراءات", "ما تفسير", "ما معنى", "ما اعراب",
+].map(normalizeArabic);
+const QURAN_REFERENCE_RE = /(?:سوره|سورة|ايه|آيه|اية|آية)\s*(?:\d+|[\u0621-\u064a]{2,})/;
+
+/**
+ * هل السؤال عن نص قرآني بعينه (تفسير آية/سورة)؟
+ * ذكر القرآن دون طلب تفسيره («لا أتأثر بالقرآن») ليس سؤالاً عن نص الآية،
+ * فلا يُحصر الاسترجاع في مقاطع الآيات وحدها.
+ */
+function isQuranInterpretationQuery(norm: string): boolean {
+  if (!isQuranSpecificQuery(norm)) return false;
+  return QURAN_REQUEST_CUES.some((cue) => cue && norm.includes(cue)) || QURAN_REFERENCE_RE.test(norm);
 }
 
 function hasAuthorityCue(norm: string): boolean {
@@ -174,9 +198,11 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   // طلب قرآني محدد لا يُسند إلى تفسير عام أو كتاب آخر؛ لا بد من مقطع يحمل
   // نص آية/مرجع آية فعلياً. هذا يمنع إجابات مثل «تفسير آية الكرسي» من
   // الانحراف إلى مادة عن موضوع القلب لمجرد تشابه كلمة عابرة.
-  const quranSpecific = isQuranSpecificQuery(norm);
+  const quranSpecific = isQuranInterpretationQuery(norm);
   if (quranSpecific) {
-    approved = approved.filter((chunk) => Boolean(chunk.quranText && chunk.quranReference));
+    const quranOnly = approved.filter((chunk) => Boolean(chunk.quranText && chunk.quranReference));
+    // لا يُفرغ الحصرُ النتيجةَ: إن لم توجد مادة آيات مطابقة نعود للمادة المعتمدة.
+    if (quranOnly.length > 0) approved = quranOnly;
   }
 
   // عند السؤال عن «رأي/قول/موقف» عالم بعينه، لا نقبل مقطعاً من عالم آخر؛
@@ -192,6 +218,9 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   const docFreq = buildDocumentFrequency(approved);
   const corpusSize = Math.max(approved.length, 1);
   const queryTokens = [...tokens].map((t) => ({ original: t, variants: tokenVariants(t) }));
+  const meaningfulQueryTokens = queryTokens.filter(
+    ({ original }) => !GENERIC_QUERY_TOKENS.has(normalizeArabic(original)),
+  ).length;
 
   const scored = approved
     .map((chunk) => {
@@ -270,8 +299,16 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       // نخفضها قليلاً حتى تتقدم الأدلة الفعلية عند وجودها.
       if (chunk.role === "index") score -= 1.0;
 
-      // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عامة عابرة.
-      const relevance = matchedTopicIds.size > 0 || (nonGenericMatches > 0 && strongLexicalMatch);
+      // سطر فهرسي قصير ليس مادة دليل: لا يُسترجع أصلاً.
+      if (chunk.text.trim().length < MIN_PASSAGE_TEXT_LENGTH) return { chunk, score: -1, directMatch: false, relevance: false };
+
+      // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عابرة مشتركة.
+      // سؤال عن «تاريخ الدولة الأموية وعمارة قرطبة» يصادف كلمتين في متن حديث،
+      // لكنه لا يغطيه؛ فالمقطع ليس إسناداً له. نطلب كلمتين معنويتين مختلفتين
+      // وأن تغطّي المطابقات نصف كلمات السؤال المعنوية على الأقل.
+      const coverage = meaningfulQueryTokens > 0 ? nonGenericMatches / meaningfulQueryTokens : 0;
+      const relevance =
+        matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && strongLexicalMatch);
       return { chunk, score, directMatch, relevance };
     })
     .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.directMatch)

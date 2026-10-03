@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>&#x641;&#x62A;&#x62D; &#x627;&#x644;&#x628;&#x627;&#x631;&#x64A; &#x644;&#x627;&#x628;&#x646; &#x62D;&#x62C;&#x631; - HadithWeb</title>
+    <link rel="stylesheet" href="/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="/css/site.css" id="mainStyleSheet" />
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+    <style>
+
+        .menuback {
+            display: none; /* Hidden by default */
+            position: fixed; /*on top */
+            padding-top: 30px; /* Stay in place */
+            z-index: 1; /* Sit /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+   
+
+        .navbarnew {
+            padding: .25rem .75rem;
+            font-size: 1.25rem;
+            line-height: 1;
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-radius: .25rem;
+            transition: box-shadow .15s ease-in-out;
+        }
+    </style>
+    <script src="/js/IndexDB.js"></script>
+    <script src="/js/siteBefore.js?v=2sWMWJa1WPRlJY117GTcfJYlYQQMUvREESj6SRWNIrg"></script>
+</head>
+
+<body>
+
+    <script>
+
+        var textColor, backColor;
+        if (window.localStorage.getItem("night") == null || window.localStorage.getItem("night") == "0") {
+            textColor = window.localStorage.getItem("TextColor");
+            backColor = GetBackRealColor(window.localStorage.getItem("BackColor"));
+        }
+        else {
+            textColor = "white";
+            backColor = "black";
+        }
+
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = '.divMainContentCss { color: ' + textColor +
+            ';font-Family:' + (window.localStorage.getItem("fontface") == null ? "AbdoMaster_Regular" : window.localStorage.getItem("fontface")) +
+            ';font-Size:' + ((window.localStorage.getItem("fontsize") == null ? "16" : window.localStorage.getItem("fontsize")) + "px") + 
+            ';width:100%' + ' }' +
+            'body{background-Color:' + backColor + '}' +
+            '.servicefooter{background-color:' + backColor + '}';
+
+        document.getElementsByTagName('head')[0].appendChild(style)
+
+
+
+
+    </script>
+
+    <style>
+    .mainMenuImage {
+        width: 100%
+    }
+</style>
+<div id="mySidenavFull" class="menuback">
+</div>
+<div id="mySidenav" class="sidenav">
+    <table height="100%" width="100%" style="border-bottom:1px solid #999;border-top:1px solid #999;border-right:1px solid #999;border-left:1px solid #999;
+            padding-right:20px;
+            padding-left:20px;
+            position:absolute;
+            top: 0;
+            background-image: url('/Images/Main/MainMenu/Menu Back.png');background-size:cover
+           ">
+        <tr>
+            <td align="center" valign="top">
+                <table height="100%">
+
+                    <tbody>
+                        <tr style="height: 33%">
+                            <td>
+
+
+                            </td>
+                        </tr>
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/">
+                                    <img src="/Images/Main/MainMenu/Home-Icon.png" id="imgMenuMain" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Book/IndexMatnBooks">
+                                    <img src="/Images/Main/MainMenu/Icon-1.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Book/IndexServiceSections">
+                                    <img src="/Images/Main/MainMenu/Icon-2.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Subjects/ViewSubjectLevel?ParentId=1&amp;IsLeaf=False">
+                                    <img src="/Images/Main/MainMenu/Icon-3.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Search/TextSearchView">
+                                    <img src="/Images/Main/MainMenu/Icon-4.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+                        
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/Settings">
+                                    <img src="/Images/Main/MainMenu/Icon-5.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/Note">
+                                    <img src="/Images/Main/MainMenu/Icon-6.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/Favourite">
+                                    <img src="/Images/Main/MainMenu/Icon-7.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr style="height: 0;">
+                            <td>
+                                <a href="/Home/About">
+                                    <img src="/Images/Main/MainMenu/Icon-8.png" class="mainMenuImage" />
+                                </a>
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                            </td>
+                        </tr>
+
+
+                        <tr style="height: 0;">
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<script>
+        function openNav() {
+
+            document.getElementById("mySidenavFull").style.display = "block";
+            var width = document.getElementById("imgMenuMain").width;
+            document.getElementById("mySidenav").style.width = "android" == "ipad" ? "64%" : "69%"//(width + 40) + "px";
+
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0px";
+        }
+
+
+
+</script>
+
+
+    <div class="container" style="height:100%;width:100%">
+        <table width="100%" height="100%" cellpadding="0" cellspacing="0">
+            <tbody>
+
+                <tr style="height:60px">
+                    <td colspan="5" style="margin-right:0;padding-right:0;">
+                        <header>
+                            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 py-0" style="left:0;right:0">
+                                <div class="container" style="left:0;right:0">
+                                    <table width="100%" height="58px" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td width="16" height="58">
+                                                    <img src="/Images/Main//Header/R_Unit_Header.png" width="16" height="58" style="position:absolute;top: 0;" />
+                                                </td>
+                                                <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58; width:53px" valign="middle">
+                                                    <button class="navbarnew" type="button" id="menuBtn" onclick="openNav()">
+                                                        <img src="/Images/Main/Header/menu.png" id="imgmenuBtn" style="height:15pt" />
+                                                    </button>
+                                                </td>
+
+                                                <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58;" align="center">
+                                                        <div id="mainTitle" class="HeaderTitle">&#x641;&#x62A;&#x62D; &#x627;&#x644;&#x628;&#x627;&#x631;&#x64A; &#x644;&#x627;&#x628;&#x646; &#x62D;&#x62C;&#x631;</div>
+
+                                                </td>
+
+
+                                                <td style="background-image:url(/Images/Main/Header/M_Unit_Header.png);background-size:contain;height:58" width="20" align="center">
+                                                    <a onclick="HistoryBack();" style="color:black;width:100%;vertical-align:middle;align-content:center;" id="linkBack"><img src="/Images/Main/Header/Back.png" style="height:15pt" /></a>
+                                                </td>
+                                                <td width="16" height="58">
+                                                    <img src="/Images/Main/Header/L_Unit_Header.png" style="position:absolute;top:0;" width="16" height="58" />
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </nav>
+                        </header>
+                    </td>
+                </tr>
+
+
+
+                <tr>
+                    <td style="background-image: url(/Images/Main/DocFrame/R-U-Corner.png);background-size:contain" width="8" height="20"></td>
+                    <td style="background-image: url(/Images/Main/DocFrame/U-Unit.png);background-size:contain" align="center" height="20"></td>
+                    <td align="center" height="19" width="51">
+                        <img src="/Images/Main/DocFrame/M-U.png" width="70" height="20" />
+                    </td>
+                    <td style="background-image: url(/Images/Main/DocFrame/U-Unit.png);background-size:contain" align="center" height="20"></td>
+                    <td style="background-image:url(/Images/Main/DocFrame/L-U-Corner.png);background-size:contain" width="8" height="20"></td>
+                </tr>
+
+
+
+                <tr>
+                    <td style="background-image:url(/Images/Main/DocFrame/R-Unit.png);background-size:contain" width="8"></td>
+                    <td colspan="3" valign="top">
+
+                        <div id="divMainFloatContent" style="float:right;height:100%; " class="divMainContentCss">
+
+                            <div style="height:570px; overflow:auto;padding:10px" id="divMainView">
+                                <div class="nodepath">
+                                    
+                                </div>
+                                <div id="divMainContent" style="line-height: 210%">
+                                    
+
+
+
+<table>
+    <tbody>
+
+        <tr>
+            <td>
+                <div id="divMainContent" style="bottom: 100px"><?xml version="1.0" encoding="utf-16"?><span><span /><span>5673 - حَدَّثَنَا أَبُو الْيَمَانِ ، أَخْبَرَنَا شُعَيْبٌ ، عَنْ الزُّهْرِيِّ ، قَالَ : أَخْبَرَنِي أَبُو عُبَيْدٍ مَوْلَى عَبْدِ الرَّحْمَنِ بْنِ عَوْفٍ ، أَنَّ أَبَا هُرَيْرَةَ قَالَ : <span>سَمِعْتُ رَسُولَ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ يَقُولُ : لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ . قَالُوا : وَلَا أَنْتَ يَا رَسُولَ اللَّهِ ؟ قَالَ : لَا ، وَلَا أَنَا ، إِلَّا أَنْ يَتَغَمَّدَنِي اللَّهُ بِفَضْلٍ وَرَحْمَةٍ ، فَسَدِّدُوا وَقَارِبُوا ، وَلَا يَتَمَنَّيَنَّ أَحَدُكُمْ الْمَوْتَ إِمَّا مُحْسِنًا ، فَلَعَلَّهُ أَنْ يَزْدَادَ خَيْرًا ، وَإِمَّا مُسِيئًا فَلَعَلَّهُ أَنْ يَسْتَعْتِبَ . <br /></span></span><br /><HR />الْحَدِيثُ الثَّالِثُ وَالرَّابِعُ حَدِيثُ أَبِي هُرَيْرَةَ <br />قَوْلُهُ : ( أَخْبَرَنِي أَبُو عُبَيْدٍ مَوْلَى عَبْدِ الرَّحْمَنِ بْنِ عَوْفٍ ) هُوَ أَبُو عُبَيْدٍ مَوْلَى ابْنِ أَزْهَرَ ، وَاسْمُهُ سَعِيدُ بْنُ عُبَيْدٍ ، وَابْنُ أَزْهَرَ الَّذِي نُسِبَ إِلَيْهِ هُوَ عَبْدُ الرَّحْمَنِ بْنُ أَزْهَرَ بْنِ عَوْفٍ ، وَهُوَ ابْنُ أَخِي عَبْدِ الرَّحْمَنِ بْنِ عَوْفٍ الزُّهْرِيُّ ; هَكَذَا اتَّفَقَ هَؤُلَاءِ عَنِ الزُّهْرِيِّ فِي رِوَايَتِهِ عَنْ أَبِي عُبَيْدٍ ، وَخَالَفَهُمْ إِبْرَاهِيمُ بْنُ سَعْدٍ ، عَنِ الزُّهْرِيِّ ، فَقَالَ : " عَنْ عُبَيْدِ اللَّهِ بْنِ عَبْدِ اللَّهِ ، عَنْ أَبِي هُرَيْرَةَ " ، أَخْرَجَهُ النَّسَائِيُّ وَقَالَ : رِوَايَةُ الزُّبَيْدِيِّ أَوْلَى بِالصَّوَابِ ، وَإِبْرَاهِيمُ بْنُ سَعْدٍ ثِقَةٌ ، يَعْنِي وَلَكِنَّهُ أَخْطَأَ فِي هَذَا . <br />قَوْلُهُ : ( لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ ) ، الْحَدِيثَ . يَأْتِي الْكَلَامُ عَلَيْهِ فِي كِتَابِ الرِّقَاقِ ، فَإِنَّهُ أَوْرَدَهُ مُفْرَدًا مِنْ وَجْهٍ آخَرَ عَنْ أَبِي هُرَيْرَةَ وَغَيْرِهِ ، وَإِنَّمَا أَخْرَجَهُ هُنَا اسْتِطْرَادًا لَا قَصْدًا ، وَالْمَقْصُودُ مِنْهُ الْحَدِيثُ الَّذِي بَعْدَهُ ، وَهُوَ قَوْلُهُ : وَلَا يَتَمَنَّى... إِلَخْ ، وَقَدْ أَفْرَدَهُ فِي كِتَابِ التَّمَنِّي مِنْ طَرِيقِ مَعْمَرٍ ، عَنِ الزُّهْرِيِّ ، وَكَذَا أَخْرَجَهُ النَّسَائِيُّ مِنْ طَرِيقِ الزُّبَيْدِيِّ ، عَنِ الزُّهْرِيِّ . <br />قَوْلُهُ : ( وَلَا يَتَمَنَّى ) ، كَذَا لِلْأَكْثَرِ بِإِثْبَاتِ التَّحْتَانِيَّةِ ، وَهُوَ لَفْظُ نَفْيٍ بِمَعْنَى النَّهْيِ . وَوَقَعَ فِي رِوَايَةِ الْكُشْمِيهَنِيِّ : لَا يَتَمَنَّ ، عَلَى لَفْظِ النَّهْيِ ، وَوَقَعَ فِي رِوَايَةِ مَعْمَرٍ الْآتِيَةِ بِلَفْظِ : لَا يَتَمَنَّى ، لِلْأَكْثَرِ ، وَبِلَفْظِ : لَا يَتَمَنَّيَنَّ لِلْكُشْمِيهَنِيِّ ، وَكَذَا هُوَ فِي رِوَايَةِ هَمَّامٍ ، عَنْ أَبِي هُرَيْرَةَ بِزِيَادَةِ نُونِ التَّأْكِيدِ ، وَزَادَ بَعْدَ قَوْلِهِ أَحَدُكُمُ الْمَوْتَ : وَلَا يَدْعُ بِهِ مِنْ قَبْلِ أَنْ يَأْتِيَهُ ، وَهُوَ قَيْدٌ فِي الصُّورَتَيْنِ ، وَمَفْهُومُهُ أَنَّهُ إِذَا حَلَّ بِهِ لَا يَمْنَعُ مِنْ تَمَنِّيهِ رِضًا بِلِقَاءِ اللَّهِ وَلَا مِنْ طَلَبِهِ مِنَ اللَّهِ لِذَلِكَ وَهُوَ كَذَلِكَ ، وَلِهَذِهِ النُّكْتَةِ عَقَّبَ الْبُخَارِيُّ حَدِيثَ أَبِي هُرَيْرَةَ بِحَدِيثِ عَائِشَةَ : " اللَّهُمَّ اغْفِرْ لِي وَارْحَمْنِي ، وَأَلْحِقْنِي بِالرَّفِيقِ الْأَعْلَى " إِشَارَةٌ إِلَى أَنَّ النَّهْيَ مُخْتَصٌّ بِالْحَالَةِ الَّتِي قَبْلَ نُزُولِ الْمَوْتِ ، فَلِلَّهِ دَرُّهُ مَا كَانَ أَكْثَرُ اسْتِحْضَارِهِ وَإِيثَارِهِ لِلْأَخْفَى عَلَى الْأَجْلَى شَحْذًا لِلْأَذْهَانِ . وَقَدْ خَفِيَ صَنِيعُهُ هَذَا عَلَى مَنْ جَعَلَ حَدِيثَ عَائِشَةَ فِي الْبَابِ مُعَارِضًا لِأَحَادِيثِ الْبَابِ أَوْ نَاسِخًا لَهَا ، وَقَوِيَ ذَلِكَ بِقَوْلِ يُوسُفَ عَلَيْهِ السَّلَامُ : <span><span>تَوَفَّنِي مُسْلِمًا وَأَلْحِقْنِي بِالصَّالِحِينَ </span></span>قَالَ ابْنُ التِّينِ : قِيلَ : <span class="Hadith">إِنَّ النَّهْيَ مَنْسُوخٌ بِقَوْلِ يُوسُفَ ، فَذَكَرَهُ ، وَبِقَوْلِ سُلَيْمَانَ : <span><span>وَأَدْخِلْنِي بِرَحْمَتِكَ فِي عِبَادِكَ الصَّالِحِينَ </span></span></span>وَبِحَدِيثِ عَائِشَةَ فِي الْبَابِ ، وَبِدُعَاءِ عُمَرَ بِالْمَوْتِ وَغَيْرِهِ . قَالَ : وَلَيْسَ الْأَمْرُ كَذَلِكَ ؛ لِأَنَّ هَؤُلَاءِ إِنَّمَا سَأَلُوا مَا قَارَبَ الْمَوْتَ . <span>قُلْتُ : وَقَدِ اخْتُلِفَ فِي مُرَادِ يُوسُفَ عَلَيْهِ السَّلَامُ ، فَقَالَ قَتَادَةُ : <span>لَمْ يَتَمَنَّ الْمَوْتَ أَحَدٌ إِلَّا يُوسُفُ حِينَ تَكَامَلَتْ عَلَيْهِ النِّعَمُ ، وَجُمِعَ لَهُ الشَّمْلُ اشْتَاقَ إِلَى لِقَاءِ اللَّهِ </span>، أَخْرَجَهُ الطَّبَرَانِيُّ بِسَنَدٍ صَحِيحٍ عَنْهُ </span>. وَقَالَ <span class="Page" Title="رقم الجزء/رقم الصفحة">[10/136] </span>غَيْرُهُ : بَلْ مُرَادُهُ تَوَفَّنِي مُسْلِمًا عِنْدَ حُضُورِ أَجَلِي ، كَذَا أَخْرَجَهُ ابْنُ أَبِي حَاتِمٍ ، عَنِ الضَّحَّاكِ بْنِ مُزَاحِمٍ ، وَكَذَلِكَ مُرَادُ سُلَيْمَانَ عَلَيْهِ السَّلَامُ . وَعَلَى تَقْدِيرِ الْحَمْلِ عل قَالَ قَتَادَةُ : فَهُوَ لَيْسَ مِنْ شَرْعِنَا ، وَإِنَّمَا يُؤْخَذُ بِشَرْعِ مَنْ قَبْلَنَا مَا لَمْ يَرِدْ فِي شَرْعِنَا النَّهْيُ عَنْهُ بِالِاتِّفَاقِ ، وَقَدِ اسْتَشْكَلَ الْإِذْنُ فِي ذَلِكَ عِنْدَ نُزُولِ الْمَوْتِ ؛ لِأَنَّ نُزُولَ الْمَوْتِ لَا يَتَحَقَّقُ ، فَكَمْ مَنِ انْتَهَى إِلَى غَايَةٍ جَرَتِ الْعَادَةُ بِمَوْتِ مَنْ يَصِلُ إِلَيْهَا ثُمَّ عَاشَ . وَالْجَوَابُ أَنَّهُ يَحْتَمِلُ أَنْ يَكُونَ الْمُرَادُ أَنَّ الْعَبْدَ يَكُونُ حَالُهُ فِي ذَلِكَ الْوَقْتِ حَالَ مَنْ يَتَمَنَّى نُزُولَهُ بِهِ وَيَرْضَاهُ أَنْ لَوْ وَقَعَ بِهِ ، وَالْمَعْنَى أَنْ يَطْمَئِنَّ قَلْبُهُ إِلَى مَا يَرِدُ عَلَيْهِ مِنْ رَبِّهِ وَيَرْضَى بِهِ وَلَا يَقْلَقُ ، وَلَوْ لَمْ يَتَّفِقِ أَنَّهُ يَمُوتُ فِي ذَلِكَ الْمَرَضِ . <br />قَوْلُهُ : ( إِمَّا مُحْسِنًا فَلَعَلَّهُ أَنْ يَزْدَادَ خَيْرًا ، وَإِمَّا مُسِيئًا فَلَعَلَّهُ أَنْ يَسْتَعْتِبَ ) أَيْ يَرْجِعُ عَنْ مُوجِبِ الْعَتْبِ عَلَيْهِ . وَوَقَعَ فِي رِوَايَةِ هَمَّامٍ ، عَنْ أَبِي هُرَيْرَةَ عِنْدَ أَحْمَدَ : وَأَنَّهُ لَا يَزِيدُ الْمُؤْمِنُ عُمْرَهُ إِلَّا خَيْرًا ، وَفِيهِ إِشَارَةٌ إِلَى أَنَّ الْمَعْنَى فِي النَّهْيِ عَنْ تَمَنِّي الْمَوْتِ وَالدُّعَاءِ بِهِ هُوَ انْقِطَاعُ الْعَمَلِ بِالْمَوْتِ ، فَإِنَّ الْحَيَاةَ يَتَسَبَّبُ مِنْهَا الْعَمَلُ ، وَالْعَمَلُ يُحَصِّلُ زِيَادَةَ الثَّوَابِ ، وَلَوْ لَمْ يَكُنِ إِلَّا اسْتِمْرَارُ التَّوْحِيدِ فَهُوَ أَفْضَلُ الْأَعْمَالِ . وَلَا يَرُدُّ عَلَى هَذَا أَنَّهُ يَجُوزُ أَنْ يَقَعَ الِارْتِدَادُ وَالْعِيَاذُ بِاللَّهِ - تَعَالَى - عَنِ الْإِيمَانِ ؛ لِأَنَّ ذَلِكَ نَادِرٌ ، وَالْإِيمَانُ بَعْدَ أَنْ تُخَالِطَ بَشَاشَتُهُ الْقُلُوبَ لَا يَسْخَطُهُ أَحَدٌ ، وَعَلَى تَقْدِيرِ وُقُوعِ ذَلِكَ - وَقَدْ وَقَعَ لَكِنْ نَادِرًا - فَمَنْ سَبَقَ لَهُ فِي عِلْمِ اللَّهِ خَاتِمَةُ السُّوءِ فَلَا بُدَّ مِنْ وُقُوعِهَا طَالَ عُمْرُهُ أَوْ قَصُرَ ، فَتَعْجِيلُهُ بِطَلَبِ الْمَوْتِ لَا خَيْرَ لَهُ فِيهِ . <span>وَيُؤَيِّدُهُ حَدِيثُ أَبِي أُمَامَةَ : <span>أَنَّ النَّبِيَّ - صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ - قَالَ لِسَعْدٍ : يَا سَعْدُ إِنْ كُنْتَ خُلِقْتَ لِلْجَنَّةِ فَمَا طَالَ مِنْ عُمْرِكَ أَوْ حَسُنَ مِنْ عَمَلِكَ فَهُوَ خَيْرٌ لَكَ ، </span>أَخْرَجَهُ بِسَنَدٍ لَيِّنٍ </span>، وَوَقَعَ فِي رِوَايَةِ هَمَّامٍ ، عَنْ أَبِي هُرَيْرَةَ عِنْدَ أَحْمَدَ ، وَمُسْلِمٍ : وَأَنَّهُ لَا يَزِيدُ الْمُؤْمِنُ عُمْرَهُ إِلَّا خَيْرًا ، وَاسْتَشْكَلَ بِأَنَّهُ قَدْ يَعْمَلُ السَّيِّئَاتِ فَيَزِيدُهُ عُمُرُهُ شَرًّا ، وَأُجِيبَ بِأَجْوِبَةٍ : أَحَدُهَا حَمْلُ الْمُؤْمِنِ عَلَى الْكَامِلِ وَفِيهِ بُعْدٌ ، وَالثَّانِي أَنَّ الْمُؤْمِنَ بِصَدَدِ أَنْ يَعْمَلَ مَا يُكَفِّرُ ذُنُوبَهُ إِمَّا مِنَ اجْتِنَابِ الْكَبَائِرِ وَإِمَّا مِنْ فِعْلِ حَسَنَاتٍ أُخَرَ قَدْ تُقَاوِمُ بِتَضْعِيفِهَا سَيِّئَاتُهُ ، وَمَا دَامَ الْإِيمَانُ بَاقٍ فَالْحَسَنَاتُ بِصَدَدِ التَّضْعِيفِ ، وَالسَّيِّئَاتُ بِصَدَدِ التَّكْفِيرِ . وَالثَّالِثُ يُقَيِّدُ مَا أُطْلِقَ فِي هَذِهِ الرِّوَايَةِ بِمَا وَقَعَ فِي رِوَايَةِ الْبَابِ مِنَ التَّرَجِّي حَيْثُ جَاءَ بِقَوْلِهِ : " لَعَلَّهُ " ، وَالتَّرَجِّي مُشْعِرٌ بِالْوُقُوعِ غَالِبًا لَا جَزْمًا ، فَخَرَجَ الْخَبَرُ مَخْرَجَ تَحْسِينِ الظَّنِّ بِاللَّهِ ، وَأَنَّ الْمُحْسِنَ يَرْجُو مِنَ اللَّهِ الزِّيَادَةَ بِأَنْ يُوَفِّقَهُ لِلزِّيَادَةِ مِنْ عَمَلِهِ الصَّالِحِ ، وَأَنَّ الْمُسِيءَ لَا يَنْبَغِي لَهُ الْقُنُوطُ مِنْ رَحْمَةِ اللَّهِ وَلَا قَطْعُ رَجَائِهِ ، أَشَارَ إِلَى ذَلِكَ شَيْخُنَا فِي " شَرْحِ التِّرْمِذِيِّ " . وَيَدُلُّ عَلَى أَنَّ قِصَرَ الْعُمُرِ قَدْ يَكُونُ خَيْرًا لِلْمُؤْمِنِ حَدِيثُ أَنَسٍ الَّذِي فِي أَوَّلِ الْبَابِ : وَتَوَفَّنِي إِذَا كَانَتِ الْوَفَاةُ خَيْرًا لِي ، وَهُوَ لَا يُنَافِي حَدِيثَ أَبِي هُرَيْرَةَ : إنَّ الْمُؤْمِنَ لَا يَزِيدُهُ عُمْرُهُ إِلَّا خَيْرًا ، إِذَا حُمِلَ حَدِيثُ أَبِي هُرَيْرَةَ عَلَى الْأَغْلَبِ وَمُقَابِلُهُ عَلَى النَّادِرِ ، وَسَيَأْتِي الْإِلْمَامُ بِشَيْءٍ مِنْ هَذَا فِي كِتَابِ التَّمَنِّي إِنْ شَاءَ اللَّهُ تَعَالَى . <br /></span>  </div>
+
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+<div class="servicefooter">
+    <table width="100%">
+        <tbody>
+            <tr>
+                <td style="padding-left:20px" align="left">
+                        <img src="/Images/Main/DocFrame/PrevDocD.png" width="20" height="26" />
+                </td>
+                <td style="width:50px" align="center">
+                    <a href="/BookToc/ViewServicePage?bookId=34&amp;mainId=353258"><img src="/Images/Main/DocFrame/Disply Icon.png" width="20" height="26" /> </a>
+                </td>
+                <td style="padding-right:20px" align="right">
+                        <a id="PageNextURL" href="/MatnService/HadithServiceData?serviceId=6&amp;mainId=8804&amp;inx=1"><img src="/Images/Main/DocFrame/NextDoc.png" width="20" height="26" /></a>
+                </td>
+
+
+            </tr>
+        </tbody>
+    </table>
+
+
+
+</div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </td>
+                    <td style="background-image: url(/Images/Main/DocFrame/L-Unit.png);background-size:contain" width="8"></td>
+                </tr>
+
+
+
+                <tr>
+                    <td style="background-image:url(/Images/Main/DocFrame/R-D-Corner.png);background-size:contain" width="8" height="7"></td>
+                    <td style="background-image:url(/Images/Main/DocFrame/D-Unit.png);padding-right:5px;background-size:contain" height="7" align="right" valign="bottom">
+                    </td>
+                    <td>
+                        <img src="/Images/Main/DocFrame/M-D.png" width="70" height="7" />
+                    </td>
+                    <td style="background-image: url(/Images/Main/DocFrame/D-Unit.png);padding-left:5px;background-size:contain" height="7" align="left" valign="bottom">
+                    </td>
+                    <td style="background-image:url(/Images/Main/DocFrame/L-D-Corner.png);background-size:contain" width="8" height="7"></td>
+                </tr>
+                <tr height="10px">
+                    <td colspan="5">
+                    </td>
+                </tr>
+                <tr height="39px">
+                    <td colspan="5">
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <table width="100%" style="background-color:#8c6023; position: fixed;
+            left: 0px;
+            right:0px;
+            bottom: 0px;">
+        <tr>
+            <td colspan="5" align="center">
+                <img src="/Images/Main/common/Footer-2.png"  height="39" style="width:100%"/>
+            </td>
+
+        </tr>
+    </table>
+
+
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/site.js?v=ThDzE0YWWMTtXqqky2Imd37lNaplOjEq2QDxUP8RQAE"></script>
+    <script>
+        LoadDatabaseInit().then(function (result) {
+            AddHistory(window.location.href, 'MatnService', 'HadithServiceData');
+        });
+
+
+        var height = 770;
+        var body = window.document.body;
+        if (window.innerHeight) {
+            height = window.innerHeight;
+        } else if (body.parentElement.clientHeight) {
+            height = body.parentElement.clientHeight;
+        } else if (body && body.clientHeight) {
+            height = body.clientHeight;
+        }
+        document.getElementById("divMainView").style.height = ((height - (145 + 49/*footer height*/)) + "px");
+
+        var diac = window.localStorage.getItem("diac");
+        //In judgment diac always is displayed
+        if (!(diac == null || diac == "1") && "MatnService" != "Judgment") {
+            Removediac();
+        }
+
+    </script>
+
+
+
+
+
+
+    
+</body>
+</html>

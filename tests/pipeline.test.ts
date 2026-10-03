@@ -6,6 +6,7 @@ import { runResearch } from "@/lib/research/pipeline";
 import { ABSTAIN_MESSAGE, scanForForbiddenFraming } from "@/lib/terminology";
 import { SYSTEM_PROMPT } from "@/lib/ai/provider";
 import { sanitizeStrictArabicOutput } from "@/lib/text/strict-output";
+import { isExcludedSourceTitle, isRetrievableSourceId } from "@/lib/sources/registry";
 
 const SAMPLE_QUERY = "أشعر أن قلبي قاسٍ ولا أتأثر بالقرآن";
 
@@ -119,17 +120,10 @@ describe("الاسترجاع والنتيجة السليمة", () => {
     const sourceIds = new Set(result.passages.map((passage) => passage.source.sourceId));
     // يجب أن يتضمن الرد مادة من الداء والدواء على الأقل
     expect(sourceIds).toContain("albadr-daa-dawaa");
-    // المصادر المعتمدة المسموح بها في الاسترجاع
-    const allowedSourceIds = new Set([
-      "albadr-daa-dawaa",
-      "binbaz-tawba-musaaib",
-      "binbaz-majmou-fatawa",
-      "ksu-quran-project",
-      "sahih-bukhari",
-      "ibn-taymiyyah-amrad",
-    ]);
+    // كل مقطع يجب أن يكون من مصدر معتمد فعّال في السجل، ومن غير المستبعدين.
     for (const passage of result.passages) {
-      expect(allowedSourceIds.has(passage.source.sourceId)).toBe(true);
+      expect(isRetrievableSourceId(passage.source.sourceId)).toBe(true);
+      expect(isExcludedSourceTitle(passage.source.title)).toBe(false);
       expect(passage.source.originalUrl).toMatch(/^https?:\/\//);
       expect(passage.chapter.length).toBeGreaterThan(3);
     }

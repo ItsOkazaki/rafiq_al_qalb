@@ -116,16 +116,12 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
 
   it("كل مقطع يحمل بيانات المصدر الرسمي والموضع كاملة", () => {
     const passages = retrievePassages(SAMPLE_QUERY);
-    const allowedIds = new Set([
-      "albadr-daa-dawaa",
-      "binbaz-tawba-musaaib",
-      "binbaz-majmou-fatawa",
-      "ksu-quran-project",
-      "sahih-bukhari",
-      "ibn-taymiyyah-amrad",
-    ]);
+    // الاشتقاق من السجل نفسه: لا يُقبل إلا مصدر معتمد فعّال قابل للاسترجاع،
+    // ولا تظهر الكتب المستبعدة أبداً.
     for (const passage of passages) {
-      expect(allowedIds.has(passage.source.sourceId)).toBe(true);
+      expect(isRetrievableSourceId(passage.source.sourceId)).toBe(true);
+      expect(getSourceById(passage.source.sourceId)?.status).toBe("active");
+      expect(isExcludedSourceTitle(passage.source.title)).toBe(false);
       expect(passage.source.title.length).toBeGreaterThan(8);
       expect(passage.source.author.length).toBeGreaterThan(8);
       expect(passage.source.originalUrl).toMatch(/^https?:\/\//);
@@ -137,6 +133,49 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
     const passages = retrievePassages(BROAD_QUERY);
     expect(passages.length).toBeGreaterThan(2);
     expect(passages.length).toBeLessThanOrEqual(MAX_PASSAGES);
+  });
+
+  it("الأدلة الفعلية تتقدم على مداخل الفهرسة، والسطر الفهرسي القصير لا يُسترجع", () => {
+    const passages = retrievePassages(SAMPLE_QUERY, { limit: MAX_PASSAGES });
+    expect(passages.length).toBeGreaterThan(0);
+    for (const passage of passages) {
+      expect(passage.text.trim().length).toBeGreaterThanOrEqual(40);
+    }
+    // إن وُجد مدخل فهرسي في النتيجة فلا يتقدم على دليل فعلي من نفس الصلة.
+    const firstIndex = passages.findIndex((p) => p.role === "index");
+    if (firstIndex >= 0) {
+      const evidence = passages.filter((p) => p.role !== "index");
+      for (const item of evidence) expect(item.score).toBeGreaterThanOrEqual(passages[firstIndex].score);
+    }
+  });
+
+  it("ذكر القرآن دون طلب تفسيره لا يحصر الاسترجاع في مقاطع الآيات", () => {
+    const passages = retrievePassages(SAMPLE_QUERY);
+    expect(passages.some((p) => !p.quranText)).toBe(true);
+  });
+
+  it("طلب تفسير آية بعينها يبقى مقصوراً على مقاطع تحمل نص الآية ومرجعها", () => {
+    const passages = retrievePassages("تفسير آية في قلوبهم مرض");
+    expect(passages.length).toBeGreaterThan(0);
+    for (const passage of passages) {
+      expect(passage.quranText).toBeTruthy();
+      expect(passage.quranReference).toBeTruthy();
+    }
+  });
+
+  it("مقاطع الجامع المولّدة تدخل ALL_CHUNKS بصفاتها الكاملة", async () => {
+    const { ALL_CHUNKS } = await import("@/lib/corpus/chunks");
+    const { GENERATED_ALIFTA_HTML_CHUNKS } = await import("@/lib/corpus/generated/alifta-html-chunks");
+    const ids = new Set(ALL_CHUNKS.map((chunk) => chunk.id));
+    expect(GENERATED_ALIFTA_HTML_CHUNKS.length).toBeGreaterThan(0);
+    for (const chunk of GENERATED_ALIFTA_HTML_CHUNKS) {
+      expect(ids.has(chunk.id)).toBe(true);
+      expect(isRetrievableSourceId(chunk.sourceId)).toBe(true);
+      expect(chunk.hadithFullText?.length ?? 0).toBeGreaterThan(60);
+      expect(chunk.sourceUrl).toMatch(/BookToc\/ViewMatnPage|MatnService\/HadithServiceData|BookToc\/ViewServicePage/);
+      expect(chunk.sourceUrl).not.toMatch(/Search\/|Subjects\//);
+      if (chunk.explanationText) expect(chunk.explanationSourceUrl).toMatch(/^https:\/\/sunna\.alifta\.gov\.sa\//);
+    }
   });
 
   it("المادة المفهرسة كلها من المصدر الوحيد الفعّال", () => {

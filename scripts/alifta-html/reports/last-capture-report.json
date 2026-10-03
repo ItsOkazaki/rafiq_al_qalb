@@ -1,0 +1,189 @@
+{
+  "capturedAt": "2026-10-03T17:26:21.094Z",
+  "node": "v24.21.0",
+  "base": "https://sunna.alifta.gov.sa/",
+  "pages": [
+    {
+      "kind": "home",
+      "url": "https://sunna.alifta.gov.sa/",
+      "status": 200,
+      "bytes": 6956,
+      "ms": 1296,
+      "setCookie": [
+        "acw_tc=0a09f33517910483822602013e5cf027ea227df3283395438834e81b595891;path=/;HttpOnly;Max-Age=1800"
+      ],
+      "error": null
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
+      "bytes": 61065,
+      "ms": 714,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/subject--Search-ViewSubjectHits__subjectId-33772.html",
+      "fixture": "scripts/alifta-html/fixtures/subject-tawba.html",
+      "title": "&#x627;&#x644;&#x628;&#x62D;&#x62B; &#x641;&#x64A;  &#x627;&#x644;&#x645;&#x648;&#x636;&#x648;&#x639;&#x627;&#x62A; - HadithWeb",
+      "mainIdMatches": 50
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
+      "bytes": 67681,
+      "ms": 635,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/subject--Search-ViewSubjectHits__subjectId-10996.html",
+      "title": "&#x627;&#x644;&#x628;&#x62D;&#x62B; &#x641;&#x64A;  &#x627;&#x644;&#x645;&#x648;&#x636;&#x648;&#x639;&#x627;&#x62A; - HadithWeb",
+      "mainIdMatches": 50
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
+      "bytes": 62743,
+      "ms": 625,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/subject--Search-ViewSubjectHits__subjectId-31033.html",
+      "title": "&#x627;&#x644;&#x628;&#x62D;&#x62B; &#x641;&#x64A;  &#x627;&#x644;&#x645;&#x648;&#x636;&#x648;&#x639;&#x627;&#x62A; - HadithWeb",
+      "mainIdMatches": 50
+    },
+    {
+      "kind": "subject",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
+      "bytes": 65580,
+      "ms": 632,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/subject--Search-ViewSubjectHits__subjectId-33942.html",
+      "title": "&#x627;&#x644;&#x628;&#x62D;&#x62B; &#x641;&#x64A;  &#x627;&#x644;&#x645;&#x648;&#x636;&#x648;&#x639;&#x627;&#x62A; - HadithWeb",
+      "mainIdMatches": 50
+    },
+    {
+      "kind": "detail",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=8804",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=8804",
+      "bytes": 44857,
+      "ms": 271,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/detail--BookToc-ViewMatnPage__bookId-1_mainId-8804.html",
+      "fixture": "scripts/alifta-html/fixtures/detail-bukhari-8804.html",
+      "title": "&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x644;&#x628;&#x62E;&#x627;&#x631;&#x64A; - HadithWeb",
+      "mainIdMatches": 11
+    },
+    {
+      "kind": "detail",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=5507",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=5507",
+      "bytes": 44454,
+      "ms": 277,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/detail--BookToc-ViewMatnPage__bookId-1_mainId-5507.html",
+      "fixture": "scripts/alifta-html/fixtures/detail-bukhari-5507.html",
+      "title": "&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x644;&#x628;&#x62E;&#x627;&#x631;&#x64A; - HadithWeb",
+      "mainIdMatches": 9
+    },
+    {
+      "kind": "detail",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=2&mainId=19902",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=2&mainId=19902",
+      "bytes": 43198,
+      "ms": 282,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/detail--BookToc-ViewMatnPage__bookId-2_mainId-19902.html",
+      "title": "&#x635;&#x62D;&#x64A;&#x62D; &#x645;&#x633;&#x644;&#x645; - HadithWeb",
+      "mainIdMatches": 9
+    },
+    {
+      "kind": "detail",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=10&mainId=31978",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=10&mainId=31978",
+      "bytes": 46705,
+      "ms": 283,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/detail--BookToc-ViewMatnPage__bookId-10_mainId-31978.html",
+      "fixture": "scripts/alifta-html/fixtures/detail-ibn-hibban-31978.html",
+      "title": "&#x635;&#x62D;&#x64A;&#x62D; &#x627;&#x628;&#x646; &#x62D;&#x628;&#x627;&#x646; - HadithWeb",
+      "mainIdMatches": 8
+    },
+    {
+      "kind": "service",
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=8804&inx=0",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=8804&inx=0",
+      "bytes": 24547,
+      "ms": 406,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/service--MatnService-HadithServiceData__serviceId-6_mainId-8804_inx-0.html",
+      "fixture": "scripts/alifta-html/fixtures/service-fath-al-bari-8804.html",
+      "title": "&#x641;&#x62A;&#x62D; &#x627;&#x644;&#x628;&#x627;&#x631;&#x64A; &#x644;&#x627;&#x628;&#x646; &#x62D;&#x62C;&#x631; - HadithWeb",
+      "mainIdMatches": 2
+    },
+    {
+      "kind": "service",
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=5507&inx=0",
+      "status": 200,
+      "finalUrl": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=5507&inx=0",
+      "bytes": 25151,
+      "ms": 397,
+      "contentType": "text/html; charset=utf-8",
+      "setCookie": [],
+      "error": null,
+      "file": "scripts/alifta-html/fixtures/live/service--MatnService-HadithServiceData__serviceId-6_mainId-5507_inx-0.html",
+      "title": "&#x641;&#x62A;&#x62D; &#x627;&#x644;&#x628;&#x627;&#x631;&#x64A; &#x644;&#x627;&#x628;&#x646; &#x62D;&#x62C;&#x631; - HadithWeb",
+      "mainIdMatches": 2
+    }
+  ],
+  "diagnostics": [
+    {
+      "case": "html-escaped-href-fetched-verbatim",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&amp;mainId=8804",
+      "status": 500,
+      "bytes": 11778,
+      "error": null,
+      "expectation": "must NOT be fetched verbatim; entities are decoded to ?bookId=1&mainId=8804 first"
+    },
+    {
+      "case": "decoded-href",
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=8804",
+      "status": 200,
+      "bytes": 44857,
+      "error": null,
+      "expectation": "HTTP 200 with the individual hadith page"
+    },
+    {
+      "case": "arabic-query-parameter",
+      "url": "https://sunna.alifta.gov.sa/Subjects/ViewSubjectLevel?ParentId=33766&IsLeaf=False&jumpTo=%D8%A7%D9%84%D8%AA%D9%88%D8%A8%D8%A9%20%D9%85%D9%86%20%D8%A7%D9%84%D8%B0%D9%86%D9%88%D8%A8",
+      "status": 200,
+      "bytes": 25622,
+      "error": null,
+      "expectation": "percent-encoded Arabic query parameters are accepted by the official site"
+    }
+  ]
+}

@@ -2,13 +2,40 @@ name: Refresh Al-Ifta HTML corpus
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "corpus = capture + ingest + verify + commit; capture = only save live HTML fixtures"
+        type: choice
+        default: corpus
+        options:
+          - corpus
+          - capture
+  # Session/automation branch: a push re-runs the pipeline end to end.
+  # Generated paths are ignored so the bot's own commit cannot re-trigger a run.
+  push:
+    branches:
+      - arena/01a1026c-rafiq-al-qalb
+    paths-ignore:
+      - "src/lib/corpus/generated/**"
+      - "scripts/alifta-html/fixtures/**"
+      - "**.md"
 
 permissions:
   contents: write
 
+# One refresh at a time: the job commits generated files back to the branch.
+concurrency:
+  group: alifta-html-refresh-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      # Optional: raises Jina Reader rate limits for the fallback fetcher.
+      # The crawler works without it (direct official HTML is tried first).
+      JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,20 +45,104 @@ jobs:
         with:
           node-version: 24
 
-      - name: Ingest official Al-Ifta HTML
-        run: npm run alifta:ingest
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
 
-      - name: Verify corpus
-        run: npm run alifta:verify
+      - name: Offline regression tests (no network)
+        run: npm run alifta:test
 
-      - name: Commit generated corpus
+      - name: Manifest check
+        run: npm run alifta:manifest
+
+      - name: Capture live Al-Ifta HTML (fixtures + fetch diagnostics)
+        continue-on-error: true
+        run: npm run alifta:capture
+
+      - name: Commit captured fixtures
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
+          git add scripts/alifta-html/fixtures || true
           if git diff --cached --quiet; then
-            echo "No corpus changes to commit."
+            echo "No fixture changes to commit."
           else
-            git commit -m "chore: refresh Al-Ifta HTML corpus"
+            git commit -m "test: refresh captured Al-Ifta HTML fixtures"
             git push
+          fi
+
+      - name: Ingest official Al-Ifta HTML
+        if: ${{ inputs.mode != 'capture' }}
+        run: |
+          set -o pipefail
+          mkdir -p scripts/alifta-html/reports
+          npm run alifta:ingest 2>&1 | tee scripts/alifta-html/reports/last-run.log
+
+      - name: Verify corpus
+        id: verify
+        if: ${{ inputs.mode != 'capture' }}
+        run: |
+          set -o pipefail
+          mkdir -p scripts/alifta-html/reports
+          npm run alifta:verify 2>&1 | tee scripts/alifta-html/reports/last-verify.log
+
+      - name: Typecheck generated corpus
+        if: ${{ inputs.mode != 'capture' }}
+        run: npm run typecheck
+
+      - name: Commit generated corpus
+        if: ${{ inputs.mode != 'capture' }}
+        run: |
+          set -o pipefail
+          mkdir -p scripts/alifta-html/reports
+          {
+            set -ex
+            node scripts/alifta-html/assert-corpus-not-empty.mjs
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git status --porcelain=v1
+            git branch --show-current || echo "(detached HEAD)"
+            git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
+            if git diff --cached --quiet; then
+              echo "No corpus changes to commit."
+            else
+              git commit -m "chore: refresh Al-Ifta HTML corpus"
+              # npm install on Node 24 rewrites package-lock.json; keep it out of the rebase.
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+              git push origin "HEAD:${GITHUB_REF_NAME}"
+            fi
+          } 2>&1 | tee scripts/alifta-html/reports/last-commit.log
+          exit "${PIPESTATUS[0]}"
+
+      - name: Publish ingestion report (also on failure)
+        if: ${{ always() && inputs.mode != 'capture' }}
+        run: |
+          set -uo pipefail
+          mkdir -p scripts/alifta-html/reports
+          if [ -f src/lib/corpus/generated/alifta-html-ledger.json ]; then
+            cp src/lib/corpus/generated/alifta-html-ledger.json scripts/alifta-html/reports/last-run-ledger.json
+          fi
+          if [ -f scripts/alifta-html/fixtures/live/capture-report.json ]; then
+            cp scripts/alifta-html/fixtures/live/capture-report.json scripts/alifta-html/reports/last-capture-report.json
+          fi
+          # *.log is ignored repo-wide, so the run/verify transcripts need -f.
+          # When verification fails the rejected corpus is published too (outside the
+          # app's corpus directory) so the exact problems can be inspected offline.
+          if [ "${{ steps.verify.outcome }}" = "failure" ] && [ -f src/lib/corpus/generated/alifta-html-chunks.json ]; then
+            cp src/lib/corpus/generated/alifta-html-chunks.json scripts/alifta-html/reports/last-run-corpus.json
+          else
+            # A green run commits the corpus itself; drop the failure-only copy so no
+            # stale rejected corpus is left next to the verified one.
+            rm -f scripts/alifta-html/reports/last-run-corpus.json
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f scripts/alifta-html/reports || true
+          if git diff --cached --quiet; then
+            echo "No report changes to commit."
+          else
+            git commit -m "chore(alifta): publish last ingestion report"
+            # npm install on Node 24 rewrites package-lock.json; keep it out of the rebase.
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git push || echo "::warning::could not push the ingestion report"
           fi

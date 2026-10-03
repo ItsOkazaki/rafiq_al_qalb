@@ -8,11 +8,13 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify:quran-font": "node scripts/verify-quran-font.mjs",
+    "test": "vitest run",
     "alifta:ingest": "node scripts/alifta-html/ingest.mjs scripts/alifta-html/manifest.json",
     "alifta:verify": "node scripts/alifta-html/verify.mjs",
     "alifta:test": "node scripts/alifta-html/test.mjs",
     "alifta:manifest": "node scripts/alifta-html/manifest-check.mjs",
-    "alifta:live-check": "node scripts/alifta-html/live-check.mjs"
+    "alifta:live-check": "node scripts/alifta-html/live-check.mjs",
+    "alifta:capture": "node scripts/alifta-html/capture-fixtures.mjs"
   },
   "dependencies": {
     "@fontsource/amiri": "^5.3.0",

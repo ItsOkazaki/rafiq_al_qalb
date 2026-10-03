@@ -1,11 +1,16 @@
 import Link from "next/link";
-import { BookMarked, ExternalLink, FileText, Tag } from "lucide-react";
+import { BookMarked, ChevronDown, ExternalLink, FileText, Tag } from "lucide-react";
 import { Fragment } from "react";
 import type { RetrievedPassage } from "@/lib/types";
 
 export function PassageCard({ passage, index }: { passage: RetrievedPassage; index?: number }) {
   const isLiteral = passage.excerptType === "literal";
   const isIndex = passage.role === "index";
+  // Short official excerpt vs. the full official matn: shown as two layers, never
+  // repeated, and never mixed with the commentary layer.
+  const shortHadith = passage.hadithText || passage.hadithFullText || "";
+  const fullHadith =
+    passage.hadithFullText && passage.hadithFullText !== shortHadith ? passage.hadithFullText : "";
   return (
     <article className="card-manuscript relative overflow-hidden rounded-2xl p-6 text-parchment-100 sm:p-7">
       {/* Gold left bar */}
@@ -55,19 +60,30 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
         </section>
       )}
 
-      {/* Hadith + explanation: keep the short hadith visually separate from source commentary. */}
-      {passage.hadithText ? (
+      {/* Hadith + explanation: the short official excerpt, the full official matn
+          (expandable), and the official commentary are three separate layers. */}
+      {shortHadith ? (
         <section className="mb-5 space-y-4" aria-label="النص الحديثي وشرح المصدر">
           <div className="rounded-xl border border-brass-400/30 bg-forest-950/45 px-5 py-5 shadow-inner">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/8 pb-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-brass-300/35 bg-brass-400/10 px-3 py-1 text-[10px] font-bold text-brass-200">
-                مقطع الحديث من نتيجة الجامع
+                الحديث
               </span>
-              {passage.hadithFullText && passage.hadithFullText !== passage.hadithText && (
-                <span className="text-[10px] font-medium text-parchment-200/60">النص الكامل محفوظ ضمن الدليل</span>
-              )}
+              <span className="text-[10px] font-medium text-parchment-200/60">مقطع النتيجة من الجامع الرسمي</span>
             </div>
-            <p className="mt-4 passage-text text-parchment-50 leading-[2.15]" dir="rtl" lang="ar">{passage.hadithText}</p>
+            <p className="mt-4 passage-text text-parchment-50 leading-[2.15]" dir="rtl" lang="ar">{shortHadith}</p>
+
+            {fullHadith && (
+              <details className="mt-4 rounded-lg border border-white/10 bg-black/20">
+                <summary className="flex cursor-pointer list-none items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold text-brass-200 [&::-webkit-details-marker]:hidden">
+                  <ChevronDown className="size-3.5 transition-transform [[open]_&]:rotate-180" strokeWidth={2} />
+                  عرض الحديث الكامل
+                </summary>
+                <p className="passage-text border-t border-white/8 px-4 py-4 text-parchment-50 leading-[2.15]" dir="rtl" lang="ar">
+                  {fullHadith}
+                </p>
+              </details>
+            )}
           </div>
 
           {passage.explanationText ? (
@@ -75,7 +91,7 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="inline-flex items-center gap-2 text-xs font-bold text-brass-200">
                   <FileText className="size-3.5" strokeWidth={2} />
-                  شرح مرتبط بالمادة الأصلية
+                  الشرح المرتبط بالمادة الأصلية
                 </span>
                 {passage.explanationSourceUrl && (
                   <Link href={passage.explanationSourceUrl} target="_blank" rel="noopener noreferrer" className="link-brass text-[10px] font-medium">
@@ -83,11 +99,17 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
                   </Link>
                 )}
               </div>
-              <p className="passage-text text-parchment-100/90 leading-[1.95]">{passage.explanationText}</p>
+              <p className="passage-text text-parchment-100/90 leading-[1.95]" dir="rtl" lang="ar">{passage.explanationText}</p>
+              <p className="mt-3 border-t border-white/8 pt-2 text-[10px] leading-5 text-parchment-200/55">
+                نص الشرح من الصفحة الرسمية المرتبطة بالمادة الأصلية، وهو طبقة منفصلة عن أي ملخّص آلي.
+              </p>
             </div>
           ) : (
             <div className="rounded-lg border border-white/8 bg-black/5 px-4 py-3 text-[11px] leading-6 text-parchment-200/65">
-              تعرض هذه البطاقة المقطع الحديثي الموجز من نتيجة الجامع؛ لا يُضاف شرح من خارج الصفحة الرسمية. افتح المصدر الأصلي للوصول إلى خدمات الشروح المتاحة إن وُجدت.
+              لم يُسترجع شرح رسمي لهذه المادة، ولا يُضاف شرح من خارج الصفحة الرسمية.
+              <Link href={passage.source.originalUrl} target="_blank" rel="noopener noreferrer" className="link-brass ms-1 font-medium">
+                فتح صفحة المصدر <ExternalLink className="inline size-3 ms-1" strokeWidth={2} />
+              </Link>
             </div>
           )}
         </section>

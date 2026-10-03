@@ -224,11 +224,17 @@ public/                     # الشعار والأصول الثابتة
 The Saudi Sunnah source uses a no-dependency Node ingestion path. It fetches only official `sunna.alifta.gov.sa` pages, follows official result links to detail pages, cleans the HTML, deduplicates the text, preserves the official source URL, and generates `src/lib/corpus/generated/alifta-html-chunks.ts` for RAG retrieval.
 
 ```bash
-npm run alifta:test
-npm run alifta:manifest
-npm run alifta:live-check
-npm run alifta:ingest
-npm run alifta:verify
+npm run alifta:test       # offline regression tests on captured real pages
+npm run alifta:manifest   # manifest + quality-threshold guard
+npm run alifta:live-check # reachability probe of the configured targets
+npm run alifta:capture    # save live HTML fixtures + fetch diagnostics
+npm run alifta:ingest     # crawl individual hadith pages -> corpus
+npm run alifta:verify     # corpus quality gate (>=100 chunks, 12 doors)
 ```
+
+Every stored record points at an individual official page (`BookToc/ViewMatnPage` or an
+official service page) — never at a subject/search-result page — and carries the complete
+matn from that page. An official explanation is stored only together with the exact
+commentary URL it was read from.
 
 Docling is optional for future document-heavy ingestion and is not required for the Al-Ifta runtime path.
