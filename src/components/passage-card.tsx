@@ -8,9 +8,13 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
   const isIndex = passage.role === "index";
   // Short official excerpt vs. the full official matn: shown as two layers, never
   // repeated, and never mixed with the commentary layer.
-  const shortHadith = passage.hadithText || passage.hadithFullText || "";
+  const shortHadith = (passage.hadithText || passage.hadithFullText || "").trim();
+  const rawFullHadith = (passage.hadithFullText || "").trim();
+  const shortIdx = shortHadith && rawFullHadith ? rawFullHadith.indexOf(shortHadith) : -1;
+  const cleanedFullHadith =
+    shortIdx > 0 && shortIdx <= 45 ? rawFullHadith.slice(shortIdx).trim() : rawFullHadith;
   const fullHadith =
-    passage.hadithFullText && passage.hadithFullText !== shortHadith ? passage.hadithFullText : "";
+    cleanedFullHadith && cleanedFullHadith !== shortHadith ? cleanedFullHadith : "";
   return (
     <article className="card-manuscript relative overflow-hidden rounded-2xl p-6 text-parchment-100 sm:p-7">
       {/* Gold left bar */}
