@@ -49,7 +49,7 @@ let withFullText = 0;
 let withExplanation = 0;
 let fullLongerThanExcerpt = 0;
 
-for (const [i, row] of rows ?? []) {
+for (const [i, row] of (rows ?? []).entries()) {
   const at = (message) => problems.push(`#${i} ${row?.id ?? '?'}: ${message}`);
   if (row.sourceId !== 'alifta-sunna-encyclopedia') at('wrong sourceId');
   if (row.role !== 'evidence') at('role is not evidence');

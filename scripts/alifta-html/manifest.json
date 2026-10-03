@@ -166,6 +166,23 @@
       "topicIds": [
         "hasm-al-shahwa"
       ]
+    },
+    {
+      "kind": "subject",
+      "label": "النظر إلى بيت الغير بدون استئذان",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
+      "topicIds": [
+        "al-nazar-ghad"
+      ]
+    },
+    {
+      "kind": "subject",
+      "label": "من أمراض القلوب اتباع الشهوات",
+      "url": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
+      "topicIds": [
+        "hasm-al-shahwa",
+        "qaswat-al-qalb"
+      ]
     }
   ],
   "fallbackDelayMs": 3200
