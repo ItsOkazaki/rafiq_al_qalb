@@ -1,0 +1,245 @@
+{
+  "method": "official-html",
+  "sourceId": "alifta-sunna-encyclopedia",
+  "generatedAt": "2026-10-03T16:34:51.433Z",
+  "totalChunks": 163,
+  "topicCounts": {
+    "athar-al-dhunub": 40,
+    "qaswat-al-qalb": 1,
+    "al-tawba": 40,
+    "takrar-al-dhanb": 40,
+    "al-ghafla": 39,
+    "dhikr-athar": 39,
+    "al-hamm-wal-qalaq": 41,
+    "khushu-tadabbur": 80,
+    "hudur-al-qalb": 81,
+    "al-tadawi-bil-quran": 40,
+    "al-nazar-ghad": 2,
+    "hasm-al-shahwa": 2
+  },
+  "stats": {
+    "subjectsProcessed": 4,
+    "linksDiscovered": 160,
+    "detailAttempted": 160,
+    "detailSucceeded": 159,
+    "detailRejected": 1,
+    "commentaryAttempted": 30,
+    "commentaryFound": 8,
+    "duplicatesRemoved": 0,
+    "chunksGenerated": 163,
+    "fetchMethodCounts": {
+      "direct-official-html": 175,
+      "jina-reader-official-url": 0
+    },
+    "failuresByCategory": {
+      "commentary:error": 22,
+      "detail:error": 1
+    }
+  },
+  "ledger": [
+    {
+      "target": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
+      "kind": "subject",
+      "label": "التوبة من الذنوب",
+      "resultLinks": 40,
+      "chunksAdded": 40,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
+      "kind": "subject",
+      "label": "الحلق والجلوس في المساجد",
+      "resultLinks": 40,
+      "chunksAdded": 39,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
+      "kind": "subject",
+      "label": "شروط التداوي بالرقى والتمائم",
+      "resultLinks": 40,
+      "chunksAdded": 40,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
+      "kind": "subject",
+      "label": "من آداب الدعاء الدعاء بالمأثور",
+      "resultLinks": 40,
+      "chunksAdded": 40,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=3&mainId=91900",
+      "kind": "page",
+      "label": "باب ما يؤمر به من غض البصر",
+      "resultLinks": 1,
+      "chunksAdded": 1,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
+      "kind": "page",
+      "label": "مادة حديثية مرتبطة بغض البصر والشهوة",
+      "resultLinks": 1,
+      "chunksAdded": 1,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
+      "kind": "page",
+      "label": "مادة حديثية مرتبطة بالخشوع وحضور القلب",
+      "resultLinks": 1,
+      "chunksAdded": 1,
+      "commentaryFetches": 30
+    },
+    {
+      "target": "https://sunna.alifta.gov.sa/BookToc/ViewServicePage?BookID=43&mainId=393972",
+      "kind": "page",
+      "label": "عمدة القاري — الرحمة وقساوة القلب",
+      "resultLinks": 1,
+      "chunksAdded": 1,
+      "commentaryFetches": 30
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=5974&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11769&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=11769&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=11769&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11916&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=19741&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=19741&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=19902&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=20090&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=20090&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=20090&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=20092&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=20092&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=20092&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=20093&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=20093&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=20093&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=20094&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=20094&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=20094&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=20095&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=20095&inx=0",
+      "kind": "commentary",
+      "category": "error",
+      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+    },
+    {
+      "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=25&mainId=45469",
+      "kind": "detail",
+      "category": "error",
+      "message": "matn-does-not-match-result-excerpt; Jina content rejected (page-does-not-reference-mainId-45469)"
+    }
+  ]
+}
