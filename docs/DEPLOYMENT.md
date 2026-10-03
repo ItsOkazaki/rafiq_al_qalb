@@ -46,11 +46,11 @@ official link; `ai.mode` = `model` when a key is configured, `deterministic` oth
 
 ## خيارات استضافة أخرى
 
-أي مضيف يدعم Next.js 16 / Node 24 يعمل: `npm ci && npm run build && npm start`.
+أي مضيف يدعم Next.js 16 / Node 24 يعمل: `npm ci && npm test && npm run build && npm start`.
 
 ## CI والتجديد
 
 `.github/workflows/refresh-alifta-html.yml` يعيد بناء corpus جامع السنة من الصفحات
 الرسمية (تشغيل يدوي `workflow_dispatch`، وعلى كل دفعة إلى `main`). الوظيفة تشغّل
-الاختبارات، ثم الـingest، ثم بوابة الجودة، ثم تلتزم بالـcorpus الناتج — ولا تكتب corpus
+الاختبارات (68 اختبار وحدة + 33 اختبار زاحف)، ثم الـingest، ثم بوابة الجودة، ثم تلتزم بالـcorpus الناتج — ولا تكتب corpus
 مرفوضاً في مسارات التطبيق أبداً.

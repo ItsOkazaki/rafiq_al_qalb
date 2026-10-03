@@ -6,7 +6,7 @@
 
 ```bash
 npm ci
-npm test                 # 60 اختبار Vitest
+npm test                 # 68 اختبار Vitest (4 ملفات)
 npm run alifta:test      # 33 اختبار زاحف (أوفلاين، بدون شبكة)
 npm run alifta:manifest  # تطابق المانيفست وعتبات الجودة
 npm run alifta:verify    # بوابة corpus: 271 مقطعاً وكل الأبواب فوق العتبة

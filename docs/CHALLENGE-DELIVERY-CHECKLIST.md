@@ -8,7 +8,7 @@
 - [x] لا توجد بيانات مستخدمين حقيقية في benchmark (المجموعة ثابتة ومصنوعة).
 - [x] `npm run typecheck` ناجح.
 - [x] `npm run lint` ناجح.
-- [x] `npm test` ناجح (60 اختباراً).
+- [x] `npm test` ناجح (68 اختباراً في 4 ملفات).
 - [x] `npm run alifta:test` ناجح (33 اختباراً، أوفلاين).
 - [x] `npm run alifta:verify` ناجح (271 مقطعاً وكل الأبواب فوق العتبة).
 - [x] `npm run build` ناجح.

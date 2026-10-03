@@ -118,7 +118,7 @@ npm run build && npm start
 | `npm start` | تشغيل بناء الإنتاج | لا |
 | `npm run lint` | ESLint | لا |
 | `npm run typecheck` | `tsc --noEmit` | لا |
-| `npm test` | ٦٠ اختبار وحدة (Vitest: الاسترجاع، المسار، بطاقة الدليل) | لا |
+| `npm test` | ٦٨ اختبار وحدة (Vitest: الاسترجاع، المسار، التنظيم الحتمي، بطاقة الدليل) | لا |
 | `npm run smoke` | فحص زمن تشغيل: ٤٠ حالة + ١٠ فحوص صريحة | لا |
 | `npm run benchmark -- --url <URL> [--limit N]` | قياس حقيقي على الـAPI ويكتب `benchmarks/results/latest.json` | نعم (للـURL) |
 | `npm run verify:quran-font` | وجود خط حفص + مطابقة بصمته + ربط CSS | لا |
@@ -150,7 +150,7 @@ npm run build && npm start
 |---|---|
 | `npm ci` (من نسخة نظيفة) | تثبيت حرفي من `package-lock.json` بلا أخطاء — الرقم الفعلي يُطبع في سطر `added …` |
 | `npm run typecheck` / `npm run lint` | PASS / PASS |
-| `npm test` | **٦٠/٦٠** اختباراً (٣ ملفات) |
+| `npm test` | **٦٨/٦٨** اختباراً (٤ ملفات) |
 | `npm run build` | PASS — ٢٧ صفحة ثابتة/مُسبقة التوليد + ٣ مسارات API، وبلا أخطاء أنواع |
 | `npm run smoke` | `{"ok":true,"benchmarkCases":40,"benchmarkFailures":0,"explicitChecks":10}` |
 | `npm run alifta:test` | **٣٣/٣٣** PASS |
@@ -260,7 +260,7 @@ public/fonts/       خط حفص المُضمَّن + ترخيصه
 
 - **Retrieval-first design:** the LLM never retrieves. It only re-organizes the passages that were already retrieved, under an Arabic output guard; without an API key the same answer is produced deterministically.
 - **Corpus:** 486 approved chunks — 271 generated from official Al-Ifta pages (full matn, 278/280 pages verified, 12/12 doors covered) plus 215 curated chunks from 7 registered sources.
-- **Reproducibility:** 60 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
+- **Reproducibility:** 68 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
 - **Last local benchmark (deterministic, no provider key):** outcome accuracy 1.00, abstention accuracy 1.00, source hit@4 1.00, topic hit 1.00, source recall 0.906, chunk hit@4 0.654.
 - **Status:** repository is currently private (public release pending), deployed benchmark run with a provider key is pending, UX testing and the demo video are open items — all tracked in `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
 

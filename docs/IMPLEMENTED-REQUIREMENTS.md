@@ -15,7 +15,7 @@
 | فهم العربية والعامية محلياً | ✅ منفّذ | `src/lib/text/arabic.ts` (`normalizeDialect`, `tokenizeArabic`) |
 | توليد مقيَّد بالمادة + وسم صريح | ✅ منفّذ | `src/lib/ai/provider.ts`, `src/components/research-result.tsx` |
 | حارس لاحق يرفض المخرجات المختلطة/المحظورة | ✅ منفّذ | `src/lib/text/strict-output.ts`, `isFramingSafe` |
-| مسار حتمي كامل بدون أي مفتاح | ✅ منفّذ | `src/lib/ai/fallback.ts` + تغطية اختبارية |
+| مسار حتمي كامل بدون أي مفتاح | ✅ منفّذ | `src/lib/ai/fallback.ts`, `tests/fallback.test.ts` |
 | إسناد المصدر والموضع والرابط لكل مقطع | ✅ منفّذ | `PassageCard`, `RetrievedPassage` |
 | عرض الحديث الكامل + الشرح الرسمي كطبقتين منفصلتين | ✅ منفّذ | `src/components/passage-card.tsx` |
 | النص القرآني في حقل مستقل بخط حفص | ✅ منفّذ | `quranText`/`quranReference` + `globals.css` |
@@ -23,7 +23,7 @@
 | بوابة جودة corpus وعدم الكتابة على corpus مرفوض | ✅ منفّذ ومختبر | `scripts/alifta-html/verify.mjs`, اختبار «a rejected run may not replace the committed corpus» |
 | مجموعة قياس ثابتة 40 حالة | ✅ منفّذة وقابلة للتشغيل | `benchmarks/questions.json`, `npm run benchmark` |
 | فحص صحة للبيئة المنشورة | ✅ منفّذ | `GET /api/health` (حالة AI + قاعدة البيانات + عدد المقاطع) |
-| اختبارات آلية | ✅ 60 اختبار Vitest + 33 اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
+| اختبارات آلية | ✅ 68 اختبار Vitest + 33 اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
 | تصنيف المصادر المستبعدة ومنع استرجاعها | ✅ منفّذ | `EXCLUDED_SOURCES` في سجل المصادر |
 
 ## غير منفّذ في مسار التشغيل (صراحةً)
