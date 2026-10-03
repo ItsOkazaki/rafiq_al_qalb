@@ -257,17 +257,15 @@ function extractMatnFromPage(pageText, hintSnippet = '') {
   const lines = cleanText(pageText).split('\n').map((l) => l.trim()).filter(Boolean);
   const hint = normalizeForDedupe(hintSnippet);
 
-  // Where the page chrome begins — nothing after it belongs to the matn.
-  let chromeAt = lines.length;
-  for (let i = 0; i < lines.length; i++) {
-    if (isUiNoise(lines[i])) { chromeAt = i; break; }
-  }
-
+  // Scan the whole document: the official page keeps hidden panels (note modal,
+  // analysis tree) *before* the hadith frame in the DOM, so the first chrome line
+  // is not a safe cut-off. Chrome lines are skipped individually instead.
   const candidates = [];
-  for (let i = 0; i < chromeAt; i++) {
+  for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const m = line.match(MATN_LEAD_RE);
     if (!m) continue;
+    if (isUiNoise(line)) continue;
     const body = line.slice(m[0].length).trim();
     if (body.length < 40 || !hasArabic(body)) continue;
     candidates.push({ index: i, number: m[1], body, score: hint ? tokenOverlapRatio(hintSnippet, body) : 0 });
@@ -292,9 +290,10 @@ function extractMatnFromPage(pageText, hintSnippet = '') {
     return { number: '', text: cleanText(kept.join('\n')).replace(MATN_LEAD_RE, ''), matchedHint: true };
   }
 
-  // Consecutive lines that continue the same numbered matn belong to it.
+  // Consecutive lines that continue the same numbered matn belong to it; the scan
+  // stops at page chrome, at the next numbered matn, or at a commentary separator.
   const block = [picked.body];
-  for (let i = picked.index + 1; i < chromeAt; i++) {
+  for (let i = picked.index + 1; i < lines.length; i++) {
     const line = lines[i];
     if (isUiNoise(line) || MATN_LEAD_RE.test(line) || line === '* * *') break;
     if (hasArabic(line)) block.push(line.replace(MATN_LEAD_RE, ''));
