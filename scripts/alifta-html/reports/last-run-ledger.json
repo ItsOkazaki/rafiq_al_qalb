@@ -1,7 +1,7 @@
 {
   "method": "official-html",
   "sourceId": "alifta-sunna-encyclopedia",
-  "generatedAt": "2026-10-03T17:07:27.526Z",
+  "generatedAt": "2026-10-03T17:19:57.347Z",
   "totalChunks": 271,
   "topicCounts": {
     "athar-al-dhunub": 78,
@@ -28,14 +28,13 @@
     "duplicatesRemoved": 17,
     "chunksGenerated": 271,
     "fetchMethodCounts": {
-      "direct-official-html": 304,
+      "direct-official-html": 303,
       "jina-reader-official-url": 1
     },
     "failuresByCategory": {
       "commentary:error": 35,
       "commentary:http-500": 16,
-      "detail:error": 2,
-      "target:page:no-full-matn-or-explanation": 1
+      "detail:error": 2
     }
   },
   "ledger": [
@@ -78,14 +77,6 @@
       "resultLinks": 1,
       "chunksAdded": 1,
       "commentaryFetches": 60
-    },
-    {
-      "target": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
-      "kind": "page",
-      "label": "مادة حديثية مرتبطة بغض البصر والشهوة",
-      "resultLinks": 0,
-      "chunksAdded": 0,
-      "error": "no-full-matn-or-explanation"
     },
     {
       "target": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
@@ -496,12 +487,6 @@
       "kind": "detail",
       "category": "error",
       "message": "matn-does-not-match-result-excerpt; Jina content rejected (page-does-not-reference-mainId-45469)"
-    },
-    {
-      "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=0&mainId=472&serviceId=3",
-      "kind": "target",
-      "category": "page:no-full-matn-or-explanation",
-      "message": "no-full-matn-or-explanation"
     },
     {
       "url": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=9&mainId=107131",

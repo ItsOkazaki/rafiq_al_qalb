@@ -2,5 +2,8 @@
 > alifta:verify
 > node scripts/alifta-html/verify.mjs
 
-FAIL: 1 corpus problem(s):
-  - #250 alifta-html-000251: URL leaked into text
+PASS: 271 direct-HTML Al-Ifta evidence chunks verified (ingested 278/280 detail pages, 9 commentary pages, 17 duplicates merged).
+PASS: all source URLs are individual official sunna.alifta.gov.sa hadith/service pages.
+PASS: 271/271 records carry the full official matn (271 longer than the short excerpt).
+PASS: 10 records carry an official explanation, each with its exact source URL.
+PASS: all 12 doors have at least 3 chunks — {"athar-al-dhunub":78,"qaswat-al-qalb":74,"al-tawba":40,"takrar-al-dhanb":40,"al-ghafla":39,"dhikr-athar":39,"al-hamm-wal-qalaq":41,"khushu-tadabbur":80,"hudur-al-qalb":81,"al-tadawi-bil-quran":40,"al-nazar-ghad":41,"hasm-al-shahwa":40}
