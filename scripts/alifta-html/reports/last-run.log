@@ -1,5 +1,5 @@
 
-> alifta:ingest
+> rafiq-al-qalb@1.0.0 alifta:ingest
 > node scripts/alifta-html/ingest.mjs scripts/alifta-html/manifest.json
 
 Subject التوبة من الذنوب: discovered 40 official detail links.

@@ -1,5 +1,5 @@
 
-> alifta:verify
+> rafiq-al-qalb@1.0.0 alifta:verify
 > node scripts/alifta-html/verify.mjs
 
 PASS: 271 direct-HTML Al-Ifta evidence chunks verified (ingested 278/280 detail pages, 9 commentary pages, 17 duplicates merged).
