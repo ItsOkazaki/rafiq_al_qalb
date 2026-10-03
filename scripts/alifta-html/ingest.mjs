@@ -1,4 +1,21 @@
 #!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// Al-Ifta official-HTML ingestion (جامع خادم الحرمين الشريفين للسنة النبوية)
+//
+//   official subject/search page  → discover individual result links
+//   → open each individual hadith page (BookToc/ViewMatnPage?bookId=..&mainId=..)
+//   → extract the FULL official matn (never the search-result snippet)
+//   → optionally open the official service/commentary page and extract its text
+//   → write RAG chunks + a ledger with real counts
+//
+// Hard rules enforced here:
+//   • A subject/search-result snippet is stored as `hadithText` (short excerpt) only.
+//     `hadithFullText` is only ever filled from an individual official page.
+//   • Nothing is invented: if no official explanation page was retrieved,
+//     `explanationText` stays empty.
+//   • A page that is not the requested hadith page (error page, redirect, block
+//     page, empty page) is rejected and counted, never stored as evidence.
+// ─────────────────────────────────────────────────────────────────────────────
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -7,25 +24,66 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '../..');
 
+const OFFICIAL_ORIGIN = 'https://sunna.alifta.gov.sa/';
+
+/** Routes that hold an individual hadith (matn) or an official service/commentary page. */
+const DETAIL_ROUTE_RE = /(BookToc\/ViewMatnPage|MatnService\/HadithServiceData|BookToc\/ViewServicePage)/i;
+/** serviceId 6 is the «شرح» service on sunna.alifta.gov.sa (فتح الباري، عمدة القاري، …). */
+const COMMENTARY_SERVICE_ID = '6';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HTML entity decoding / URL normalization
+// ─────────────────────────────────────────────────────────────────────────────
+
+const NAMED_ENTITIES = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0', ensp: '\u2002', emsp: '\u2003',
+  thinsp: '\u2009', zwnj: '\u200c', zwj: '\u200d', lrm: '\u200e', rlm: '\u200f', middot: '\u00b7',
+  laquo: '\u00ab', raquo: '\u00bb', times: '\u00d7', divide: '\u00f7', ndash: '\u2013', mdash: '\u2014',
+  lsquo: '\u2018', rsquo: '\u2019', sbquo: '\u201a', ldquo: '\u201c', rdquo: '\u201d', hellip: '\u2026',
+  bull: '\u2022', dagger: '\u2020', deg: '\u00b0', copy: '\u00a9', reg: '\u00ae', trade: '\u2122',
+  shy: '\u00ad', lre: '\u202a', rle: '\u202b', pdf: '\u202c', percent: '%',
+};
+
+function codePointFromEntity(value, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0 || n > 0x10ffff) return fallback;
+  if (n >= 0xd800 && n <= 0xdfff) return '\uFFFD'; // lone surrogate — never emit raw
+  try { return String.fromCodePoint(n); } catch { return fallback; }
+}
+
+/**
+ * Decode HTML entities in text or in an attribute value.
+ *
+ * Subject pages hand out hrefs such as `?bookId=1&amp;mainId=5507`; fetching that
+ * verbatim asks Al-Ifta for a page with no mainId and the site answers HTTP 500.
+ * Handles named, decimal and hexadecimal entities, missing trailing semicolons,
+ * mixed casing, and doubly-escaped values (`&amp;amp;`).
+ */
 function decodeEntities(input) {
-  return input
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)));
+  let value = String(input ?? '');
+  if (!value.includes('&')) return value;
+  for (let pass = 0; pass < 4; pass++) {
+    const before = value;
+    value = value
+      .replace(/&#([0-9]{1,7});?/g, (m, d) => codePointFromEntity(d, m))
+      .replace(/&#[xX]([0-9a-fA-F]{1,6});?/g, (m, h) => codePointFromEntity(parseInt(h, 16), m))
+      .replace(/&([a-zA-Z][a-zA-Z0-9]{1,31});/g, (m, name) => NAMED_ENTITIES[name.toLowerCase()] ?? m)
+      // Legacy unterminated forms: `&amp ` / `&amp"` — but never `&ampersand`.
+      // Unterminated legacy form (`&amp ` / `&amp"`). Per the HTML rule it is left
+      // alone when followed by an alphanumeric or '=', so `&ampersand=2` survives.
+      .replace(/&(amp|lt|gt|quot|apos|nbsp)(?![a-zA-Z0-9;=])/gi, (m, name) => NAMED_ENTITIES[name.toLowerCase()]);
+    if (value === before) break;
+  }
+  return value;
 }
 
 function stripTags(html) {
   return decodeEntities(
     html
-      .replace(/<script[\\s\\S]*?<\/script>/gi, ' ')
-      .replace(/<style[\\s\\S]*?<\/style>/gi, ' ')
-      .replace(/<noscript[\\s\\S]*?<\/noscript>/gi, ' ')
-      .replace(/<svg[\\s\\S]*?<\/svg>/gi, ' ')
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<noscript[\s\S]*?<\/noscript>/gi, ' ')
+      .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')
       .replace(/<img[^>]*>/gi, ' ')
       .replace(/<br\s*\/?\s*>/gi, '\n')
       .replace(/<\/(?:p|div|section|article|main|header|footer|li|h[1-6]|tr|td|th)>/gi, '\n')
@@ -34,19 +92,28 @@ function stripTags(html) {
   );
 }
 
+/**
+ * HTML → readable text. Whitespace is normalized without touching Arabic letters,
+ * diacritics (tashkeel), tatweel, or Arabic punctuation.
+ */
 function cleanText(raw) {
-  let text = stripTags(raw)
+  return stripTags(raw)
     .replace(/[\u200B-\u200D\uFEFF]/g, '')
-    .replace(/[ \t]+/g, ' ')
+    .replace(/[ \t\u00a0]+/g, ' ')
+    .replace(/ ?\n ?/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
-  return text;
 }
 
+/** Diacritics/punctuation-insensitive form used only for matching, never for output. */
 function normalizeForDedupe(text) {
-  return text
+  return String(text ?? '')
     .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
     .replace(/[\u0640]/g, '')
+    .replace(/[\u0622\u0623\u0625]/g, '\u0627')
+    .replace(/\u0649/g, '\u064a')
+    .replace(/\u0629/g, '\u0647')
+    .replace(/[^\u0600-\u06FF\u0750-\u077F\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -54,6 +121,20 @@ function normalizeForDedupe(text) {
 function hasArabic(text) {
   return /[\u0600-\u06FF]/.test(text);
 }
+
+/** Token overlap used to prove a fetched page really is the page we asked for. */
+function tokenOverlapRatio(needle, haystack) {
+  const needleTokens = normalizeForDedupe(needle).split(' ').filter((t) => t.length >= 3);
+  if (!needleTokens.length) return 1;
+  const haystackTokens = new Set(normalizeForDedupe(haystack).split(' ').filter(Boolean));
+  let hits = 0;
+  for (const token of needleTokens) if (haystackTokens.has(token)) hits++;
+  return hits / needleTokens.length;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Result titles: "1 - <br> لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ<br><br> صحيح البخاري"
+// ─────────────────────────────────────────────────────────────────────────────
 
 const BOOK_SUFFIXES = [
   "صحيح البخاري", "صحيح مسلم", "سنن أبي داود", "سنن الترمذي", "سنن النسائي",
@@ -64,163 +145,47 @@ const BOOK_SUFFIXES = [
 ];
 
 function stripBookSuffix(title) {
-  let value = cleanText(title).replace(/^\d+\s*-\s*/, "").trim();
+  let value = cleanText(title).replace(/^\d{1,5}\s*[-–—]\s*/, "").trim();
   const match = BOOK_SUFFIXES.find((suffix) => value.endsWith(suffix));
   if (match) value = value.slice(0, -match.length).trim();
-  return value.replace(/[،,:;]+$/u, "").trim();
+  return value.replace(/[،,:;\s]+$/u, "").trim();
 }
 
-function extractHadithNumber(title) {
-  const m = cleanText(title).match(/^(\d{1,5})\s*-/);
-  return m?.[1] ?? "";
-}
-
-function looksLikeUsefulArabicPage(raw, minimumChars = 80) {
-  const text = cleanText(extractMainHtml(raw));
-  if (text.length < minimumChars || !hasArabic(text)) return false;
-  if (/\b(Just a moment|Access Denied|Request Rejected|Enable JavaScript)\b/i.test(text)) return false;
-  return true;
-}
-
-function looksLikeUsefulAliftaDetail(raw, shortHint = "") {
-  if (!looksLikeUsefulArabicPage(raw, 80)) return false;
-  const text = normalizeForDedupe(cleanText(extractMainHtml(raw)));
-  const hint = normalizeForDedupe(stripBookSuffix(shortHint));
-  if (hint.length >= 24 && text.includes(hint.slice(0, Math.min(hint.length, 90)))) return true;
-  if (/\b\d{1,5}\s*-\s*/.test(text) && /(تحليل الحديث|المتن|حديث|باب)/.test(text)) return true;
-  return false;
-}
-
-function extractHadithAndExplanation(pageHtml, shortHint = "") {
-  const full = cleanText(extractMainHtml(pageHtml));
-  const hint = stripBookSuffix(shortHint);
-  const number = extractHadithNumber(shortHint);
-  if (!full) return { fullHadithText: "", explanationText: "" };
-
-  const starts = [];
-  if (number) {
-    const re = new RegExp(`(?:^|\\s)${number}\\s*-\\s+`, "g");
-    for (const m of full.matchAll(re)) starts.push(m.index + (m[0].startsWith(" ") ? 1 : 0));
-  }
-  if (!starts.length) {
-    const at = hint ? full.indexOf(hint) : -1;
-    if (at >= 0) starts.push(Math.max(0, at - 80));
-  }
-
-  let hadithStart = starts[0] ?? 0;
-  let hadithEnd = -1;
-  if (starts.length > 1 && starts[1] > hadithStart + 120) {
-    hadithEnd = starts[1];
-  }
-
-  const markers = [
-    /مطابقته للترجمة/, /مُطَابَقَتُهُ لِلتَّرْجَمَةِ/, /ذكر معناه/, /ذِكر معناه/,
-    /قَوْلُهُ\s*:/, /قوله\s*:/, /ذكر رجاله/, /ذِكر رجاله/, /ذكر لطائف إسناده/,
-    /ذكر تعدد موضعه/, /ما يستفاد منه/, /ذكر ما يستفاد منه/,
-  ];
-  // If there was no duplicate numbered hadith, locate the first commentary marker
-  // after the hadith itself and use it as the boundary between matn and explanation.
-  if (hadithEnd < 0) {
-    for (const marker of markers) {
-      const re = new RegExp(marker.source, marker.flags.replace("g", ""));
-      const tail = full.slice(hadithStart + 80);
-      const m = tail.match(re);
-      if (m) {
-        const candidate = hadithStart + 80 + (m.index ?? 0);
-        if (candidate > hadithStart + 120 && (hadithEnd < 0 || candidate < hadithEnd)) hadithEnd = candidate;
-      }
+/**
+ * Split an official result title into its parts. The site emits the ordinal, the
+ * matched excerpt and the book name separated by <br>.
+ * The ordinal is the position inside the result list — it is NOT a hadith number.
+ */
+function parseResultTitle(rawTitle) {
+  const withBreaks = String(rawTitle ?? '').replace(/<br\s*\/?\s*>/gi, '\n');
+  const lines = cleanText(withBreaks).split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  let ordinal = '';
+  let snippet = '';
+  if (lines.length) {
+    const head = lines[0];
+    const m = head.match(/^(\d{1,5})\s*[-–—:]\s*(.*)$/u);
+    if (m) {
+      ordinal = m[1];
+      snippet = m[2].trim();
+    } else {
+      snippet = head;
     }
   }
-  if (hadithEnd < 0) {
-    const analysisAt = full.search(/(?:تحليل الحديث|الرواة|الأعلام والأماكن)\b/);
-    if (analysisAt > hadithStart + 80) hadithEnd = analysisAt;
-  }
-  if (hadithEnd < 0) hadithEnd = Math.min(full.length, hadithStart + 4500);
-
-  const firstBlock = cleanText(full.slice(hadithStart, hadithEnd));
-  const postHadith = full.slice(hadithEnd);
-
-  let explanationAt = -1;
-  for (const marker of markers) {
-    const re = new RegExp(marker.source, marker.flags.replace("g", ""));
-    const m = postHadith.match(re);
-    if (m && (explanationAt < 0 || m.index < explanationAt)) explanationAt = m.index;
-  }
-
-  let explanationText = "";
-  if (explanationAt >= 0) {
-    explanationText = cleanText(postHadith.slice(explanationAt));
-    explanationText = explanationText
-      .replace(/(?:تحليل الحديث|الرواة|الأعلام والأماكن)[\s\S]*$/i, "")
-      .trim();
-  }
-
-  return {
-    fullHadithText: firstBlock.replace(/^\d{1,5}\s*-\s*/, "").trim(),
-    explanationText,
-  };
+  if (!snippet) snippet = lines.find((line) => !/^\d{1,5}\s*[-–—:]\s*$/u.test(line)) ?? '';
+  const lastLine = lines.length > 1 ? lines[lines.length - 1] : '';
+  const book = BOOK_SUFFIXES.find((suffix) => lastLine.endsWith(suffix)) ?? '';
+  const text = stripBookSuffix(snippet || lines.join(' '));
+  return { ordinal, snippet: text, book };
 }
 
-function extractCommentaryLinks(pageHtml, baseUrl) {
-  const found = [];
-  const seen = new Set();
-  const add = (href, title) => {
-    const url = toAbsoluteUrl(href, baseUrl);
-    if (!url || !url.startsWith("https://sunna.alifta.gov.sa/")) return;
-    if (!/(BookToc\/ViewServicePage|MatnService\/HadithServiceData)/i.test(url)) return;
-    const label = cleanText(title);
-    const likely = /شرح|فتح الباري|عمدة القاري|النووي|التوضيح|تحفة الأحوذي|عون المعبود/i.test(label);
-    if (!likely) return;
-    if (seen.has(url)) return;
-    seen.add(url);
-    found.push({ url, title: label });
-  };
-  const re = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  let m;
-  while ((m = re.exec(pageHtml))) add(m[1], m[2]);
-  const md = /\[([^\]]+)\]\((https:\/\/sunna\.alifta\.gov\.sa\/[^)]+)\)/gi;
-  while ((m = md.exec(pageHtml))) add(m[2], m[1]);
-  return found.slice(0, 3);
+/** @deprecated kept for callers/tests: the result ordinal is not a hadith number. */
+function extractHadithNumber(title) {
+  return parseResultTitle(title).ordinal;
 }
 
-function toAbsoluteUrl(href, baseUrl) {
-  try {
-    // Subject pages return href attributes with HTML entities such as &amp;.
-    // Decode them before URL parsing so ?bookId=1&amp;mainId=5507 becomes
-    // the real ?bookId=1&mainId=5507 URL. Without this, Al-Ifta can return HTTP 500.
-    const normalizedHref = decodeEntities(String(href || '').trim());
-    return new URL(normalizedHref, baseUrl).toString();
-  } catch { return null; }
-}
-
-function extractSubjectLinks(html, baseUrl, maxResults) {
-  const found = [];
-  const seen = new Set();
-  const add = (href, rawTitle) => {
-    const url = toAbsoluteUrl(href, baseUrl);
-    if (!url || !url.startsWith('https://sunna.alifta.gov.sa/')) return;
-    if (!/(BookToc\/ViewMatnPage|MatnService\/HadithServiceData|BookToc\/ViewServicePage)/i.test(url)) return;
-    const title = cleanText(rawTitle).replace(/^\d+\s*-\s*/, '').trim();
-    if (!title || !hasArabic(title)) return;
-    const key = `${url}|${normalizeForDedupe(title)}`;
-    if (seen.has(key)) return;
-    seen.add(key);
-    found.push({ url, title });
-  };
-
-  const htmlRe = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  let match;
-  while ((match = htmlRe.exec(html)) && found.length < maxResults * 3) add(match[1], match[2]);
-
-  // Jina Reader fallback returns Markdown rather than raw HTML. Keep the same
-  // official Al-Ifta URLs and parse Markdown links when fallback is used.
-  if (found.length < maxResults) {
-    const mdRe = /\[([^\]]+)\]\((https:\/\/sunna\.alifta\.gov\.sa\/[^)]+)\)/gi;
-    while ((match = mdRe.exec(html)) && found.length < maxResults * 3) add(match[2], match[1]);
-  }
-
-  return found.slice(0, maxResults);
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Page-level text extraction
+// ─────────────────────────────────────────────────────────────────────────────
 
 function extractMainHtml(html) {
   const candidates = [
@@ -235,28 +200,373 @@ function extractMainHtml(html) {
   return html;
 }
 
+function extractPageTitle(html) {
+  const m = String(html ?? '').match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  if (!m) return '';
+  return cleanText(m[1]).replace(/\s*-\s*HadithWeb\s*$/i, '').trim();
+}
+
+/** Site chrome that must never leak into evidence text. */
+const UI_NOISE_LINES = [
+  'إضافة تعليق', 'تحليل الحديث', 'مقارنة المتون', 'الشواهد', 'متن مجمع', 'الإسناد',
+  'غريب الحديث', 'الربط الموضوعي', 'الربط بالمخالف', 'المتواتر', 'الأعلام والأماكن',
+  'الرواة', 'راوي الحديث', 'راوي أعلى', 'بحث نصي', 'بحث في الموضوعات', 'تسجيل الدخول',
+];
+
+const COMMENTARY_MARKER_RES = [
+  /مطابقته للترجمة/i, /مُطَابَقَتُهُ لِلتَّرْجَمَةِ/, /ذكر معناه/i, /ذِكر معناه/,
+  /قوله\s*[:：]/i, /قَوْلُهُ\s*[:：]/, /ذكر رجاله/i, /ذِكر رجاله/, /ذكر لطائف إسناده/i,
+  /ذكر تعدد موضعه/i, /ما يستفاد منه/i, /ذكر ما يستفاد منه/i, /بَيَانُ(?:ت)?\s*(?:الإعراب|اللغة)/i,
+];
+
+/** Leading "5673 - " style markers that open a matn on the official page. */
+const MATN_LEAD_RE = /^(\d{1,5})\s*[-–—]\s*/u;
+
+function isUiNoise(line) {
+  const trimmed = line.trim();
+  if (!trimmed) return true;
+  if (trimmed.length <= 24 && UI_NOISE_LINES.some((marker) => trimmed === marker || trimmed.startsWith(marker))) return true;
+  return false;
+}
+
+/** Collapse a matn that the site renders twice (vocalized + plain copy). */
+function collapseRepeatedParagraphs(lines) {
+  const out = [];
+  const seen = new Set();
+  for (const line of lines) {
+    const key = normalizeForDedupe(line);
+    if (!key) continue;
+    // Long identical paragraphs are the same matn rendered twice — keep the first only.
+    if (key.length >= 60) {
+      if (seen.has(key)) continue;
+      seen.add(key);
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+/**
+ * Pull the complete matn out of an individual official page.
+ *
+ * The official page renders the hadith inside a frame, twice (a vocalized copy and
+ * a plain copy), followed by the service bar and the analysis tree. This keeps the
+ * whole matn — not just the phrase that matched the subject search.
+ */
+function extractMatnFromPage(pageText, hintSnippet = '') {
+  const lines = cleanText(pageText).split('\n').map((l) => l.trim()).filter(Boolean);
+  const hint = normalizeForDedupe(hintSnippet);
+
+  // Where the page chrome begins — nothing after it belongs to the matn.
+  let chromeAt = lines.length;
+  for (let i = 0; i < lines.length; i++) {
+    if (isUiNoise(lines[i])) { chromeAt = i; break; }
+  }
+
+  const candidates = [];
+  for (let i = 0; i < chromeAt; i++) {
+    const line = lines[i];
+    const m = line.match(MATN_LEAD_RE);
+    if (!m) continue;
+    const body = line.slice(m[0].length).trim();
+    if (body.length < 40 || !hasArabic(body)) continue;
+    candidates.push({ index: i, number: m[1], body, score: hint ? tokenOverlapRatio(hintSnippet, body) : 0 });
+  }
+
+  let picked = null;
+  if (candidates.length) {
+    picked = candidates.filter((c) => c.score >= 0.6).sort((a, b) => b.score - a.score || a.index - b.index)[0]
+      ?? candidates[0];
+  }
+
+  if (!picked) {
+    // No numbered matn line (service pages, or unexpected markup): fall back to a
+    // window around the official result text so we still keep the full sentence
+    // rather than only the matched phrase.
+    const full = cleanText(pageText);
+    const at = hint ? full.indexOf(hintSnippet.trim()) : -1;
+    if (at < 0) return { number: '', text: '', matchedHint: false };
+    const end = Math.min(full.length, at + 4000);
+    const slice = cleanText(full.slice(Math.max(0, at - 40), end));
+    const kept = collapseRepeatedParagraphs(slice.split('\n').filter((l) => !isUiNoise(l) && hasArabic(l)));
+    return { number: '', text: cleanText(kept.join('\n')).replace(MATN_LEAD_RE, ''), matchedHint: true };
+  }
+
+  // Consecutive lines that continue the same numbered matn belong to it.
+  const block = [picked.body];
+  for (let i = picked.index + 1; i < chromeAt; i++) {
+    const line = lines[i];
+    if (isUiNoise(line) || MATN_LEAD_RE.test(line) || line === '* * *') break;
+    if (hasArabic(line)) block.push(line.replace(MATN_LEAD_RE, ''));
+  }
+
+  const text = cleanText(collapseRepeatedParagraphs(block).join('\n'));
+  return {
+    number: picked.number,
+    text,
+    matchedHint: hint ? tokenOverlapRatio(hintSnippet, text) >= 0.6 : true,
+  };
+}
+
+function firstCommentaryMarkerIndex(text) {
+  let best = -1;
+  for (const re of COMMENTARY_MARKER_RES) {
+    const m = text.match(re);
+    if (m && typeof m.index === 'number' && (best < 0 || m.index < best)) best = m.index;
+  }
+  return best;
+}
+
+/** Drop trailing site chrome / analysis trees from a commentary body. */
+function trimChromeTail(text) {
+  let value = text;
+  for (const marker of ['تحليل الحديث', 'الأعلام والأماكن', 'مقارنة المتون', 'إضافة تعليق', 'الرواة']) {
+    const at = value.lastIndexOf(marker);
+    if (at > 400) value = value.slice(0, at);
+  }
+  return value.trim();
+}
+
+/** Cut at a sentence/paragraph boundary instead of mid-word. */
+function truncateAtBoundary(text, maxChars) {
+  if (!maxChars || text.length <= maxChars) return text;
+  const window = text.slice(0, maxChars);
+  const cut = Math.max(window.lastIndexOf(' . '), window.lastIndexOf('\n'), window.lastIndexOf('، '));
+  return cleanText(cut > maxChars * 0.5 ? window.slice(0, cut) : window);
+}
+
+/**
+ * Extract the official explanation from a service/commentary page
+ * (MatnService/HadithServiceData or BookToc/ViewServicePage).
+ *
+ * Those pages repeat the matn and then the commentator's text after a "* * *"
+ * separator. Only the commentator's text is returned; the matn is kept separately.
+ */
+function extractExplanationFromServicePage(pageHtml, { maxChars = 6000 } = {}) {
+  const text = cleanText(extractMainHtml(pageHtml));
+  if (!text) return '';
+  const separatorAt = text.search(/\*\s*\*\s*\*/);
+  const afterMatn = separatorAt >= 0 ? text.slice(separatorAt).replace(/^\*\s*\*\s*\*/, '') : text;
+  const markerAt = firstCommentaryMarkerIndex(afterMatn);
+  if (markerAt < 0) return '';
+  const body = trimChromeTail(cleanText(afterMatn.slice(markerAt)));
+  if (normalizeForDedupe(body).length < 60) return '';
+  return truncateAtBoundary(body, maxChars);
+}
+
+/**
+ * Combined extractor kept for existing callers/tests.
+ *
+ * @returns fullHadithText — complete official matn from the page
+ *          explanationText — official commentary text when the page carries it
+ */
+function extractHadithAndExplanation(pageHtml, shortHint = '', { maxExplanationChars = 6000 } = {}) {
+  const { snippet } = parseResultTitle(shortHint);
+  const pageText = cleanText(extractMainHtml(pageHtml));
+  if (!pageText) return { fullHadithText: '', explanationText: '', hadithNumber: '' };
+
+  const matn = extractMatnFromPage(pageText, snippet || stripBookSuffix(shortHint));
+  let explanationText = '';
+  if (/\*\s*\*\s*\*/.test(pageText) || COMMENTARY_MARKER_RES.some((re) => re.test(pageText))) {
+    explanationText = extractExplanationFromServicePage(pageHtml, { maxChars: maxExplanationChars });
+  }
+  return { fullHadithText: matn.text, explanationText, hadithNumber: matn.number };
+}
+
+/** Retained for compatibility with older callers. */
 function extractBestPassage(pageHtml, hintTitle) {
-  const main = extractMainHtml(pageHtml);
-  const text = cleanText(main);
-  const compactHint = cleanText(hintTitle).replace(/^\d+\s*-\s*/, '').slice(0, 140);
-  if (!text) return { text: '', chapter: '' };
-
-  // Prefer a window around the exact official result text. This normally captures the
-  // hadith matn and its surrounding book/chapter context without importing the whole page UI.
-  const at = compactHint ? text.indexOf(compactHint) : -1;
-  let window = at >= 0 ? text.slice(Math.max(0, at - 180), Math.min(text.length, at + 2600)) : text.slice(0, 2600);
-
-  const lines = window.split(/\n+/).map((x) => x.trim()).filter(Boolean);
-  const useful = lines.filter((line) => hasArabic(line) && line.length >= 30);
-  if (useful.length) window = useful.slice(0, 8).join('\n');
+  const { snippet } = parseResultTitle(hintTitle);
+  const parts = extractHadithAndExplanation(pageHtml, hintTitle);
+  const text = parts.fullHadithText || cleanText(extractMainHtml(pageHtml)).slice(0, 2600);
+  const lines = text.split(/\n+/).map((x) => x.trim()).filter(Boolean);
   const chapter = (lines.find((line) => /^باب\s/.test(line)) || lines.find((line) => /باب/.test(line))) ?? '';
-  return { text: cleanText(window), chapter };
+  return { text, chapter, hint: snippet };
 }
 
-function keywordSeeds(title, topics) {
-  const words = cleanText(title).split(/\s+/).filter((w) => w.length >= 4);
-  return [...new Set([...words.slice(0, 10), ...topics])].slice(0, 16);
+// ─────────────────────────────────────────────────────────────────────────────
+// Validation — never store a page that is not the hadith we asked for
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BLOCK_PAGE_RE = /\b(Just a moment|Access Denied|Request Rejected|Enable JavaScript|Attention Required|Cloudflare|Server Error in|Runtime Error|HTTP Error 5\d\d)\b/i;
+const SOFT_ERROR_RE = /(الصفحة غير موجودة|تعذر عرض الصفحة|حدث خطأ|لا توجد نتائج|عفواً، حدث خطأ)/;
+
+function looksLikeUsefulArabicPage(raw, minimumChars = 80) {
+  const text = cleanText(extractMainHtml(raw));
+  if (text.length < minimumChars || !hasArabic(text)) return false;
+  if (BLOCK_PAGE_RE.test(text)) return false;
+  return true;
 }
+
+function mainIdFromUrl(url) {
+  try {
+    const value = new URL(url).searchParams.get('mainId') || new URL(url).searchParams.get('MainId');
+    return value ? String(value) : '';
+  } catch { return ''; }
+}
+
+/**
+ * Reject anything that is not the requested individual page: generic error pages,
+ * redirects to the home page, empty responses, block pages, or a page that does
+ * not carry its own mainId.
+ */
+function validateDetailPage(pageHtml, { hint = '', url = '', minMatnChars = 40 } = {}) {
+  if (!pageHtml || !String(pageHtml).trim()) return { ok: false, reason: 'empty-response' };
+  if (BLOCK_PAGE_RE.test(pageHtml)) return { ok: false, reason: 'block-page' };
+  const text = cleanText(extractMainHtml(pageHtml));
+  if (!hasArabic(text)) return { ok: false, reason: 'no-arabic-content' };
+  if (SOFT_ERROR_RE.test(text) && text.length < 900) return { ok: false, reason: 'site-error-page' };
+
+  const mainId = mainIdFromUrl(url);
+  if (mainId) {
+    const selfReferences = (pageHtml.match(new RegExp(`mainId=${mainId}(?![0-9])`, 'gi')) || []).length;
+    if (selfReferences < 2) return { ok: false, reason: `page-does-not-reference-mainId-${mainId}` };
+  }
+
+  const { snippet } = parseResultTitle(hint);
+  const matn = extractMatnFromPage(text, snippet);
+  if (!matn.text || matn.text.length < minMatnChars) return { ok: false, reason: 'no-matn-extracted' };
+  if (snippet && !matn.matchedHint) return { ok: false, reason: 'matn-does-not-match-result-excerpt' };
+  return { ok: true, reason: '', matn };
+}
+
+/** Kept for compatibility: a page is a usable detail page when validation passes. */
+function looksLikeUsefulAliftaDetail(pageHtml, shortHint = '', url = '') {
+  return validateDetailPage(pageHtml, { hint: shortHint, url }).ok;
+}
+
+function validateCommentaryPage(pageHtml, { url = '' } = {}) {
+  if (!looksLikeUsefulArabicPage(pageHtml, 200)) return { ok: false, reason: 'not-a-commentary-page' };
+  const text = cleanText(extractMainHtml(pageHtml));
+  const hasMarker = COMMENTARY_MARKER_RES.some((re) => re.test(text));
+  if (!hasMarker) return { ok: false, reason: 'no-commentary-markers' };
+  const explanation = extractExplanationFromServicePage(pageHtml);
+  if (!explanation) return { ok: false, reason: 'no-explanation-extracted' };
+  const mainId = mainIdFromUrl(url);
+  if (mainId) {
+    const selfReferences = (pageHtml.match(new RegExp(`mainId=${mainId}(?![0-9])`, 'gi')) || []).length;
+    if (selfReferences < 1) return { ok: false, reason: 'commentary-does-not-reference-mainId' };
+  }
+  return { ok: true, reason: '', explanation };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Link discovery
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Resolve an href against the official base URL.
+ * Entities are decoded first (`&amp;` → `&`), then the WHATWG URL parser
+ * normalizes the result — Arabic query values come out correctly percent-encoded
+ * and already-encoded values are never double-encoded.
+ */
+function toAbsoluteUrl(href, baseUrl) {
+  const raw = String(href ?? '').trim();
+  if (!raw) return null;
+  const value = decodeEntities(raw)
+    .replace(/[\t\n\r]/g, '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .trim();
+  if (!value || value.startsWith('#')) return null;
+  if (/^(?:javascript|data|vbscript|mailto|tel|file):/i.test(value)) return null;
+  try {
+    const url = new URL(value, baseUrl);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+    return url.toString();
+  } catch { return null; }
+}
+
+const ANCHOR_RE = /<a\b[^>]*?href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))[^>]*>([\s\S]*?)<\/a>/gi;
+
+function collectAnchors(html) {
+  const out = [];
+  let match;
+  ANCHOR_RE.lastIndex = 0;
+  while ((match = ANCHOR_RE.exec(html))) {
+    out.push({ href: match[1] ?? match[2] ?? match[3] ?? '', label: match[4] ?? '' });
+  }
+  return out;
+}
+
+/**
+ * Discover individual result links on an official subject/search page.
+ * Works on raw HTML and on the Markdown produced by the reader fallback.
+ */
+function extractSubjectLinks(html, baseUrl, maxResults, { allowedOrigins = [OFFICIAL_ORIGIN] } = {}) {
+  const found = [];
+  const seen = new Set();
+  const add = (href, rawTitle) => {
+    const url = toAbsoluteUrl(href, baseUrl);
+    if (!url || !allowedOrigins.some((origin) => url.startsWith(origin))) return;
+    if (!DETAIL_ROUTE_RE.test(url)) return;
+    const { snippet } = parseResultTitle(rawTitle);
+    if (!snippet || !hasArabic(snippet)) return;
+    const key = `${url}|${normalizeForDedupe(snippet)}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    found.push({ url, title: snippet, rawTitle: cleanText(rawTitle) });
+    return true;
+  };
+
+  for (const anchor of collectAnchors(html)) {
+    if (found.length >= maxResults * 3) break;
+    add(anchor.href, anchor.label);
+  }
+
+  // Reader fallback returns Markdown rather than HTML.
+  if (found.length < maxResults) {
+    const mdRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let m;
+    while ((m = mdRe.exec(html)) && found.length < maxResults * 3) add(m[2], m[1]);
+  }
+
+  return found.slice(0, maxResults);
+}
+
+/**
+ * Commentary/service candidates for an individual hadith page.
+ *
+ * The official page exposes its services as image-only anchors (explain.png), so
+ * the link has no Arabic label — the old label-based filter never matched. Links
+ * are therefore selected by route, and a serviceId=6 («شرح») URL is derived from
+ * the page's own mainId when the service bar is present.
+ */
+function extractCommentaryLinks(pageHtml, pageUrl, { max = 3, allowedOrigins = [OFFICIAL_ORIGIN] } = {}) {
+  const found = [];
+  const seen = new Set();
+  const add = (href, title = '') => {
+    const url = toAbsoluteUrl(href, pageUrl || OFFICIAL_ORIGIN);
+    if (!url || !allowedOrigins.some((origin) => url.startsWith(origin))) return;
+    if (!/(MatnService\/HadithServiceData|BookToc\/ViewServicePage)/i.test(url)) return;
+    if (seen.has(url)) return;
+    seen.add(url);
+    found.push({ url, title: cleanText(title) });
+  };
+
+  for (const anchor of collectAnchors(pageHtml)) add(anchor.href, anchor.label);
+  const mdRe = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  let m;
+  while ((m = mdRe.exec(pageHtml))) add(m[2], m[1]);
+
+  const mainId = mainIdFromUrl(pageUrl || '');
+  if (mainId) {
+    const origin = allowedOrigins[0] ?? OFFICIAL_ORIGIN;
+    const derived = `${origin}MatnService/HadithServiceData?serviceId=${COMMENTARY_SERVICE_ID}&mainId=${mainId}&inx=0`;
+    if (!seen.has(derived)) found.push({ url: derived, title: '' });
+  }
+
+  // Prefer the official «شرح» service, then any other service/commentary page.
+  const rank = (link) => {
+    const u = new URL(link.url);
+    if (u.searchParams.get('serviceId') === COMMENTARY_SERVICE_ID) return 0;
+    if (/ViewServicePage/i.test(u.pathname)) return 1;
+    return 2;
+  };
+  return found.sort((a, b) => rank(a) - rank(b)).slice(0, max);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fetching
+// ─────────────────────────────────────────────────────────────────────────────
 
 function makeCookieJar() {
   const jar = new Map();
@@ -288,7 +598,32 @@ function browserHeaders({ referer = '', cookie = '' } = {}) {
   return headers;
 }
 
-async function fetchText(url, { timeoutMs = 9000, attempts = 1, referer = '', cookieJar = null } = {}) {
+async function sleep(ms) { if (ms > 0) await new Promise((r) => setTimeout(r, ms)); }
+
+/** Map a thrown fetch error to a failure category used by the report. */
+function errorCategory(error) {
+  const message = String(error?.message ?? '');
+  if (error?.name === 'AbortError' || /timeout|aborted/i.test(message)) return 'timeout';
+  const http = message.match(/HTTP (\d{3})/);
+  if (http) return `http-${http[1]}`;
+  if (/fetch failed|ENOTFOUND|ECONNRESET|EAI_AGAIN|socket hang up|TLS|certificate/i.test(message)) return 'network';
+  return 'error';
+}
+
+function isRetryableCategory(category) {
+  if (category === 'timeout' || category === 'network') return true;
+  const http = category.match(/^http-(\d{3})$/);
+  if (!http) return false;
+  const status = Number(http[1]);
+  return status === 429 || status >= 500;
+}
+
+/**
+ * Direct official HTML with bounded retries.
+ * Recoverable failures (timeouts, connection resets, 429/5xx) are retried with a
+ * capped backoff; 4xx is fatal and never retried.
+ */
+async function fetchText(url, { timeoutMs = 12000, attempts = 3, retryBaseMs = 800, referer = '', cookieJar = null } = {}) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const controller = new AbortController();
@@ -300,11 +635,18 @@ async function fetchText(url, { timeoutMs = 9000, attempts = 1, referer = '', co
         signal: controller.signal,
       });
       cookieJar?.absorb(res);
+      const text = await res.text();
       if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      return { text: await res.text(), method: 'direct-official-html', finalUrl: res.url || url, status: res.status };
+      if (!text.trim()) throw new Error(`HTTP ${res.status} empty body for ${url}`);
+      return { text, method: 'direct-official-html', finalUrl: res.url || url, status: res.status, attempts: attempt };
     } catch (error) {
       lastError = error;
-      if (attempt < attempts) await sleep(900 * attempt);
+      const category = errorCategory(error);
+      if (attempt < attempts && isRetryableCategory(category)) {
+        await sleep(Math.min(retryBaseMs * attempt, 4000));
+        continue;
+      }
+      break;
     } finally {
       clearTimeout(timer);
     }
@@ -312,16 +654,13 @@ async function fetchText(url, { timeoutMs = 9000, attempts = 1, referer = '', co
   throw lastError ?? new Error(`Failed to fetch ${url}`);
 }
 
-async function fetchViaJina(url, { timeoutMs = 30000, apiKey = '' } = {}) {
+async function fetchViaJina(url, { timeoutMs = 40000, apiKey = '' } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const headers = {
-    accept: 'text/plain,text/markdown;q=0.9,*/*;q=0.8',
-  };
+  const headers = { accept: 'text/plain,text/markdown;q=0.9,*/*;q=0.8' };
   if (apiKey) headers.authorization = `Bearer ${apiKey}`;
   try {
-    const proxyUrl = `https://r.jina.ai/${url}`;
-    const res = await fetch(proxyUrl, { headers, signal: controller.signal });
+    const res = await fetch(`https://r.jina.ai/${url}`, { headers, signal: controller.signal });
     if (!res.ok) throw new Error(`Jina HTTP ${res.status} for ${url}`);
     const text = await res.text();
     if (!text.trim()) throw new Error(`Jina returned empty content for ${url}`);
@@ -331,175 +670,308 @@ async function fetchViaJina(url, { timeoutMs = 30000, apiKey = '' } = {}) {
   }
 }
 
-async function fetchOfficial(url, { referer = "", cookieJar, jinaFallback = true, jinaApiKey = "", validate, directTimeoutMs = 9000, directAttempts = 1 } = {}) {
+/** Direct official HTML first; the reader fallback is used only when needed. */
+async function fetchOfficial(url, {
+  referer = '', cookieJar = null, jinaFallback = true, jinaApiKey = '', validate = null,
+  timeoutMs = 12000, attempts = 3, retryBaseMs = 800,
+} = {}) {
+  let directError = null;
   try {
-    const direct = await fetchText(url, { referer, cookieJar, timeoutMs: directTimeoutMs, attempts: directAttempts });
-    if (!validate || validate(direct.text)) return direct;
-    throw new Error("direct response was not usable Arabic source HTML");
-  } catch (directError) {
-    if (!jinaFallback) throw directError;
+    const direct = await fetchText(url, { referer, cookieJar, timeoutMs, attempts, retryBaseMs });
+    const verdict = validate ? validate(direct.text) : { ok: true, reason: '' };
+    if (verdict.ok !== false) return direct;
+    directError = new Error(verdict.reason || 'direct response failed validation');
+    directError.category = `validation:${verdict.reason}`;
+  } catch (error) {
+    directError = error;
+  }
+  if (!jinaFallback) throw directError;
+  try {
     const fallback = await fetchViaJina(url, { apiKey: jinaApiKey });
-    if (validate && !validate(fallback.text)) {
-      throw new Error(`${directError.message}; Jina returned unusable source content`);
+    const verdict = validate ? validate(fallback.text) : { ok: true, reason: '' };
+    if (verdict.ok === false) {
+      const error = new Error(`${directError?.message ?? 'direct fetch failed'}; Jina content rejected (${verdict.reason})`);
+      error.category = errorCategory(directError) || 'validation';
+      throw error;
     }
-    return { ...fallback, directError: directError.message };
+    return { ...fallback, directError: directError?.message ?? '' };
+  } catch (error) {
+    if (error.category) throw error;
+    const combined = new Error(`${directError?.message ?? 'direct fetch failed'}; fallback failed: ${error.message}`);
+    combined.category = errorCategory(directError);
+    throw combined;
   }
 }
 
-async function sleep(ms) { if (ms > 0) await new Promise((r) => setTimeout(r, ms)); }
+// ─────────────────────────────────────────────────────────────────────────────
+// Ingestion
+// ─────────────────────────────────────────────────────────────────────────────
+
+function keywordSeeds(title, topics) {
+  const words = cleanText(title).split(/\s+/).filter((w) => w.length >= 4);
+  return [...new Set([...words.slice(0, 10), ...topics])].slice(0, 16);
+}
+
+function emptyStats() {
+  return {
+    subjectsProcessed: 0,
+    linksDiscovered: 0,
+    detailAttempted: 0,
+    detailSucceeded: 0,
+    detailRejected: 0,
+    commentaryAttempted: 0,
+    commentaryFound: 0,
+    duplicatesRemoved: 0,
+    chunksGenerated: 0,
+    fetchMethodCounts: { 'direct-official-html': 0, 'jina-reader-official-url': 0 },
+    failuresByCategory: {},
+  };
+}
 
 async function ingest(manifest) {
   const rows = [];
-  const seen = new Set();
+  const rowsByMatnKey = new Map();
   const errors = [];
   const ledger = [];
-  const maxSubjectResults = Number(manifest.maxSubjectResults ?? 28);
-  const delay = Number(manifest.requestDelayMs ?? 120);
-  const fallbackDelay = Number(manifest.fallbackDelayMs ?? 3200);
-  const jinaFallback = manifest.jinaFallback !== false;
-  const jinaApiKey = process.env.JINA_API_KEY || "";
-  const cookieJar = makeCookieJar();
-  let commentaryFetches = 0;
-  const maxCommentaryFetches = Number(manifest.maxCommentaryFetches ?? 24);
+  const stats = emptyStats();
 
-  const addRow = ({ text, chapter, sourceUrl, topicIds, title, parentUrl, hadithText = "", hadithFullText = "", explanationText = "", explanationSourceUrl = "" }) => {
-    const combined = cleanText([hadithFullText, explanationText, text].filter(Boolean).join("\n\n"));
+  const maxSubjectResults = Number(manifest.maxSubjectResults ?? 40);
+  const delay = Number(manifest.requestDelayMs ?? 150);
+  const fallbackDelay = Number(manifest.fallbackDelayMs ?? 2500);
+  const timeoutMs = Number(manifest.timeoutMs ?? 12000);
+  const attempts = Number(manifest.fetchAttempts ?? 3);
+  const jinaFallback = manifest.jinaFallback !== false;
+  const jinaApiKey = process.env.JINA_API_KEY || '';
+  const cookieJar = makeCookieJar();
+  const maxCommentaryFetches = Number(manifest.maxCommentaryFetches ?? 30);
+  const maxExplanationChars = Number(manifest.maxExplanationChars ?? 6000);
+  const allowedOrigins = Array.isArray(manifest.allowedOrigins) && manifest.allowedOrigins.length
+    ? manifest.allowedOrigins
+    : [OFFICIAL_ORIGIN];
+
+  let commentaryFetches = 0;
+
+  const recordFailure = (url, error, kind) => {
+    const category = error?.category || errorCategory(error) || 'error';
+    const key = `${kind}:${category}`;
+    stats.failuresByCategory[key] = (stats.failuresByCategory[key] ?? 0) + 1;
+    errors.push({ url, kind, category, message: String(error?.message ?? error) });
+  };
+
+  const addRow = ({ text, chapter, sourceUrl, topicIds, title, parentUrl, hadithText = '', hadithFullText = '', explanationText = '', explanationSourceUrl = '' }) => {
+    const fullHadith = cleanText(hadithFullText);
+    const explanation = cleanText(explanationText);
+    // Keep the retrieval text free of repetitions: the short excerpt and the page
+    // text are already contained in the full matn, so they are not appended again.
+    const extra = cleanText(text);
+    const fullKey = normalizeForDedupe(fullHadith);
+    const extraKey = normalizeForDedupe(extra);
+    const parts = [fullHadith, explanation];
+    if (extraKey && extraKey !== fullKey && !(fullKey && fullKey.includes(extraKey))) parts.push(extra);
+    const combined = cleanText(parts.filter(Boolean).join('\n\n'));
     if (!combined || combined.length < 35 || !hasArabic(combined)) return false;
-    const key = normalizeForDedupe(combined);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    rows.push({
-      id: `alifta-html-${String(rows.length + 1).padStart(6, "0")}`,
+
+    // One record per unique official matn: repeated results merge their doors
+    // instead of flooding retrieval with the same hadith.
+    const key = normalizeForDedupe(fullHadith || combined);
+    const existing = rowsByMatnKey.get(key);
+    if (existing) {
+      const before = existing.topics.length;
+      existing.topics = [...new Set([...existing.topics, ...topicIds])];
+      if (existing.topics.length !== before) {
+        existing.keywords = [...new Set([...existing.keywords, ...keywordSeeds(title || chapter || '', topicIds)])].slice(0, 24);
+      }
+      stats.duplicatesRemoved++;
+      return false;
+    }
+
+    const row = {
+      id: `alifta-html-${String(rows.length + 1).padStart(6, '0')}`,
       sourceId: manifest.sourceId,
-      chapter: cleanText(chapter || title || "جامع السنة"),
-      citationStatus: "verified-page",
-      excerptType: "literal",
-      role: "evidence",
+      chapter: cleanText(chapter || title || 'جامع السنة'),
+      citationStatus: 'verified-page',
+      excerptType: 'literal',
+      role: 'evidence',
       topics: [...new Set(topicIds)],
-      keywords: keywordSeeds(title || chapter || "", topicIds),
+      keywords: keywordSeeds(title || chapter || '', topicIds),
       text: combined,
       ...(hadithText ? { hadithText: cleanText(hadithText) } : {}),
-      ...(hadithFullText ? { hadithFullText: cleanText(hadithFullText) } : {}),
-      ...(explanationText ? { explanationText: cleanText(explanationText) } : {}),
-      ...(explanationSourceUrl ? { explanationSourceUrl } : {}),
+      ...(fullHadith ? { hadithFullText: fullHadith } : {}),
+      ...(explanation ? { explanationText: explanation } : {}),
+      // An explanation is only ever stored together with the exact official page it came from.
+      ...(explanation && explanationSourceUrl ? { explanationSourceUrl } : {}),
       sourceUrl,
       htmlIngestion: {
-        method: "official-html",
+        method: 'official-html',
         sourcePage: parentUrl || sourceUrl,
         fetchedAt: new Date().toISOString(),
       },
-    });
+    };
+    rowsByMatnKey.set(key, row);
+    rows.push(row);
+    stats.chunksGenerated = rows.length;
     return true;
   };
 
-  for (const target of manifest.targets ?? []) {
-    try {
-      let fetched = await fetchOfficial(target.url, {
-        cookieJar, jinaFallback, jinaApiKey,
-        validate: (html) => hasArabic(cleanText(html)),
-        directTimeoutMs: 9000, directAttempts: 1,
-      });
-      let links = target.kind === "subject" ? extractSubjectLinks(fetched.text, manifest.baseUrl, maxSubjectResults) : [];
+  const isAllowedOrigin = (url) => allowedOrigins.some((origin) => String(url).startsWith(origin));
 
-      // Some hosted requests receive valid HTML without the result links (edge/client rendering).
-      // In that case explicitly fetch the same official page through Jina Reader so its Markdown links become discoverable.
-      if (target.kind === "subject" && links.length < Math.max(8, Math.floor(maxSubjectResults * 0.7)) && jinaFallback) {
+  /** Prime the cookie jar exactly once, like a browser opening the site. */
+  const primeCookies = async () => {
+    if (cookieJar.header()) return;
+    try {
+      await fetchText(allowedOrigins[0], { cookieJar, attempts: 1, timeoutMs });
+    } catch { /* cookies are an optimization, not a requirement */ }
+  };
+
+  for (const target of manifest.targets ?? []) {
+    if (!isAllowedOrigin(target.url)) {
+      errors.push({ url: target.url, kind: 'target', category: 'not-allowed-origin', message: 'target is not an allowed origin' });
+      continue;
+    }
+    try {
+      await primeCookies();
+      let fetched = await fetchOfficial(target.url, {
+        cookieJar, jinaFallback, jinaApiKey, timeoutMs, attempts,
+        validate: (html) => (looksLikeUsefulArabicPage(html, 120) ? { ok: true, reason: '' } : { ok: false, reason: 'not-a-usable-official-page' }),
+      });
+      stats.fetchMethodCounts[fetched.method] = (stats.fetchMethodCounts[fetched.method] ?? 0) + 1;
+      let links = target.kind === 'subject' ? extractSubjectLinks(fetched.text, target.url, maxSubjectResults, { allowedOrigins }) : [];
+
+      // Hosted runners sometimes receive the shell without the result list; re-read the
+      // same official page through the reader so its links become discoverable.
+      if (target.kind === 'subject' && links.length < Math.max(8, Math.floor(maxSubjectResults * 0.7)) && jinaFallback) {
         try {
           const mirror = await fetchViaJina(target.url, { apiKey: jinaApiKey });
-          const mirrorLinks = extractSubjectLinks(mirror.text, manifest.baseUrl, maxSubjectResults);
+          const mirrorLinks = extractSubjectLinks(mirror.text, target.url, maxSubjectResults, { allowedOrigins });
           if (mirrorLinks.length > links.length) {
             fetched = { ...mirror, parentFetch: fetched };
             links = mirrorLinks;
           }
         } catch (error) {
-          errors.push(`${target.url}: subject link fallback failed: ${error.message}`);
+          recordFailure(target.url, error, 'subject-fallback');
         }
       }
 
-      if (!links.length && target.kind === "subject") throw new Error(`No official result links found on ${target.url}`);
-      if (target.kind === "subject") console.log(`Subject ${target.label}: discovered ${links.length} official detail links.`);
+      if (target.kind === 'subject') {
+        stats.subjectsProcessed++;
+        stats.linksDiscovered += links.length;
+        if (!links.length) throw new Error(`No official result links found on ${target.url}`);
+        console.log(`Subject ${target.label}: discovered ${links.length} official detail links.`);
 
-      if (target.kind === "subject") {
         const before = rows.length;
         for (const link of links) {
+          stats.detailAttempted++;
+          const detailUrl = link.url;
           try {
-            const detail = await fetchOfficial(link.url, {
-              referer: target.url, cookieJar, jinaFallback, jinaApiKey,
-              validate: (html) => looksLikeUsefulAliftaDetail(html, link.title),
-              directTimeoutMs: 9000, directAttempts: 1,
+            const validate = (html) => validateDetailPage(html, { hint: link.title, url: detailUrl });
+            const detail = await fetchOfficial(detailUrl, {
+              referer: target.url, cookieJar, jinaFallback, jinaApiKey, timeoutMs, attempts, validate,
             });
-            const detailParts = extractHadithAndExplanation(detail.text, link.title);
-            let explanationText = detailParts.explanationText;
-            let explanationSourceUrl = "";
+            stats.fetchMethodCounts[detail.method] = (stats.fetchMethodCounts[detail.method] ?? 0) + 1;
+            const verdict = validateDetailPage(detail.text, { hint: link.title, url: detailUrl });
+            if (!verdict.ok) {
+              const error = new Error(verdict.reason);
+              error.category = `validation:${verdict.reason}`;
+              throw error;
+            }
+            stats.detailSucceeded++;
 
-            // Detail pages may expose official service/commentary links. When one is found,
-            // fetch a small number of those pages and attach only their source-grounded explanation.
-            if (!explanationText && commentaryFetches < maxCommentaryFetches) {
-              const commentaryLinks = extractCommentaryLinks(detail.text, link.url);
-              for (const commentary of commentaryLinks) {
+            const { snippet } = parseResultTitle(link.title);
+            const shortHadith = snippet || stripBookSuffix(link.title);
+            const fullHadith = verdict.matn?.text ?? '';
+            let explanationText = '';
+            let explanationSourceUrl = '';
+
+            // Optional official commentary: only stored when the official page really
+            // returned commentary text for this hadith.
+            if (commentaryFetches < maxCommentaryFetches) {
+              for (const commentary of extractCommentaryLinks(detail.text, detailUrl, { allowedOrigins })) {
                 if (commentaryFetches >= maxCommentaryFetches) break;
+                if (!isAllowedOrigin(commentary.url)) continue;
                 commentaryFetches++;
+                stats.commentaryAttempted++;
                 try {
-                  const commentaryPage = await fetchOfficial(commentary.url, {
-                    referer: link.url, cookieJar, jinaFallback, jinaApiKey,
-                    validate: (html) => looksLikeUsefulArabicPage(html, 120),
-                    directTimeoutMs: 9000, directAttempts: 1,
+                  const page = await fetchOfficial(commentary.url, {
+                    referer: detailUrl, cookieJar, jinaFallback, jinaApiKey, timeoutMs, attempts,
+                    validate: (html) => validateCommentaryPage(html, { url: commentary.url }),
                   });
-                  const commentaryParts = extractHadithAndExplanation(commentaryPage.text, link.title);
-                  if (commentaryParts.explanationText) {
-                    explanationText = commentaryParts.explanationText;
+                  stats.fetchMethodCounts[page.method] = (stats.fetchMethodCounts[page.method] ?? 0) + 1;
+                  const commentaryVerdict = validateCommentaryPage(page.text, { url: commentary.url });
+                  if (commentaryVerdict.ok) {
+                    explanationText = truncateAtBoundary(commentaryVerdict.explanation, maxExplanationChars);
                     explanationSourceUrl = commentary.url;
+                    stats.commentaryFound++;
                     break;
                   }
+                  recordFailure(commentary.url, Object.assign(new Error(commentaryVerdict.reason), { category: `commentary:${commentaryVerdict.reason}` }), 'commentary');
                 } catch (error) {
-                  errors.push(`${commentary.url}: commentary fetch failed: ${error.message}`);
+                  recordFailure(commentary.url, error, 'commentary');
                 }
-                await sleep(fallbackDelay);
+                await sleep(delay);
               }
             }
 
-            const shortHadith = stripBookSuffix(link.title);
-            const added = addRow({
-              text: detailParts.explanationText || detailParts.fullHadithText || shortHadith,
+            addRow({
+              text: fullHadith || shortHadith,
               hadithText: shortHadith,
-              hadithFullText: detailParts.fullHadithText,
+              hadithFullText: fullHadith,
               explanationText,
               explanationSourceUrl,
               chapter: target.label,
-              sourceUrl: link.url,
+              sourceUrl: detailUrl,
               topicIds: target.topicIds,
               title: shortHadith,
               parentUrl: target.url,
             });
-            if (!added) throw new Error("official detail content was fetched but produced no usable Arabic evidence");
-
-            await sleep(detail.method === "jina-reader-official-url" ? fallbackDelay : delay);
+            await sleep(detail.method === 'jina-reader-official-url' ? fallbackDelay : delay);
           } catch (error) {
-            errors.push(`${link.url}: ${error.message}`);
+            stats.detailRejected++;
+            recordFailure(detailUrl, error, 'detail');
           }
         }
-        ledger.push({ target: target.url, kind: target.kind, resultLinks: links.length, chunksAdded: rows.length - before, fetchMode: "direct-or-jina-fallback", commentaryFetches });
+        ledger.push({ target: target.url, kind: target.kind, label: target.label, resultLinks: links.length, chunksAdded: rows.length - before, commentaryFetches });
       } else {
-        const best = extractHadithAndExplanation(fetched.text, target.label);
+        const best = extractHadithAndExplanation(fetched.text, target.label, { maxExplanationChars });
         const added = addRow({
-          text: best.explanationText || best.fullHadithText || target.label,
+          text: best.fullHadithText || target.label,
           hadithText: stripBookSuffix(target.label),
           hadithFullText: best.fullHadithText,
           explanationText: best.explanationText,
-          explanationSourceUrl: best.explanationText ? target.url : "",
+          explanationSourceUrl: best.explanationText ? target.url : '',
           chapter: target.label, sourceUrl: target.url, topicIds: target.topicIds, title: target.label, parentUrl: target.url,
         });
-        ledger.push({ target: target.url, kind: target.kind, resultLinks: 1, chunksAdded: added ? 1 : 0, fetchMode: "direct-or-jina-fallback", commentaryFetches });
+        ledger.push({ target: target.url, kind: target.kind, label: target.label, resultLinks: 1, chunksAdded: added ? 1 : 0, commentaryFetches });
       }
     } catch (error) {
-      errors.push(`${target.url}: ${error.message}`);
-      ledger.push({ target: target.url, kind: target.kind, resultLinks: 0, chunksAdded: 0, error: error.message });
+      recordFailure(target.url, error, 'target');
+      ledger.push({ target: target.url, kind: target.kind, label: target.label, resultLinks: 0, chunksAdded: 0, error: error.message });
     }
   }
 
   const topicCounts = Object.fromEntries((manifest.requiredTopicIds ?? []).map((id) => [id, 0]));
   for (const row of rows) for (const t of row.topics) if (t in topicCounts) topicCounts[t]++;
-  return { rows, topicCounts, ledger, errors };
+  return { rows, topicCounts, ledger, errors, stats };
+}
+
+function printReport(stats, errors) {
+  console.log('');
+  console.log('── Al-Ifta ingestion report ─────────────────────────────');
+  console.log(`subjects processed      : ${stats.subjectsProcessed}`);
+  console.log(`links discovered        : ${stats.linksDiscovered}`);
+  console.log(`detail pages attempted  : ${stats.detailAttempted}`);
+  console.log(`detail pages succeeded  : ${stats.detailSucceeded}`);
+  console.log(`detail pages rejected   : ${stats.detailRejected}`);
+  console.log(`commentary attempted    : ${stats.commentaryAttempted}`);
+  console.log(`commentary found        : ${stats.commentaryFound}`);
+  console.log(`duplicates merged       : ${stats.duplicatesRemoved}`);
+  console.log(`chunks generated        : ${stats.chunksGenerated}`);
+  console.log(`fetch methods           : ${JSON.stringify(stats.fetchMethodCounts)}`);
+  console.log(`failures by category    : ${JSON.stringify(stats.failuresByCategory)}`);
+  if (errors.length) {
+    console.log('first failures:');
+    for (const error of errors.slice(0, 12)) console.log(`  - [${error.kind}/${error.category}] ${error.url} — ${error.message}`);
+  }
+  console.log('─────────────────────────────────────────────────────────');
 }
 
 async function main() {
@@ -511,8 +983,7 @@ async function main() {
   const ledgerPath = path.join(outDir, 'alifta-html-ledger.json');
   await fs.mkdir(outDir, { recursive: true });
 
-  const result = await ingest(manifest);
-  const { rows, topicCounts, ledger, errors } = result;
+  const { rows, topicCounts, ledger, errors, stats } = await ingest(manifest);
   const minimum = Number(manifest.minimumChunks ?? 100);
   const minPerTopic = Number(manifest.minimumChunksPerTopic ?? 3);
   const missingTopics = Object.entries(topicCounts).filter(([, count]) => count < minPerTopic);
@@ -525,24 +996,46 @@ async function main() {
     `export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = ${JSON.stringify(rows, null, 2)};\n`,
     'utf8',
   );
-  await fs.writeFile(ledgerPath, JSON.stringify({ method: 'official-html', sourceId: manifest.sourceId, totalChunks: rows.length, topicCounts, ledger, errors }, null, 2) + '\n', 'utf8');
+  await fs.writeFile(
+    ledgerPath,
+    JSON.stringify({
+      method: 'official-html', sourceId: manifest.sourceId, generatedAt: new Date().toISOString(),
+      totalChunks: rows.length, topicCounts, stats, ledger, errors,
+    }, null, 2) + '\n',
+    'utf8',
+  );
 
+  printReport(stats, errors);
   console.log(`Generated ${rows.length} Al-Ifta HTML chunks.`);
-  const jinaApiKey = process.env.JINA_API_KEY || '';
-  console.log(`Fetcher: direct official HTML with Jina Reader fallback=${manifest.jinaFallback !== false ? "enabled" : "disabled"}${process.env.JINA_API_KEY ? " (API key present)" : " (no API key)"}.`);
+  console.log(`Fetcher: direct official HTML with Jina Reader fallback=${manifest.jinaFallback !== false ? 'enabled' : 'disabled'}${process.env.JINA_API_KEY ? ' (API key present)' : ' (no API key)'}.`);
   console.log(`Topic coverage: ${JSON.stringify(topicCounts)}`);
-  if (errors.length) {
-    console.error(`Recoverable fetch errors: ${errors.length}`);
-    console.error('First fetch errors:');
-    for (const error of errors.slice(0, 10)) console.error(`  - ${error}`);
-  }
+
   if (rows.length < minimum) throw new Error(`Only ${rows.length} chunks produced; minimum is ${minimum}.`);
   if (missingTopics.length) throw new Error(`Weak/missing topic coverage: ${missingTopics.map(([id, count]) => `${id}=${count}`).join(', ')}`);
-  console.log(`PASS: ${rows.length} chunks and all 12 doors meet the ingestion threshold.`);
+  console.log(`PASS: ${rows.length} chunks and all ${Object.keys(topicCounts).length} doors meet the ingestion threshold.`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((error) => { console.error(error.stack || error); process.exit(1); });
 }
 
-export { cleanText, extractSubjectLinks, extractBestPassage, extractHadithAndExplanation, stripBookSuffix, extractCommentaryLinks, ingest };
+export {
+  cleanText,
+  decodeEntities,
+  toAbsoluteUrl,
+  extractSubjectLinks,
+  extractBestPassage,
+  extractHadithAndExplanation,
+  extractMatnFromPage,
+  extractExplanationFromServicePage,
+  stripBookSuffix,
+  parseResultTitle,
+  extractCommentaryLinks,
+  validateDetailPage,
+  validateCommentaryPage,
+  looksLikeUsefulAliftaDetail,
+  normalizeForDedupe,
+  tokenOverlapRatio,
+  errorCategory,
+  ingest,
+};

@@ -1,8 +1,13 @@
 {
   "sourceId": "alifta-sunna-encyclopedia",
   "baseUrl": "https://sunna.alifta.gov.sa/",
-  "maxSubjectResults": 28,
-  "requestDelayMs": 120,
+  "maxSubjectResults": 40,
+  "requestDelayMs": 150,
+  "timeoutMs": 12000,
+  "fetchAttempts": 3,
+  "jinaFallback": true,
+  "maxCommentaryFetches": 30,
+  "maxExplanationChars": 6000,
   "minimumChunks": 100,
   "minimumChunksPerTopic": 3,
   "requiredTopicIds": [
@@ -97,6 +102,5 @@
       ]
     }
   ],
-  "fallbackDelayMs": 3200,
-  "maxCommentaryFetches": 20
+  "fallbackDelayMs": 3200
 }

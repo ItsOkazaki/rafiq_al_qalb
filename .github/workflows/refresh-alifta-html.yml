@@ -58,6 +58,19 @@ jobs:
         continue-on-error: true
         run: npm run alifta:capture
 
+      - name: Commit captured fixtures
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/alifta-html/fixtures || true
+          if git diff --cached --quiet; then
+            echo "No fixture changes to commit."
+          else
+            git commit -m "test: refresh captured Al-Ifta HTML fixtures"
+            git push
+          fi
+
       - name: Ingest official Al-Ifta HTML
         if: ${{ inputs.mode != 'capture' }}
         run: npm run alifta:ingest
@@ -70,17 +83,16 @@ jobs:
         if: ${{ inputs.mode != 'capture' }}
         run: npm run typecheck
 
-      - name: Commit generated corpus and fixtures
+      - name: Commit generated corpus
+        if: ${{ inputs.mode != 'capture' }}
         run: |
           set -euo pipefail
-          if [ "${{ inputs.mode }}" != "capture" ]; then
-            node scripts/alifta-html/assert-corpus-not-empty.mjs
-          fi
+          node scripts/alifta-html/assert-corpus-not-empty.mjs
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json scripts/alifta-html/fixtures || true
+          git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
           if git diff --cached --quiet; then
-            echo "No generated changes to commit."
+            echo "No corpus changes to commit."
           else
             git commit -m "chore: refresh Al-Ifta HTML corpus"
             git pull --rebase origin "${GITHUB_REF_NAME}"
