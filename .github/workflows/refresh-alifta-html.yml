@@ -79,8 +79,12 @@ jobs:
           npm run alifta:ingest 2>&1 | tee scripts/alifta-html/reports/last-run.log
 
       - name: Verify corpus
+        id: verify
         if: ${{ inputs.mode != 'capture' }}
-        run: npm run alifta:verify
+        run: |
+          set -o pipefail
+          mkdir -p scripts/alifta-html/reports
+          npm run alifta:verify 2>&1 | tee scripts/alifta-html/reports/last-verify.log
 
       - name: Typecheck generated corpus
         if: ${{ inputs.mode != 'capture' }}
@@ -97,9 +101,15 @@ jobs:
           if [ -f scripts/alifta-html/fixtures/live/capture-report.json ]; then
             cp scripts/alifta-html/fixtures/live/capture-report.json scripts/alifta-html/reports/last-capture-report.json
           fi
+          # *.log is ignored repo-wide, so the run/verify transcripts need -f.
+          # When verification fails the rejected corpus is published too (outside the
+          # app's corpus directory) so the exact problems can be inspected offline.
+          if [ "${{ steps.verify.outcome }}" = "failure" ] && [ -f src/lib/corpus/generated/alifta-html-chunks.json ]; then
+            cp src/lib/corpus/generated/alifta-html-chunks.json scripts/alifta-html/reports/last-run-corpus.json
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scripts/alifta-html/reports || true
+          git add -f scripts/alifta-html/reports || true
           if git diff --cached --quiet; then
             echo "No report changes to commit."
           else

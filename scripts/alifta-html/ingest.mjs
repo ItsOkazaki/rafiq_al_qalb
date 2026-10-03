@@ -105,6 +105,9 @@ function cleanText(raw) {
     .trim();
 }
 
+/** A matn shorter than this is a fragment, not the complete hadith. */
+export const MIN_FULL_HADITH_CHARS = 60;
+
 /** Diacritics/punctuation-insensitive form used only for matching, never for output. */
 function normalizeForDedupe(text) {
   return String(text ?? '')
@@ -408,7 +411,7 @@ function mainIdFromUrl(url) {
  * redirects to the home page, empty responses, block pages, or a page that does
  * not carry its own mainId.
  */
-function validateDetailPage(pageHtml, { hint = '', url = '', minMatnChars = 40 } = {}) {
+function validateDetailPage(pageHtml, { hint = '', url = '', minMatnChars = MIN_FULL_HADITH_CHARS } = {}) {
   if (!pageHtml || !String(pageHtml).trim()) return { ok: false, reason: 'empty-response' };
   if (BLOCK_PAGE_RE.test(pageHtml)) return { ok: false, reason: 'block-page' };
   const text = cleanText(extractMainHtml(pageHtml));
@@ -423,7 +426,10 @@ function validateDetailPage(pageHtml, { hint = '', url = '', minMatnChars = 40 }
 
   const { snippet } = parseResultTitle(hint);
   const matn = extractMatnFromPage(text, snippet);
-  if (!matn.text || matn.text.length < minMatnChars) return { ok: false, reason: 'no-matn-extracted' };
+  if (!matn.text) return { ok: false, reason: 'no-matn-extracted' };
+  // A fragment is never stored as the complete hadith: the corpus verifier holds
+  // every hadithFullText to the same minimum, so the crawler refuses it up front.
+  if (matn.text.length < minMatnChars) return { ok: false, reason: 'matn-too-short' };
   if (snippet && !matn.matchedHint) return { ok: false, reason: 'matn-does-not-match-result-excerpt' };
   return { ok: true, reason: '', matn };
 }
@@ -931,12 +937,22 @@ async function ingest(manifest) {
         ledger.push({ target: target.url, kind: target.kind, label: target.label, resultLinks: links.length, chunksAdded: rows.length - before, commentaryFetches });
       } else {
         const best = extractHadithAndExplanation(fetched.text, target.label, { maxExplanationChars });
+        // Only a complete matn is published as hadithFullText. A short fragment is
+        // dropped, and the page counts as evidence only if it still carries an
+        // official explanation (always stored with its exact official URL).
+        const fullMatn = best.fullHadithText && best.fullHadithText.length >= MIN_FULL_HADITH_CHARS ? best.fullHadithText : '';
+        const explanation = best.explanationText ? truncateAtBoundary(best.explanationText, maxExplanationChars) : '';
+        if (!fullMatn && !explanation) {
+          const error = new Error('no-full-matn-or-explanation');
+          error.category = 'page:no-full-matn-or-explanation';
+          throw error;
+        }
         const added = addRow({
-          text: best.fullHadithText || target.label,
+          text: fullMatn || target.label,
           hadithText: stripBookSuffix(target.label),
-          hadithFullText: best.fullHadithText,
-          explanationText: best.explanationText,
-          explanationSourceUrl: best.explanationText ? target.url : '',
+          hadithFullText: fullMatn,
+          explanationText: explanation,
+          explanationSourceUrl: explanation ? target.url : '',
           chapter: target.label, sourceUrl: target.url, topicIds: target.topicIds, title: target.label, parentUrl: target.url,
         });
         ledger.push({ target: target.url, kind: target.kind, label: target.label, resultLinks: 1, chunksAdded: added ? 1 : 0, commentaryFetches });

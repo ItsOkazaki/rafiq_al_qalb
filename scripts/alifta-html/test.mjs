@@ -30,6 +30,7 @@ import {
   validateCommentaryPage,
   normalizeForDedupe,
   errorCategory,
+  MIN_FULL_HADITH_CHARS,
   ingest,
 } from './ingest.mjs';
 
@@ -477,6 +478,24 @@ runs.push(test('live detail page rejects a request for a different mainId', asyn
   const verdict = validateDetailPage(html, { hint: 'لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ', url: `${OFFICIAL}BookToc/ViewMatnPage?bookId=1&mainId=12345` });
   eq(verdict.ok, false, 'rejected');
   assert(verdict.reason.includes('mainId-12345'), `reason names the mismatch: ${verdict.reason}`);
+}));
+
+runs.push(test('a fragment is refused instead of being published as the complete matn', async () => {
+  const html = await readOffline('detail-short-matn-777.html');
+  const url = `${OFFICIAL}BookToc/ViewMatnPage?bookId=1&mainId=777`;
+  const verdict = validateDetailPage(html, { hint: '', url });
+  eq(verdict.ok, false, 'rejected');
+  eq(verdict.reason, 'matn-too-short', `reason: ${verdict.reason}`);
+  const lenient = validateDetailPage(html, { hint: '', url, minMatnChars: 10 });
+  eq(lenient.ok, true, 'same page validates when a fragment is explicitly allowed');
+  assert(lenient.matn.text.length < MIN_FULL_HADITH_CHARS, `fixture really is a fragment (${lenient.matn.text.length})`);
+}));
+
+runs.push(test('crawler and corpus verifier agree on the minimum length of a full matn', async () => {
+  const verifySrc = await read('verify.mjs');
+  const match = verifySrc.match(/hadithFullText\.length < (\d+)/);
+  assert(match, 'verify.mjs states a minimum matn length');
+  eq(MIN_FULL_HADITH_CHARS, Number(match[1]), 'crawler minimum === verifier minimum');
 }));
 
 await Promise.all(runs);
