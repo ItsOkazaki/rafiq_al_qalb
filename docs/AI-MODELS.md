@@ -5,7 +5,8 @@ not wired into the runtime path is listed as such on purpose.
 
 ## The one AI responsibility in the current runtime
 
-Exactly one model call participates in a research request:
+Exactly one AI responsibility participates in a research request (one successful model
+call; failed providers may trigger a bounded fallback attempt before it):
 
 **Grounded answer organization** (`src/lib/ai/provider.ts#generateGroundedSummary`)
 receives the user's description plus the retrieved approved passages, and returns an
@@ -29,11 +30,14 @@ deterministic code. See `docs/ARCHITECTURE.md`.
 | Provider | When it is used | Chat model default | Env |
 |---|---|---|---|
 | Google Gemini | Primary when `GEMINI_API_KEY` is present (or `AI_PROVIDER=gemini`) | `gemini-3.5-flash-lite` (`GEMINI_CHAT_MODEL` / `GEMINI_MODEL`) | `GEMINI_API_KEY`, `AI_TIMEOUT_MS` |
-| OpenAI | Fallback inside the same request when a Gemini call returns nothing and `OPENAI_API_KEY` exists; also primary if `AI_PROVIDER=openai` | `gpt-4o-mini` (`OPENAI_MODEL`) | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
-| OpenRouter | Optional alternative provider (`AI_PROVIDER=openrouter`) | `qwen/qwen3.8-27b:free` (`OPENROUTER_MODEL`) | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
+| OpenRouter | Primary when `OPENROUTER_API_KEY` is present (or `AI_PROVIDER=openrouter`); fallback when an earlier provider returns nothing | `qwen/qwen3.8-27b:free` (`OPENROUTER_MODEL`) | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, `OPENROUTER_SITE_URL`, `OPENROUTER_SITE_NAME` |
+| OpenAI | Fallback inside the same request when earlier providers return nothing and `OPENAI_API_KEY` exists; also primary if `AI_PROVIDER=openai` | `gpt-4o-mini` (`OPENAI_MODEL`) | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
 
 `getAIConfig()` resolves the provider from `AI_PROVIDER` when set, otherwise from whichever
-key is present (Gemini → OpenRouter → OpenAI).
+key is present (Gemini → OpenRouter → OpenAI). The resolved provider is attempted first;
+any remaining configured keys follow as fallbacks, all within one shared `AI_TIMEOUT_MS`
+budget. Gemini keys travel only in the `x-goog-api-key` header, and provider failures are
+logged as privacy-safe structured records (no keys, queries or prompts).
 
 ## Response modes reported to the client
 

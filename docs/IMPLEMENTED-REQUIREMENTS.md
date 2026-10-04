@@ -23,7 +23,7 @@
 | بوابة جودة corpus وعدم الكتابة على corpus مرفوض | ✅ منفّذ ومختبر | `scripts/alifta-html/verify.mjs`, اختبار «a rejected run may not replace the committed corpus» |
 | مجموعة قياس ثابتة 40 حالة | ✅ منفّذة وقابلة للتشغيل | `benchmarks/questions.json`, `npm run benchmark` |
 | فحص صحة للبيئة المنشورة | ✅ منفّذ | `GET /api/health` (حالة AI + قاعدة البيانات + عدد المقاطع) |
-| اختبارات آلية | ✅ 68 اختبار Vitest + 33 اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
+| اختبارات آلية | ✅ 99 اختبار Vitest + 33 اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
 | تصنيف المصادر المستبعدة ومنع استرجاعها | ✅ منفّذ | `EXCLUDED_SOURCES` في سجل المصادر |
 
 ## غير منفّذ في مسار التشغيل (صراحةً)

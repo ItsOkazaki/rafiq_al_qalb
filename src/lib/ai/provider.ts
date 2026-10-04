@@ -1,8 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// مزوّد الذكاء الاصطناعي — Google Gemini (أساسي) / OpenAI (بديل)
+// مزوّد الذكاء الاصطناعي — Google Gemini (أساسي) / OpenRouter / OpenAI (بدائل)
 // يعمل بمسار حتمي عند غياب أي مفتاح.
 // درجة الحرارة = صفر، المخرجات مقيّدة بالمقاطع المسترجعة فقط.
 // الحارس اللاحق يرفض أي صياغة محظورة.
+//
+// قواعد الطبقة:
+// - ترتيب المحاولات: المزوّد المضبوط أولاً ثم بقية المفاتيح المتاحة
+//   (جميني ← أوبن راوتر ← أوبن إيه آي).
+// - مهلة إجمالية واحدة مشتركة بين كل المحاولات (AI_TIMEOUT_MS).
+// - المفاتيح في رؤوس الطلبات فقط، ولا توضع في الروابط أبداً.
+// - سجل الفشل مُهيكل وآمن الخصوصية: بلا مفاتيح ولا نصوص المستخدمين.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { isFramingSafe } from "@/lib/terminology";
@@ -161,32 +168,127 @@ export interface GroundedResult {
   text: string;
 }
 
-async function callGemini(prompt: string, systemPrompt: string, apiKey: string): Promise<string | null> {
+/**
+ * مهلة إجمالية واحدة تتقاسمها كل محاولات المزوّدين داخل الطلب الواحد:
+ * لا يملك أي مزوّد ميزانية مستقلة تضاف إلى مهلة البقية.
+ */
+interface TimeBudget {
+  readonly deadline: number;
+}
+
+function startBudget(timeoutMs: number): TimeBudget {
+  return { deadline: Date.now() + timeoutMs };
+}
+
+function remainingMs(budget: TimeBudget): number {
+  return Math.max(0, budget.deadline - Date.now());
+}
+
+/** أقل ميزانية زمنية تُبرر بدء محاولة جديدة. */
+const MIN_ATTEMPT_MS = 400;
+
+/**
+ * سجل مُهيكل لفشل المزوّدين — آمن الخصوصية:
+ * لا مفاتيح، لا نصوص المستخدمين، لا محتوى الطلب. (الحدث، المزوّد، السبب، الحالة.)
+ */
+function logProviderFailure(fields: {
+  provider: AIProviderName;
+  reason: "http" | "network" | "timeout" | "empty";
+  status?: number;
+}): void {
+  try {
+    console.warn(JSON.stringify({ event: "ai_provider_failure", ...fields }));
+  } catch {
+    // التسجيل تشغيلي فقط — لا يُسقط مسار البحث أبداً.
+  }
+}
+
+function failureReason(error: unknown): "network" | "timeout" {
+  return error instanceof Error && error.name === "TimeoutError" ? "timeout" : "network";
+}
+
+type ProviderCall = (
+  prompt: string,
+  systemPrompt: string,
+  apiKey: string,
+  budget: TimeBudget,
+) => Promise<string | null>;
+
+async function callGemini(prompt: string, systemPrompt: string, apiKey: string, budget: TimeBudget): Promise<string | null> {
   // Same precedence as getAIConfig(): GEMINI_CHAT_MODEL wins over the GEMINI_MODEL alias.
   const model = env("GEMINI_CHAT_MODEL") ?? env("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // المفتاح في رأس الطلب فقط — لا يوضع في الرابط حتى لا يتسرب عبر السجلات.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 
   try {
     const res = await fetch(url, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0, maxOutputTokens: 1024, responseMimeType: "text/plain" },
       }),
+      signal: AbortSignal.timeout(remainingMs(budget)),
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      logProviderFailure({ provider: "Gemini", reason: "http", status: res.status });
+      return null;
+    }
     const data = await res.json() as GeminiResponse;
-    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? null;
-  } catch {
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? null;
+    if (!text) logProviderFailure({ provider: "Gemini", reason: "empty" });
+    return text;
+  } catch (error) {
+    logProviderFailure({ provider: "Gemini", reason: failureReason(error) });
     return null;
   }
 }
 
-async function callOpenAI(prompt: string, systemPrompt: string, apiKey: string): Promise<string | null> {
-  const baseUrl = env("OPENAI_BASE_URL") ?? "https://api.openai.com/v1";
+async function callOpenRouter(prompt: string, systemPrompt: string, apiKey: string, budget: TimeBudget): Promise<string | null> {
+  const baseUrl = (env("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1").replace(/\/$/, "");
+  const model = env("OPENROUTER_MODEL") ?? "qwen/qwen3.8-27b:free";
+  // رؤوس الإسناد التي يطلبها OpenRouter لأغراض العرض في لوحاته.
+  const referer = env("OPENROUTER_SITE_URL") ?? env("NEXT_PUBLIC_SITE_URL") ?? "https://rafiq-al-qalbv2.vercel.app";
+  const title = env("OPENROUTER_SITE_NAME") ?? "Rafiq Al-Qulub";
+
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": referer,
+        "X-Title": title,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0,
+        max_tokens: 900,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
+        ],
+      }),
+      signal: AbortSignal.timeout(remainingMs(budget)),
+    });
+    if (!res.ok) {
+      logProviderFailure({ provider: "OpenRouter", reason: "http", status: res.status });
+      return null;
+    }
+    const data = await res.json() as OpenAIResponse;
+    const text = data.choices?.[0]?.message?.content?.trim() ?? null;
+    if (!text) logProviderFailure({ provider: "OpenRouter", reason: "empty" });
+    return text;
+  } catch (error) {
+    logProviderFailure({ provider: "OpenRouter", reason: failureReason(error) });
+    return null;
+  }
+}
+
+async function callOpenAI(prompt: string, systemPrompt: string, apiKey: string, budget: TimeBudget): Promise<string | null> {
+  const baseUrl = (env("OPENAI_BASE_URL") ?? "https://api.openai.com/v1").replace(/\/$/, "");
   const model = env("OPENAI_MODEL") ?? "gpt-4o-mini";
 
   try {
@@ -202,13 +304,45 @@ async function callOpenAI(prompt: string, systemPrompt: string, apiKey: string):
           { role: "user", content: prompt },
         ],
       }),
+      signal: AbortSignal.timeout(remainingMs(budget)),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      logProviderFailure({ provider: "OpenAI", reason: "http", status: res.status });
+      return null;
+    }
     const data = await res.json() as OpenAIResponse;
-    return data.choices?.[0]?.message?.content?.trim() ?? null;
-  } catch {
+    const text = data.choices?.[0]?.message?.content?.trim() ?? null;
+    if (!text) logProviderFailure({ provider: "OpenAI", reason: "empty" });
+    return text;
+  } catch (error) {
+    logProviderFailure({ provider: "OpenAI", reason: failureReason(error) });
     return null;
   }
+}
+
+interface ProviderCandidate {
+  name: AIProviderName;
+  key: string;
+  call: ProviderCall;
+}
+
+/**
+ * ترتيب المحاولات: المزوّد المضبوط (صراحةً أو استنتاجاً من المفاتيح) أولاً،
+ * ثم بقية المزوّدين التي تملك مفتاحاً بالترتيب القياسي.
+ */
+function providerCandidates(): ProviderCandidate[] {
+  const entries: Array<{ name: AIProviderName; key: string | undefined; call: ProviderCall }> = [
+    { name: "Gemini", key: env("GEMINI_API_KEY"), call: callGemini },
+    { name: "OpenRouter", key: env("OPENROUTER_API_KEY"), call: callOpenRouter },
+    { name: "OpenAI", key: env("OPENAI_API_KEY"), call: callOpenAI },
+  ];
+  const preferred = getAIConfig().provider;
+  const ordered = [
+    ...entries.filter((e) => e.name === preferred),
+    ...entries.filter((e) => e.name !== preferred),
+  ];
+  return ordered
+    .filter((e): e is { name: AIProviderName; key: string; call: ProviderCall } => Boolean(e.key));
 }
 
 export async function generateGroundedSummary(
@@ -217,9 +351,8 @@ export async function generateGroundedSummary(
 ): Promise<GroundedResult | null> {
   if (!passages.length) return null;
 
-  const geminiKey = env("GEMINI_API_KEY");
-  const openaiKey = env("OPENAI_API_KEY");
-  if (!geminiKey && !openaiKey) return null;
+  const candidates = providerCandidates();
+  if (candidates.length === 0) return null;
 
   const context = passages
     .map((p, i) => {
@@ -241,16 +374,14 @@ export async function generateGroundedSummary(
     context,
   ].join("\n");
 
+  // ميزانية زمنية واحدة تتقاسمها كل المحاولات: المزوّد المضبوط أولاً،
+  // وعند فشله أو انقطاعه يُجرَّب التالي بما تبقّى من المهلة الإجمالية نفسها.
+  const budget = startBudget(getAIConfig().timeoutMs);
   let text: string | null = null;
-
-  // Try Gemini first (free tier)
-  if (geminiKey) {
-    text = await callGemini(userPrompt, SYSTEM_PROMPT, geminiKey);
-  }
-
-  // Fallback to OpenAI
-  if (!text && openaiKey) {
-    text = await callOpenAI(userPrompt, SYSTEM_PROMPT, openaiKey);
+  for (const candidate of candidates) {
+    if (remainingMs(budget) < MIN_ATTEMPT_MS) break;
+    text = await candidate.call(userPrompt, SYSTEM_PROMPT, candidate.key, budget);
+    if (text) break;
   }
 
   if (!text) return null;

@@ -163,6 +163,47 @@ describe("الاسترجاع الفعلي من المادة المعتمدة", (
     }
   });
 
+  it("وسم الباب وحده لا يكفي: لا يُسترجع مقطع بلا دليل لفظي من السؤال", () => {
+    // هذا المقطع يحمل وسم بابٍ يطابق سؤال المستخدم، لكن نصه وكلماته
+    // المفتاحية لا تشترك مع السؤال في أي وحدة نصية — فلا يُسترجع.
+    const tagOnly: CorpusChunk = {
+      id: "tag-only-no-lexical",
+      sourceId: "albadr-daa-dawaa",
+      chapter: "فصل",
+      excerptType: "curated-summary",
+      topics: ["qaswat-al-qalb"],
+      keywords: ["عبارة لا صلة لها بالسؤال البتة"],
+      text: "نص طويل بما يكفي للعتبة لكنه لا يذكر أياً من مفردات سؤال المستخدم إطلاقاً حتى لا يتقاطع معه.",
+    };
+    const passages = retrievePassages("قسوة القلب", { corpus: [tagOnly] });
+    expect(passages.some((p) => p.chunkId === "tag-only-no-lexical")).toBe(false);
+  });
+
+  it("المقطع الذي يشارك السؤال وحداته النصية يُسترجع وإن ساواه وسم الباب", () => {
+    // المقطعان يحملان الوسم نفسه، لكن أحدهما فقط يشارك السؤال لفظياً.
+    const tagOnly: CorpusChunk = {
+      id: "tag-only-2",
+      sourceId: "albadr-daa-dawaa",
+      chapter: "فصل",
+      excerptType: "curated-summary",
+      topics: ["qaswat-al-qalb"],
+      keywords: ["عبارة لا صلة لها بالسؤال البتة"],
+      text: "نص طويل بما يكفي للعتبة لكنه لا يذكر أياً من مفردات سؤال المستخدم إطلاقاً حتى لا يتقاطع معه.",
+    };
+    const lexical: CorpusChunk = {
+      id: "lexical-evidence-1",
+      sourceId: "albadr-daa-dawaa",
+      chapter: "فصل قسوة القلب",
+      excerptType: "literal",
+      topics: ["qaswat-al-qalb"],
+      keywords: ["قسوة القلب"],
+      text: "إن قسوة القلب من أعظم ما يصيب العبد، وعلاج قسوة القلب يكون بالذكر والتوبة وتلاوة القرآن بتدبر.",
+    };
+    const passages = retrievePassages("قسوة القلب", { corpus: [tagOnly, lexical] });
+    expect(passages.some((p) => p.chunkId === "lexical-evidence-1")).toBe(true);
+    expect(passages.some((p) => p.chunkId === "tag-only-2")).toBe(false);
+  });
+
   it("مقاطع الجامع المولّدة تدخل ALL_CHUNKS بصفاتها الكاملة", async () => {
     const { ALL_CHUNKS } = await import("@/lib/corpus/chunks");
     const { GENERATED_ALIFTA_HTML_CHUNKS } = await import("@/lib/corpus/generated/alifta-html-chunks");

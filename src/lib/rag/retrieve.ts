@@ -218,6 +218,10 @@ function filterApproved(corpus: CorpusChunk[]): CorpusChunk[] {
 /**
  * استرجاع المقاطع الفعلية من المادة المعتمدة فقط.
  * التسجيل: تعزيز الموضوع + مطابقة الكلمات المفتاحية + تداخل الوحدات النصية.
+ * قاعدة الدليل اللفظي: وسمُ الباب وحده لا يكفي لقبول المقطع؛ لا بد من
+ * دليل لفظي (احتواء عبارة مفتاحية، أو تداخل وحدات نصية، أو احتواء السؤال)
+ * حتى لا تُسند إلى المقطع أسئلة لا يذكر شيئاً منها. حارس المصادر المعتمدة
+ * (نشطة وغير مستبعدة) يبقى سابقاً على كل حساب.
  */
 export function retrievePassages(query: string, opts: RetrieveOptions = {}): RetrievedPassage[] {
   const norm = normalizeArabic(query);
@@ -261,19 +265,21 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   const scored = approved
     .map((chunk) => {
       let score = 0;
-      let directMatch = false;
+      // الدليل اللفظي: احتواء عبارة مفتاحية، أو تداخل وحدات نصية،
+      // أو احتواء نص المقطع للسؤال كله. وسم الباب وحده لا يُنشئه.
+      let lexicalMatch = false;
       let strongLexicalMatch = false;
 
       for (const t of chunk.topics) {
         if (matchedTopicIds.has(t)) {
           score += 3;
-          directMatch = true;
         }
       }
 
       const chunkNorm = normalizeArabic(chunk.text);
       if (norm.length >= 6 && chunkNorm.includes(norm)) {
         score += 7;
+        lexicalMatch = true;
         strongLexicalMatch = true;
       }
 
@@ -286,7 +292,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
         const k = normalizeArabic(kw);
         if (k && norm.includes(k)) {
           score += 3.5;
-          directMatch = true;
+          lexicalMatch = true;
           const keywordHasSignal = tokenizeArabic(kw)
             .map(normalizeArabic)
             .some((token) => token.length >= 3 && !GENERIC_QUERY_TOKENS.has(token));
@@ -323,7 +329,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
           }
         }
         if (exact || similar) {
-          directMatch = true;
+          lexicalMatch = true;
           weightedHits += bestWeight;
           if (!GENERIC_QUERY_TOKENS.has(variants[0])) {
             nonGenericMatches += 1;
@@ -338,7 +344,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       if (chunk.role === "index") score -= 1.0;
 
       // سطر فهرسي قصير ليس مادة دليل: لا يُسترجع أصلاً.
-      if (chunk.text.trim().length < MIN_PASSAGE_TEXT_LENGTH) return { chunk, score: -1, directMatch: false, relevance: false };
+      if (chunk.text.trim().length < MIN_PASSAGE_TEXT_LENGTH) return { chunk, score: -1, lexicalMatch: false, relevance: false };
 
       // إذا لم يطابق الاستعلام موضوعاً محدداً، فلا يكفي وجود كلمة عابرة مشتركة.
       // سؤال عن «تاريخ الدولة الأموية وعمارة قرطبة» يصادف كلمتين في متن حديث،
@@ -348,11 +354,14 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       // تغطية كاملة لكلمات السؤال المعنوية (بمطابقات فعلية) دليل قوي بذاتها،
       // حتى لو جاءت أوزان الصيغ المفردة أقل من عتبة «المطابقة القوية» بسبب شيوع الكلمة.
       const fullCoverage = nonGenericMatches >= 2 && coverage >= 0.99;
+      // الدليل اللفظي إلزامي: وسم الباب وحده لا يكفي. بعد ذلك تكفي مطابقة
+      // الباب، أو تغطية لفظية قوية/كاملة لكلمات السؤال.
       const relevance =
-        matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && (strongLexicalMatch || fullCoverage));
-      return { chunk, score, directMatch, relevance };
+        lexicalMatch &&
+        (matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && (strongLexicalMatch || fullCoverage)));
+      return { chunk, score, lexicalMatch, relevance };
     })
-    .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.directMatch)
+    .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.lexicalMatch)
     .sort((a, b) => b.score - a.score);
 
   const limit = Math.min(opts.limit ?? MAX_PASSAGES, MAX_PASSAGES);

@@ -8,6 +8,11 @@ import type { SafetyInfo } from "@/lib/types";
 
 const SELF_HARM_MARKERS: string[] = [
   "انتحار",
+  // صيغ الفعل من الجذر نفسه: «أنتحر»، «سأنتحر»، «ينتحر»، «ننتحر»…
+  // «نتحر» تغطيها جميعاً بالاحتواء بعد التطبيع، وتبقى بعيدة عن المفردات
+  // البحثية التي يعالجها «انتحار» وحده.
+  "انتحر",
+  "نتحر",
   "اقتل نفسي",
   "اودي بنفسي",
   "اودي نفسي",
@@ -51,35 +56,66 @@ const SELF_HARM_MARKERS: string[] = [
   "hurt myself",
 ];
 
+/** أدوات النفي: تُبطل دلالة الخطر للعبارة التي تسبقها مباشرةً. */
+const NEGATION_TOKENS = new Set([
+  "لا", "ما", "مش", "مو", "ليس", "ليست", "لسنا", "ماني", "مانيش", "ماش", "ماشي",
+]);
+
+/** صيغ مرنة للتشكيل/العلامات والمسافات: «أريد أن أموت»، «اريد اموت»، إلخ. */
+const SAFETY_PATTERNS: RegExp[] = [
+  /(?:^|\s)اريد(?:\s+ان)?\s+اموت(?:\s|$)/,
+  /(?:^|\s)اتمنى(?:\s+ان)?\s+اموت(?:\s|$)/,
+  /(?:^|\s)اتمنا(?:\s+ان)?\s+اموت(?:\s|$)/,
+  /(?:^|\s)نفسي\s+اموت(?:\s|$)/,
+  /(?:^|\s)(?:ودي|حاب|بدي|بغيت|نحب|حاب)\s+(?:ان\s+)?اموت(?:\s|$)/,
+  /(?:^|\s)اريد\s+الموت(?:\s|$)/,
+  /(?:^|\s)اتمنى\s+الموت(?:\s|$)/,
+  /(?:^|\s)اتمنا\s+الموت(?:\s|$)/,
+];
+
+/**
+ * هل هذا الوقوع للعلامة مسبوق بأداة نفي مباشرة؟
+ * النفي يُبطل دلالة الخطر لهذا الوقوع وحده — فإن وُجد في الجملة نفسها
+ * وقوع آخر مؤكّد («لا أريد الموت لكنني سأنتحر») بقيت السلامة مفعّلة.
+ */
+function occurrenceIsNegated(norm: string, index: number): boolean {
+  const before = norm.slice(0, index).trimEnd();
+  if (!before) return false;
+  const words = before.split(/\s+/);
+  const last = words[words.length - 1];
+  return typeof last === "string" && NEGATION_TOKENS.has(last);
+}
+
+function hasAffirmativeMarker(norm: string, marker: string): boolean {
+  if (!marker) return false;
+  let idx = norm.indexOf(marker);
+  while (idx !== -1) {
+    if (!occurrenceIsNegated(norm, idx)) return true;
+    idx = norm.indexOf(marker, idx + Math.max(marker.length, 1));
+  }
+  return false;
+}
+
+function hasAffirmativePattern(norm: string, pattern: RegExp): boolean {
+  const re = new RegExp(pattern.source, "g");
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(norm)) !== null) {
+    if (!occurrenceIsNegated(norm, match.index)) return true;
+    if (match.index === re.lastIndex) re.lastIndex += 1;
+  }
+  return false;
+}
+
 export function detectSafetyRisk(query: string): boolean {
   const norm = normalizeArabic(query);
   if (!norm) return false;
 
   // ذكر «الموت» وحده، أو الحديث عنه بوصفه موضوعاً، ليس علامة خطر.
-  // نبحث فقط عن عبارات تعبّر عن نية أو رغبة شخصية في إيذاء النفس/الموت.
-  const benignNegations = [
-    "لا اريد الموت",
-    "لا اريد ان اموت",
-    "لا اتمنى الموت",
-    "لا اتمني الموت",
-  ];
-  if (benignNegations.some((m) => norm === normalizeArabic(m) || norm.startsWith(normalizeArabic(m) + " "))) {
-    return false;
-  }
+  // نبحث فقط عن عبارات تعبّر عن نية أو رغبة شخصية في إيذاء النفس/الموت،
+  // مع معاملة النفي لكل وقوع على حدة بدل إسقاط الجملة كلها.
+  if (SELF_HARM_MARKERS.some((m) => hasAffirmativeMarker(norm, normalizeArabic(m)))) return true;
 
-  if (SELF_HARM_MARKERS.some((m) => norm.includes(normalizeArabic(m)))) return true;
-
-  // صيغ مرنة للتشكيل/العلامات والمسافات: «أريد أن أموت»، «اريد اموت»، إلخ.
-  return [
-    /(?:^|\s)اريد(?:\s+ان)?\s+اموت(?:\s|$)/,
-    /(?:^|\s)اتمنى(?:\s+ان)?\s+اموت(?:\s|$)/,
-    /(?:^|\s)اتمنا(?:\s+ان)?\s+اموت(?:\s|$)/,
-    /(?:^|\s)نفسي\s+اموت(?:\s|$)/,
-    /(?:^|\s)(?:ودي|حاب|بدي|بغيت|نحب|حاب)\s+(?:ان\s+)?اموت(?:\s|$)/,
-    /(?:^|\s)اريد\s+الموت(?:\s|$)/,
-    /(?:^|\s)اتمنى\s+الموت(?:\s|$)/,
-    /(?:^|\s)اتمنا\s+الموت(?:\s|$)/,
-  ].some((pattern) => pattern.test(norm));
+  return SAFETY_PATTERNS.some((p) => hasAffirmativePattern(norm, p));
 }
 
 /**
