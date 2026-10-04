@@ -12,8 +12,9 @@ export const dynamic = "force-dynamic";
  * - `corpus`: عدد المقاطع المعتمدة المحمّلة فعلياً في هذه النسخة.
  */
 function aiStatus() {
+  const grammarSkill = "التلخيص بقواعد النحو المستخرجة من ألفية ابن مالك [شرح ابن عثيمين] (shamela.ws/book/36954)";
   if (!isAIConfigured()) {
-    return { configured: false, mode: "deterministic" as const };
+    return { configured: false, mode: "deterministic" as const, grammarSkill };
   }
   const config = getAIConfig();
   return {
@@ -21,6 +22,7 @@ function aiStatus() {
     provider: config.provider,
     chatModel: config.chatModel,
     mode: "grounded-model-with-deterministic-fallback" as const,
+    grammarSkill,
   };
 }
 
