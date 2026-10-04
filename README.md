@@ -30,9 +30,9 @@
 | الحالة | السلوك | الموضع |
 |---|---|---|
 | خطر على السلامة (إيذاء النفس…) | إيقاف المحتوى الديني ورد مساعدة فورية | `src/lib/safety.ts` |
-| سؤال يشبه التشخيص («هل أنا مصاب…») | لا تشخيص + إحالة | `src/lib/policy/diagnosis.ts` |
-| سؤال حلال/حرام أو طلب فتوى | لا فتوى + إحالة إلى أهل العلم | `src/lib/policy/fatwa.ts` |
-| طلب وصفة أو علاج شخصي | لا وصفات + إحالة | `src/lib/policy/prescription.ts` |
+| سؤال يشبه التشخيص («هل أنا مصاب…») | لا تشخيص + توجيه عام لسؤال مختص مؤهل | `src/lib/policy/diagnosis.ts` |
+| سؤال حلال/حرام أو طلب فتوى | لا فتوى + توجيه عام لسؤال أهل العلم | `src/lib/policy/fatwa.ts` |
+| طلب وصفة أو علاج شخصي | لا وصفات + توجيه عام لسؤال مختص مؤهل | `src/lib/policy/prescription.ts` |
 | طلب صفحة/نص غير مفهرس | لا اختلاق + امتناع | `src/lib/research/pipeline.ts` |
 | غياب مادة كافية | `ABSTAIN_MESSAGE` | `src/lib/terminology.ts` |
 
@@ -85,13 +85,13 @@
 | المسار | الوصف |
 |---|---|
 | `/` | الصفحة التعريفية + حالة النظام |
-| `/hiwar` | **الحوار البحثي** — المسار الرئيسي: وصف → أبواب → مقاطع موثقة أو امتناع/إحالة |
+| `/hiwar` | **الحوار البحثي** — المسار الرئيسي: وصف → أبواب → مقاطع موثقة أو امتناع/توجيه عام |
 | `/hala` | لمحة بحثية: أسئلة ملاحة لتحديد الموضوع والكلمات المفتاحية |
 | `/maktaba` + `/maktaba/[topic]` + `/maktaba/kutub/[slug]` | المكتبة: ١٢ باباً و٧ بطاقات مصادر |
 | `/lab` | مختبر الأدلة: المراحل الفعلية والمقاييس وطريقة القياس (مصمَّم للجنة) |
 | `/wasfa` | سياسة عدم الوصف |
 | `GET /api/health` | `{ ok, database, ai:{configured, mode}, corpus:{approvedChunks} }` |
-| `POST /api/research` | `{ query, mode?: "ai" \| "baseline" }` → مقاطع + نتيجة + رسائل السياسة |
+| `POST /api/research` | `{ query, mode?: "ai" \| "baseline" }` → مقاطع + نتيجة + رسائل السياسة. حدود: ٣٠ طلباً/دقيقة لكل عميل (٤٢٩ عند التجاوز)، جسم ≤ ٨ ك.ب (٤١٣)، نص بحث ≤ ١٠٠٠ حرف (٤٠٠). لا يُخزَّن نص الاستعلام الخام |
 | `POST /api/benchmark/conflict` | فحص تعارض اصطناعي (يتطلب مزوّداً مُعدّاً، وإلا `503`) |
 
 ## ٦. التشغيل السريع
@@ -120,7 +120,7 @@ npm run build && npm start
 | `npm start` | تشغيل بناء الإنتاج | لا |
 | `npm run lint` | ESLint | لا |
 | `npm run typecheck` | `tsc --noEmit` | لا |
-| `npm test` | ٦٨ اختبار وحدة (Vitest: الاسترجاع، المسار، التنظيم الحتمي، بطاقة الدليل) | لا |
+| `npm test` | ٩٩ اختبار وحدة (Vitest: الاسترجاع، المسار، السلامة، حدود الطلب، التنظيم الحتمي، بطاقة الدليل) | لا |
 | `npm run smoke` | فحص زمن تشغيل: ٤٠ حالة + ١٠ فحوص صريحة | لا |
 | `npm run benchmark -- --url <URL> [--limit N]` | قياس حقيقي على الـAPI ويكتب `benchmarks/results/latest.json` | نعم (للـURL) |
 | `npm run verify:quran-font` | وجود خط حفص + مطابقة بصمته + ربط CSS | لا |
@@ -137,11 +137,11 @@ npm run build && npm start
 | المتغير | الوظيفة | الافتراضي |
 |---|---|---|
 | `DATABASE_URL` | تسجيل جلسات البحث في PostgreSQL (اختياري تماماً؛ غيابه لا يعطّل البحث) | — |
-| `AI_PROVIDER` | `gemini` \| `openrouter` \| `openai` | يُستنتج من المفتاح |
-| `GEMINI_API_KEY` / `GEMINI_CHAT_MODEL` | مزوّد التنظيم الأساسي | `gemini-3.5-flash-lite` |
-| `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | مزوّد بديل | `qwen/qwen3.8-27b:free` |
+| `AI_PROVIDER` | `gemini` \| `openrouter` \| `openai` — المزوّد المضبوط يُجرَّب أولاً والباقون مفاتيحهم احتياط | يُستنتج من المفتاح |
+| `GEMINI_API_KEY` / `GEMINI_CHAT_MODEL` | مزوّد التنظيم الأساسي (المفتاح في رأس الطلب فقط، لا في الرابط) | `gemini-3.5-flash-lite` |
+| `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | مزوّد موصول بالكامل (ومسار احتياط)، مع `OPENROUTER_SITE_URL` / `OPENROUTER_SITE_NAME` لرؤوس الإسناد | `qwen/qwen3.8-27b:free` |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | مزوّد بديل | `gpt-4o-mini` |
-| `AI_TIMEOUT_MS` | مهلة استدعاء المزوّد (الحد الأدنى ٣٠٠٠) | `10000` في الكود (والمثال يضبط 20000) |
+| `AI_TIMEOUT_MS` | مهلة إجمالية واحدة تتقاسمها كل محاولات المزوّدين في الطلب (الحد الأدنى ٣٠٠٠) | `10000` في الكود (والمثال يضبط 20000) |
 | `NEXT_PUBLIC_SITE_URL` | روابط OG المطلقة | من `VERCEL_URL` |
 | `JINA_API_KEY` | رفع حدود Jina أثناء سحب جامع السنة عند الحجب (صيانة فقط) | — |
 | `ALLOW_CORPUS_SHRINK` | السماح صراحةً باستبدال corpus أكبر بأصغر بعد مراجعة يدوية | معطّل |
@@ -152,7 +152,7 @@ npm run build && npm start
 |---|---|
 | `npm ci` (من نسخة نظيفة) | تثبيت حرفي من `package-lock.json` بلا أخطاء — الرقم الفعلي يُطبع في سطر `added …` |
 | `npm run typecheck` / `npm run lint` | PASS / PASS |
-| `npm test` | **٦٨/٦٨** اختباراً (٤ ملفات) |
+| `npm test` | **٩٩/٩٩** اختباراً (٧ ملفات) |
 | `npm run build` | PASS — ٢٧ صفحة ثابتة/مُسبقة التوليد + ٣ مسارات API، وبلا أخطاء أنواع |
 | `npm run smoke` | `{"ok":true,"benchmarkCases":40,"benchmarkFailures":0,"explicitChecks":10}` |
 | `npm run alifta:test` | **٣٣/٣٣** PASS |
@@ -256,7 +256,7 @@ public/fonts/       خط حفص المُضمَّن + ترخيصه
 
 - **Retrieval-first design:** the LLM never retrieves. It only re-organizes the passages that were already retrieved, under an Arabic output guard; without an API key the same answer is produced deterministically.
 - **Corpus:** 486 approved chunks — 271 generated from official Al-Ifta pages (full matn, 278/280 pages verified, 12/12 doors covered) plus 215 curated chunks from 7 registered sources.
-- **Reproducibility:** 68 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
+- **Reproducibility:** 99 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
 - **Last local benchmark (deterministic, no provider key):** outcome accuracy 1.00, abstention accuracy 1.00, source hit@4 1.00, topic hit 1.00, source recall 0.906, chunk hit@4 0.654.
 - **Status:** repository is public and deployed on Vercel (<https://rafiq-al-qalbv2.vercel.app>); remaining optional post-deployment items (deployed benchmark run, UX testing, demo video) are tracked in `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
 

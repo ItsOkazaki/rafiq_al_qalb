@@ -84,6 +84,29 @@ describe("حدود نوع الطلب والإشارات الصحية", () => {
     expect(risk.outcome).toBe("safety");
   });
 
+  it("صيغ الفعل من «انتحر» تفعّل السلامة أيضاً", async () => {
+    for (const phrasing of ["أريد أن أنتحر", "سأنتحر", "حا انتحر"]) {
+      const result = await runResearch(phrasing);
+      // المطلوب: استجابة سلامة كاملة، لا نتيجة «لم نجد مادة كافية» العامة.
+      expect(result.outcome, phrasing).toBe("safety");
+      expect(result.safety, phrasing).not.toBeNull();
+      expect(result.safety!.steps.length, phrasing).toBeGreaterThanOrEqual(3);
+      expect(result.message, phrasing).not.toBe(ABSTAIN_MESSAGE);
+      expect(result.passages, phrasing).toHaveLength(0);
+    }
+  });
+
+  it("عبارة «الموت» وحدها لا تفعّل السلامة في المسار الكامل", async () => {
+    const result = await runResearch("الموت");
+    expect(result.outcome).not.toBe("safety");
+  });
+
+  it("النفي لا يخفي عبارة خطرة مؤكدة منفصلة", async () => {
+    const result = await runResearch("لا أريد الموت لكنني سأنتحر");
+    expect(result.outcome).toBe("safety");
+    expect(result.safety).not.toBeNull();
+  });
+
   it("لا تشخيص للسؤال الشخصي", async () => {
     const result = await runResearch("هل أنا مصاب بالاكتئاب؟");
     expect(result.outcome).toBe("abstained");
@@ -271,5 +294,84 @@ describe("التوليد المستند عند توفر المزود", () => {
     ]) {
       expect(SYSTEM_PROMPT).toContain(must);
     }
+  });
+});
+
+describe("التوليد عبر المزوّدين — OpenRouter والنسخ الاحتياطي", () => {
+  const SAFE_TEXT = "نقاط مستندة إلى المادة فقط: ١) جاء في المقطع الأول كذا. حدود المادة: لم تتناول المقاطع غير ذلك.";
+
+  beforeEach(() => {
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENROUTER_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.AI_PROVIDER;
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENROUTER_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.AI_PROVIDER;
+  });
+
+  it("ضبط OpenRouter وحده يعمل عبر مسار OpenRouter", async () => {
+    process.env.OPENROUTER_API_KEY = "test-openrouter-key";
+    const fetchMock = mockCompletion(SAFE_TEXT);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.ai.mode).toBe("model");
+    expect(result.ai.text).toBe(SAFE_TEXT);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toContain("openrouter.ai/api/v1/chat/completions");
+    const headers = init.headers as Record<string, string>;
+    expect(headers.authorization).toBe("Bearer test-openrouter-key");
+    // رؤوس الإسناد موجودة.
+    expect(headers["HTTP-Referer"]).toMatch(/^https?:\/\//);
+    expect(headers["X-Title"].length).toBeGreaterThan(0);
+    const payload = JSON.parse(String(init.body)) as { temperature: number };
+    expect(payload.temperature).toBe(0);
+  });
+
+  it("عند فشل Gemini يُكمل بالمزوّد التالي ضمن المهلة الإجمالية نفسها", async () => {
+    process.env.GEMINI_API_KEY = "test-gemini-key";
+    process.env.OPENROUTER_API_KEY = "test-openrouter-key";
+    const fetchMock = vi.fn(async (input: string) => {
+      if (input.includes("generativelanguage.googleapis.com")) {
+        return new Response(JSON.stringify({ error: { message: "quota exhausted" } }), { status: 503 });
+      }
+      return new Response(JSON.stringify({ choices: [{ message: { content: SAFE_TEXT } }] }), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.ai.mode).toBe("model");
+    expect(result.ai.text).toBe(SAFE_TEXT);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    // المحاولة الأولى: Gemini — المفتاح في الرأس لا في الرابط.
+    const [geminiUrl, geminiInit] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(geminiUrl).toContain("generativelanguage.googleapis.com");
+    expect(geminiUrl).not.toContain("key=");
+    expect(geminiUrl).not.toContain("test-gemini-key");
+    expect((geminiInit.headers as Record<string, string>)["x-goog-api-key"]).toBe("test-gemini-key");
+
+    // المحاولة الثانية: OpenRouter.
+    const [routerUrl, routerInit] = fetchMock.mock.calls[1] as unknown as [string, RequestInit];
+    expect(routerUrl).toContain("openrouter.ai/api/v1/chat/completions");
+    expect((routerInit.headers as Record<string, string>).authorization).toBe("Bearer test-openrouter-key");
+  });
+
+  it("فشل كل المزوّدين يعود إلى التنظيم الحتمي دون كسر", async () => {
+    process.env.GEMINI_API_KEY = "test-gemini-key";
+    process.env.OPENROUTER_API_KEY = "test-openrouter-key";
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 500 })));
+
+    const result = await runResearch(SAMPLE_QUERY);
+    expect(result.outcome).toBe("ok");
+    expect(result.ai.mode).toBe("deterministic");
   });
 });

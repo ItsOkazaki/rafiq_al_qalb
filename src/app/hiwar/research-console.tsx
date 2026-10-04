@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { OrnamentDivider } from "@/components/ornaments";
+import { parseResearchResult } from "@/lib/api-shape";
 import { detectHealthQuery, HEALTH_WARNING } from "@/lib/policy/health";
 import { detectSafetyRisk } from "@/lib/safety";
 import { ResearchResultView } from "@/components/research-result";
@@ -38,7 +39,10 @@ export function ResearchConsole() {
         body: JSON.stringify({ query: trimmed }),
       });
       if (!res.ok) throw new Error("bad status");
-      const data = (await res.json()) as ResearchResult;
+      const raw: unknown = await res.json();
+      // تحقق وقت التشغيل من شكل الاستجابة قبل عرضها.
+      const data = parseResearchResult(raw);
+      if (!data) throw new Error("bad shape");
       setResult(data);
     } catch {
       setError("تعذّر تشغيل خدمة البحث. حاول مرة أخرى.");
