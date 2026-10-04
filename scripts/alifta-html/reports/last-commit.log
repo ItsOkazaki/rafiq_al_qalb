@@ -11,7 +11,7 @@ PASS: generated corpus holds 271 records and is safe to commit.
 + git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
 + git diff --cached --quiet
 + git commit -m 'chore: refresh Al-Ifta HTML corpus'
-[main 8604b10] chore: refresh Al-Ifta HTML corpus
+[main baf5986] chore: refresh Al-Ifta HTML corpus
  3 files changed, 544 insertions(+), 544 deletions(-)
 + git pull --rebase --autostash origin main
 From https://github.com/ItsOkazaki/rafiq_al_qalb
