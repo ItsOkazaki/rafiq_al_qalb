@@ -1,7 +1,7 @@
 {
   "method": "official-html",
   "sourceId": "alifta-sunna-encyclopedia",
-  "generatedAt": "2026-10-04T00:14:43.620Z",
+  "generatedAt": "2026-10-04T15:10:51.573Z",
   "totalChunks": 271,
   "topicCounts": {
     "athar-al-dhunub": 78,
@@ -186,7 +186,7 @@
       "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11769&inx=0",
       "kind": "commentary",
       "category": "error",
-      "message": "no-commentary-markers; Jina content rejected (no-commentary-markers)"
+      "message": "no-commentary-markers; Jina content rejected (not-a-commentary-page)"
     },
     {
       "url": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=11769&inx=0",

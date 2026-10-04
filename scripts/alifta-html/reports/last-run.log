@@ -24,7 +24,7 @@ fetch methods           : {"direct-official-html":303,"jina-reader-official-url"
 failures by category    : {"commentary:error":35,"commentary:http-500":16,"detail:error":2}
 first failures:
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=5974&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
-  - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
+  - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (not-a-commentary-page)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=11&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=5&mainId=11769&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
   - [commentary/error] https://sunna.alifta.gov.sa/MatnService/HadithServiceData?serviceId=6&mainId=11916&inx=0 — no-commentary-markers; Jina content rejected (no-commentary-markers)
