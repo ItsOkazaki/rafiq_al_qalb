@@ -59,7 +59,16 @@ export default function MaktabaPage() {
                 <p className="mt-1 text-xs text-parchment-200/65">{s.author}</p>
                 <dl className="mt-4 space-y-1.5 rounded-xl border border-parchment-300 bg-parchment-200/50 p-4 text-xs leading-6 text-ink-600">
                   <div className="flex gap-2"><dt className="font-semibold text-ink-700">الناشر المعتمد:</dt><dd>{s.publisher}</dd></div>
-                  <div className="flex gap-2"><dt className="font-semibold text-ink-700">المادة المفهرسة:</dt><dd>{indexCount > 0 ? `${indexCount} مدخل فهرسة موضوعية` : `${evidenceCount} مقطع دليل`}</dd></div>
+                  <div className="flex gap-2">
+                    <dt className="font-semibold text-ink-700">المادة المفهرسة:</dt>
+                    <dd>
+                      {evidenceCount > 0 && indexCount > 0
+                        ? `${evidenceCount} مقطع دليل و${indexCount} مدخل فهرسة موضوعية`
+                        : indexCount > 0
+                          ? `${indexCount} مدخل فهرسة موضوعية`
+                          : `${evidenceCount} مقطع دليل`}
+                    </dd>
+                  </div>
                 </dl>
                 <p className="mt-3 text-[11px] leading-6 text-parchment-200/55">{s.notes}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-parchment-300 pt-4">

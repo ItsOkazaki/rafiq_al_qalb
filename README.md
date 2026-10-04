@@ -6,7 +6,7 @@
 
 [العرض الحي](https://rafiq-al-qalbv2.vercel.app) · [الحوار البحثي](https://rafiq-al-qalbv2.vercel.app/hiwar) · [المكتبة](https://rafiq-al-qalbv2.vercel.app/maktaba) · [مختبر الأدلة للجنة التحكيم](https://rafiq-al-qalbv2.vercel.app/lab) · [فهرس الوثائق](docs/README.md)
 
-> **حالة المستودع:** خاص حالياً (Private). تحويله إلى عام جزء من قائمة ما قبل التسليم — `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
+> **حالة المستودع:** عام (Public) وجاهز للتحكيم والمراجعة — قائمة التسليم في `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
 > **الترخيص:** كود التطبيق MIT (`LICENSE`)؛ أما المصادر والخطوط فلكل منها شروطه الموثقة أدناه.
 
 </div>
@@ -60,6 +60,8 @@
 ```
 
 الاسترجاع **واحد في الوضعين** (لا يتغير بوجود النموذج): `POST /api/research` يقبل `mode: "ai" | "baseline"`، والقياس يثبت التطابق (`retrieval_identical_between_modes = true`). النموذج لا يبحث ولا يسترجع.
+
+- **بطاقة التميز في التلخيص الآلي (مهارة النحو العربي):** تُحقن في `SYSTEM_PROMPT` (`src/lib/ai/provider.ts`) **مهارة النحو العربي للتلخيص المحكم المستخرجة من ألفية ابن مالك [شرح الشيخ محمد بن صالح العثيمين]** ([المكتبة الشاملة — 36954](https://shamela.ws/book/36954))، وتشمل سير عمل داخلياً من ٤ خطوات و١٠ نقاط مراقبة نحوية لضبط سلامة الإعراب، دقة المعنى الأصلي، وسلاسة الأسلوب الفصيح دون إضافة خارج الدليل (معروضة بالتفصيل للجنة في `/lab#nahw-skill`).
 
 ## ٤. المصادر والـcorpus (الأعداد محسوبة من الملفات في هذا الـcommit)
 
@@ -118,7 +120,7 @@ npm run build && npm start
 | `npm start` | تشغيل بناء الإنتاج | لا |
 | `npm run lint` | ESLint | لا |
 | `npm run typecheck` | `tsc --noEmit` | لا |
-| `npm test` | ٦٠ اختبار وحدة (Vitest: الاسترجاع، المسار، بطاقة الدليل) | لا |
+| `npm test` | ٦٨ اختبار وحدة (Vitest: الاسترجاع، المسار، التنظيم الحتمي، بطاقة الدليل) | لا |
 | `npm run smoke` | فحص زمن تشغيل: ٤٠ حالة + ١٠ فحوص صريحة | لا |
 | `npm run benchmark -- --url <URL> [--limit N]` | قياس حقيقي على الـAPI ويكتب `benchmarks/results/latest.json` | نعم (للـURL) |
 | `npm run verify:quran-font` | وجود خط حفص + مطابقة بصمته + ربط CSS | لا |
@@ -150,7 +152,7 @@ npm run build && npm start
 |---|---|
 | `npm ci` (من نسخة نظيفة) | تثبيت حرفي من `package-lock.json` بلا أخطاء — الرقم الفعلي يُطبع في سطر `added …` |
 | `npm run typecheck` / `npm run lint` | PASS / PASS |
-| `npm test` | **٦٠/٦٠** اختباراً (٣ ملفات) |
+| `npm test` | **٦٨/٦٨** اختباراً (٤ ملفات) |
 | `npm run build` | PASS — ٢٧ صفحة ثابتة/مُسبقة التوليد + ٣ مسارات API، وبلا أخطاء أنواع |
 | `npm run smoke` | `{"ok":true,"benchmarkCases":40,"benchmarkFailures":0,"explicitChecks":10}` |
 | `npm run alifta:test` | **٣٣/٣٣** PASS |
@@ -182,23 +184,17 @@ npm run build && npm start
 
 ## ١١. النشر
 
-- **المنصة:** Vercel — المشروع الحالي: <https://rafiq-al-qalbv2.vercel.app> (`GET /api/health` → `{"ok":true}`).
+- **المنصة:** Vercel — المشروع الحي: <https://rafiq-al-qalbv2.vercel.app> (`GET /api/health` → `{"ok":true,"database":"connected","ai":{"configured":true,"provider":"Gemini","chatModel":"gemini-3.5-flash-lite","mode":"grounded-model-with-deterministic-fallback"},"corpus":{"approvedChunks":486}}`).
 - **آلية النشر:** مشروع Vercel مرتبط بالمستودع، وكل دفع إلى الفرع الرئيسي `main` يُبنى ويُنشر تلقائياً؛ لا رفع يدوي ولا
-  خطوة نشر منفصلة. لذلك الوصول إلى النسخة النهائية هو **دمج فرع التسليم في `main`**، ويلتقط Vercel البناء من نفسه.
-- **تنبيه دقة:** ما هو منشور الآن مطابق تماماً لمحتوى `main` الحالي، وتعديلات هذه الدفعة لا تزال على فرع مستقل لم يُدمج بعد؛
-  لذلك تظهر في الموقع المنشور نصوص قديمة (مثل طبقات لا وجود لها في الكود، واسم نموذج قديم، وكتلة حالة ناقصة في فحص
-  الصحة). بعد الدمج تُستبدل هذه النصوص تلقائياً وتصبح الصورة المنشورة مطابقة للكود.
-- **مفتاح المزوّد:** بيئة الإنتاج مضبوطة بمفتاح مزوّد (بحسب إعداد الفريق)، وعليها يُقاس `model_organization_rate`؛ ولا تُنسب
-  أرقام النموذج إلى التشغيل المحلي الحتمي في القسم ١٠. التحقق بلا كشف أي مفتاح: افتح مسار `/api/health` على الموقع، فتُعرض
+  خطوة نشر منفصلة.
+- **مفتاح المزوّد:** بيئة الإنتاج مضبوطة بمفتاح المزوّد وقاعدة البيانات، وعليها يعمل مسار التنظيم المقيَّد مع الرجوع التلقائي للمسار الحتمي. التحقق بلا كشف أي مفتاح: افتح مسار `/api/health` على الموقع، فتُعرض
   حالة المزوّد واسم النموذج وعدد المقاطع المعتمدة.
 - **بدون أي إعداد:** التطبيق ينشر ويعمل كاملاً بلا متغيرات؛ أضف `DATABASE_URL` فقط إن أردت تسجيل الجلسات.
 - الخطوات والتحقق بعد النشر في `docs/DEPLOYMENT.md`.
 
 ## ١٢. تحديث الـcorpus (تلقائي ويدوي)
 
-- **آلياً:** `.github/workflows/refresh-alifta-html.yml` — عند push إلى `main` أو عبر `workflow_dispatch`: `npm ci` → اختبارات التطبيق → اختبارات الزاحف → فحص الـmanifest → السحب → `alifta:verify` → assert أن الـcorpus غير فارغ → التزام النتائج. آخر تشغيل موثّق نجح على GitHub Actions (Run `37140974876`) استخدم `npm install` + `--autostash`؛
-  النسخة الحالية من الملف تستخدم `npm ci` مع `--autostash` كذلك، وأُعيد إنتاج خطوات git الخاصة به محلياً
-  على مستودع متباعد مع ملف قفل متسخ (PASS)، ويُشغَّل الملف كاملاً عند أول push إلى `main`.
+- **آلياً:** `.github/workflows/refresh-alifta-html.yml` — عند push إلى `main` أو عبر `workflow_dispatch`: `npm ci` → اختبارات التطبيق → اختبارات الزاحف → فحص الـmanifest → السحب → `alifta:verify` → assert أن الـcorpus غير فارغ → التزام النتائج. آخر تشغيل موثّق على `main` نجح على GitHub Actions (Run `37144086722`) باستخدام `npm ci` مع `--autostash`.
 - **يدوياً:** نفس الأوامر محلياً: `npm run alifta:test && npm run alifta:manifest && npm run alifta:ingest && npm run alifta:verify`.
 - **حماية البيانات:** أي تشغيل فاشل أو دون العتبة (١٠٠ مقطع، ٣ لكل باب) **لا يلمس** الـcorpus المعتمد؛ يكتب تشخيصه في `scripts/alifta-html/reports/` ويخرج بخطأ — مثبت باختبار انحدار آلي.
 
@@ -260,8 +256,8 @@ public/fonts/       خط حفص المُضمَّن + ترخيصه
 
 - **Retrieval-first design:** the LLM never retrieves. It only re-organizes the passages that were already retrieved, under an Arabic output guard; without an API key the same answer is produced deterministically.
 - **Corpus:** 486 approved chunks — 271 generated from official Al-Ifta pages (full matn, 278/280 pages verified, 12/12 doors covered) plus 215 curated chunks from 7 registered sources.
-- **Reproducibility:** 60 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
+- **Reproducibility:** 68 unit tests, 33 offline crawler regression tests, manifest checks, a 40-case frozen benchmark, an offline runtime smoke test, and a SHA-256-checked Quran font gate — all runnable from `package.json`.
 - **Last local benchmark (deterministic, no provider key):** outcome accuracy 1.00, abstention accuracy 1.00, source hit@4 1.00, topic hit 1.00, source recall 0.906, chunk hit@4 0.654.
-- **Status:** repository is currently private (public release pending), deployed benchmark run with a provider key is pending, UX testing and the demo video are open items — all tracked in `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
+- **Status:** repository is public and deployed on Vercel (<https://rafiq-al-qalbv2.vercel.app>); remaining optional post-deployment items (deployed benchmark run, UX testing, demo video) are tracked in `docs/CHALLENGE-DELIVERY-CHECKLIST.md`.
 
 </details>

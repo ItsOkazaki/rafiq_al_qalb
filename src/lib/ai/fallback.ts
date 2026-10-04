@@ -6,11 +6,22 @@
 
 import type { RetrievedPassage, TopicMatch } from "@/lib/types";
 
-function firstSentences(text: string, max = 2): string {
-  const parts = text
-    .split(/[؛.]/)
-    .map((s) => s.trim())
+/** توحيد الفواصل وعلامات الترقيم اللاتينية العارضة إلى مقابلها العربي. */
+export function normalizeArabicPunctuation(text: string): string {
+  return text
+    .replace(/,/g, "،")
+    .replace(/;/g, "؛")
+    .replace(/\?/g, "؟");
+}
+
+export function firstSentences(text: string, max = 2): string {
+  if (max <= 0) return "";
+  const parts = normalizeArabicPunctuation(text)
+    .replace(/\s+/g, " ")
+    .split(/[؛.؟!\u06D4]+/)
+    .map((s) => s.replace(/^[\s،؛؟.!:\-]+|[\s،؛؟.!:\-]+$/g, "").trim())
     .filter(Boolean);
+  if (parts.length === 0) return "";
   return parts.slice(0, max).join("؛ ") + "؛";
 }
 
@@ -25,18 +36,17 @@ export function buildResearchBrief(
   if (matchedTopics.length > 0) {
     lines.push("موضوعات المسار البحثي:");
     for (const m of matchedTopics) {
-      const count = passages.filter((p) =>
-        m.topic.keywords.some((k) => p.keywords.includes(k)) ,
-      ).length;
-      void count;
-      lines.push(`• ${m.topic.title}`);
+      lines.push(`• ${normalizeArabicPunctuation(m.topic.title)}`);
     }
     lines.push("");
   }
 
   lines.push("أبرز ما تضمنته المادة المسترجعة من المصدر المعتمد:");
   passages.forEach((p, i) => {
-    lines.push(`${i + 1}. ${firstSentences(p.text)} (الموضع: ${p.chapter})`);
+    const sourceText = p.hadithText?.trim() ? p.hadithText : p.text;
+    lines.push(
+      `${i + 1}. ${firstSentences(sourceText)} (الموضع: ${normalizeArabicPunctuation(p.chapter)})`,
+    );
   });
   lines.push("");
   lines.push(

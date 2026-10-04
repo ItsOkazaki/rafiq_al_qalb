@@ -6,7 +6,7 @@
 
 import { ALL_CHUNKS } from "@/lib/corpus/chunks";
 import { TOPICS } from "@/lib/rag/topics";
-import { APPROVED_SOURCES, getSourceById, isRetrievableSourceId, isExcludedSourceTitle } from "@/lib/sources/registry";
+import { ACTIVE_SOURCES, getSourceById, isRetrievableSourceId, isExcludedSourceTitle } from "@/lib/sources/registry";
 import { normalizeArabic, tokenizeArabic } from "@/lib/text/arabic";
 import type { CorpusChunk, RetrievedPassage, TopicMatch } from "@/lib/types";
 
@@ -109,7 +109,7 @@ function hasAuthorityCue(norm: string): boolean {
 
 function getExplicitSourceIds(norm: string): Set<string> {
   const ids = new Set<string>();
-  for (const source of APPROVED_SOURCES) {
+  for (const source of ACTIVE_SOURCES) {
     const authorTokens = tokenizeArabic(source.author)
       .map(normalizeArabic)
       .filter((t) => t.length >= 3 && !IGNORED_AUTHOR_TOKENS.has(t));

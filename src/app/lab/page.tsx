@@ -15,7 +15,27 @@ const stages = [
   ["03", "Topic + Keyword Analysis", "تحديد الأبواب البحثية الاثني عشر والكلمات المفتاحية من وصف المستخدم نفسه."],
   ["04", "Approved-Corpus Retrieval", "استرجاع لفظي/موضوعي من سجل المصادر المعتمدة فقط، بعتبة صلة وحد أقصى أربعة مقاطع، وحصر قرآني خاص عند سؤال التفسير."],
   ["05", "Evidence Gate", "إن لم تكفِ المادة → امتناع صريح. لا جواب بلا مقطع معتمد، ولا مصادر خارج السجل."],
-  ["06", "Grounded Organization", "نموذج مقيَّد (Gemini/OpenAI) يعيد تنظيم المقاطع المسترجعة بنص عربي فقط، وحارس لاحق يرفض أي صياغة محظورة أو مخرجات مختلطة، وإلا فالتنظيم الحتمي من المقاطع نفسها."],
+  ["06", "Grounded Organization", "نموذج مقيَّد (Gemini/OpenAI) يعيد تنظيم المقاطع المسترجعة وتلخيصها وفق مهارة النحو العربي المستخرجة من ألفية ابن مالك (شرح ابن عثيمين)، وحارس لاحق يرفض أي صياغة محظورة أو مخرجات مختلطة، وإلا فالتنظيم الحتمي من المقاطع نفسها."],
+];
+
+const nahwWorkflow = [
+  ["01", "فهم المعنى وتحديد العلاقات", "تحديد نوع الجملة، العلاقات النحوية، والعامل المؤثر قبل صياغة أي نقطة تلخيص."],
+  ["02", "مراجعة الإعراب والمطابقة", "التحقق من علامات الإعراب/البناء، المطابقة، الضمائر ومرجعها، والتقديم والتأخير."],
+  ["03", "الأولوية: المعنى > سلامة التركيب > السلاسة", "ضمان أن تطبيق القاعدة لا يفسد المعنى الأصلي للمقطع ولا يسبب تكلفاً في الأسلوب."],
+  ["04", "إخراج النص النهائي الصافي", "إخراج التلخيص العربي الفصيح فقط دون كشف الخطوات النحوية الداخلية ودون إضافة خارج الدليل."],
+];
+
+const nahwCheckpoints = [
+  ["١. الجملة الاسمية", "مبتدأ/خبر، نواسخ، مطابقة، حذف/تقدير (لا يُرفع كل اسم تلقائياً كمبتدأ)."],
+  ["٢. الجملة الفعلية", "فعل/فاعل/نائب/مفعول/متعلقات، وتفريق دقيق بين المفعولات والحال والتمييز."],
+  ["٣. علامات الإعراب", "مراجعة العلامات الفرعية (المثنى، جمع المذكر السالم، الأسماء والأفعال الخمسة، المقصور، المنقوص، الممنوع من الصرف)."],
+  ["٤. النواسخ", "كان وأخواتها، إن وأخواتها، أفعال القلوب، ومعرفة العامل قبل الإعراب."],
+  ["٥. التوابع", "نعت، عطف، توكيد، بدل — ومطابقة النعت لمنعوته في الإعراب والتعريف والتذكير والعدد."],
+  ["٦. الإضافة", "التحقق من المضاف والمضاف إليه، الجر، وأثر الإضافة في التعريف والتنكير."],
+  ["٧. الضمائر", "مرجع واضح غير غامض، مطابقة تامة، وموقع إعرابي صحيح."],
+  ["٨. الإشارة والموصولة", "مطابقة اسم الإشارة والموصول، صلة الموصول، والعائد وموقعه الإعرابي."],
+  ["٩. الأدوات", "مراجعة أثر أدوات الشرط والاستفهام والنفي والنصب والجزم في الفعل والجملة."],
+  ["١٠. الأفعال", "الزمن، البناء، الفاعل، التعدي واللزوم، المفعولات، وأثر الأدوات."],
 ];
 
 const metrics = [
@@ -73,6 +93,66 @@ export default function LabPage() {
               <p className="mt-2 text-[12px] leading-6 text-parchment-200/75">{desc}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <OrnamentDivider />
+
+      <section id="nahw-skill" className="mt-10 overflow-hidden rounded-3xl border border-brass-400/35 bg-forest-900 bg-arabesque-dark p-7 text-parchment-50 shadow-lift sm:p-9">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-brass-300/40 bg-brass-400/15 px-3.5 py-1 text-[11px] font-bold text-brass-200">
+              AI LINGUISTIC SKILL · بطاقة التميز في الذكاء الاصطناعي
+            </span>
+            <span className="text-[11px] text-parchment-200/70">المعنى &gt; سلامة التركيب &gt; السلاسة</span>
+          </div>
+          <a
+            href="https://shamela.ws/book/36954"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-brass-300/35 bg-forest-800 px-3.5 py-1.5 text-xs font-semibold text-brass-200 transition-colors hover:bg-forest-700"
+          >
+            <BookOpenText className="size-3.5" />
+            مرجع المهارة: شرح ألفية ابن مالك — ابن عثيمين (المكتبة الشاملة 36954)
+          </a>
+        </div>
+
+        <h2 className="heading-display mt-4 text-2xl font-bold text-parchment-50 sm:text-3xl">
+          التلخيص بقواعد النحو المستخرجة من ألفية ابن مالك [شرح ابن عثيمين]
+        </h2>
+        <p className="mt-3 text-sm leading-8 text-parchment-200/85">
+          تُحقن في طبقة التلخيص الآلي مهارة نحوية وصياغية مهيكلة مستخرجة من <strong className="text-brass-200">شرح ألفية ابن مالك للشيخ محمد بن صالح العثيمين رحمه الله</strong>، بحيث يعمل النموذج المقيَّد محرراً عربياً يكثّف المعلومات المسترجعة مع الحفاظ الصارم على سلامة الإعراب، دقة المعنى الأصلي، وسلاسة الأسلوب الفصيح غير المتكلف، دون حذف الجوانب الجوهرية أو إضافة أي معلومة من خارج الدليل.
+        </p>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {nahwWorkflow.map(([step, title, desc]) => (
+            <div key={step} className="rounded-2xl border border-brass-300/20 bg-forest-800/70 p-4">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] font-bold text-brass-300">{step}</span>
+                <span className="text-xs font-bold text-parchment-50">{title}</span>
+              </div>
+              <p className="mt-2 text-[11px] leading-5 text-parchment-200/75">{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-xs font-bold tracking-wide text-brass-300">نقاط المراقبة النحوية العشر المطبقة قبل الإخراج:</h3>
+          <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
+            {nahwCheckpoints.map(([title, desc]) => (
+              <div key={title} className="rounded-xl border border-parchment-50/10 bg-forest-950/55 p-3">
+                <p className="text-xs font-bold text-brass-200">{title}</p>
+                <p className="mt-1 text-[11px] leading-5 text-parchment-200/70">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-parchment-50/10 bg-forest-950/40 px-4 py-3 text-[11px] leading-6 text-parchment-200/80">
+          <span>
+            <strong className="text-brass-200">ضوابط التلخيص والتشكيل:</strong> تكثيف أمين بلا إخلال بالصحة النحوية · ضبط جزئي لإزالة اللبس فقط دون تخمين · عربي فصيح خالص بلا مصطلحات أجنبية.
+          </span>
+          <span className="font-mono text-[10px] text-brass-300/80">shamela.ws/book/36954</span>
         </div>
       </section>
 

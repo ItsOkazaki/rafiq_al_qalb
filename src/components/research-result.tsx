@@ -102,6 +102,12 @@ function OkView({ result }: { result: ResearchResult }) {
                   ? "محتوى مولّد آلياً — ليس نص المصدر ولا اقتباساً منه"
                   : "بدون نموذج ذكاء اصطناعي — النص مجمّع من المقاطع المسترجعة"}
               </span>
+              <Link
+                href="/lab#nahw-skill"
+                className="rounded-full border border-brass-400/40 bg-brass-400/15 px-3 py-0.5 text-[11px] font-semibold text-brass-200 transition-colors hover:bg-brass-400/25"
+              >
+                التلخيص بقواعد النحو المستخرجة من ألفية ابن مالك [شرح ابن عثيمين]
+              </Link>
             </div>
             {result.ai.mode === "model" && (
               <p className="rounded-lg border border-brass-300/25 bg-brass-400/10 px-4 py-3 text-xs font-semibold leading-6 text-brass-100">

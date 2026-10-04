@@ -138,6 +138,24 @@ export const APPROVED_SOURCES: RegisteredSource[] = [
     approvedAt: "2026-09-27",
     notes: "رسالة جليلة في تشريح أمراض القلوب المعنوية وسبل علاجها بالوحي.",
   },
+  {
+    id: "uthaymeen-alfiyyah-nahw",
+    slug: "sharh-alfiyyat-ibn-malik-uthaymeen",
+    title: "شرح ألفية ابن مالك",
+    author: "الشيخ محمد بن صالح العثيمين رحمه الله (١٣٤٧–١٤٢١هـ)",
+    category: "نحو ولغة عربية — ضبط التلخيص الآلي",
+    publisher: "المكتبة الشاملة",
+    registryUrl: "https://shamela.ws/book/36954",
+    originalUrl: "https://shamela.ws/book/36954",
+    verificationUrl: "https://shamela.ws/book/36954",
+    verificationLabel: "فتح مرجع شرح ألفية ابن مالك في المكتبة الشاملة",
+    status: "active",
+    showInLibrary: false,
+    approvedBy: "فريق رفيق القلوب — مهارة الضبط النحوي لطبقة التلخيص الآلي",
+    approvedAt: "2026-10-04",
+    notes:
+      "مرجع لغوي ونحوي داخلي لضبط صياغة التلخيص الآلي في مسار الذكاء الاصطناعي وفق قواعد النحو المستخرجة من شرح ألفية ابن مالك للشيخ ابن عثيمين (shamela.ws/book/36954)؛ يُستخدم لضبط سلامة الإعراب والتراكيب في الملخصات دون إضافة أي مادة خارج المقاطع المسترجعة.",
+  },
 ];
 
 /**
