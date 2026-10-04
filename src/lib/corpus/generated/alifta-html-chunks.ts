@@ -36,7 +36,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:05:43.656Z"
+      "fetchedAt": "2026-10-04T15:04:22.545Z"
     }
   },
   {
@@ -66,7 +66,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:05:48.232Z"
+      "fetchedAt": "2026-10-04T15:04:25.341Z"
     }
   },
   {
@@ -105,7 +105,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:05:49.004Z"
+      "fetchedAt": "2026-10-04T15:04:26.162Z"
     }
   },
   {
@@ -143,7 +143,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:05:49.936Z"
+      "fetchedAt": "2026-10-04T15:04:27.188Z"
     }
   },
   {
@@ -177,7 +177,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:05:50.838Z"
+      "fetchedAt": "2026-10-04T15:04:29.538Z"
     }
   },
   {
@@ -214,7 +214,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:05:51.606Z"
+      "fetchedAt": "2026-10-04T15:04:30.442Z"
     }
   },
   {
@@ -246,7 +246,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:10.187Z"
+      "fetchedAt": "2026-10-04T15:04:38.370Z"
     }
   },
   {
@@ -281,7 +281,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:16.188Z"
+      "fetchedAt": "2026-10-04T15:04:41.230Z"
     }
   },
   {
@@ -316,7 +316,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:17.890Z"
+      "fetchedAt": "2026-10-04T15:04:42.258Z"
     }
   },
   {
@@ -353,7 +353,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:31.418Z"
+      "fetchedAt": "2026-10-04T15:04:48.101Z"
     }
   },
   {
@@ -389,7 +389,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:39.511Z"
+      "fetchedAt": "2026-10-04T15:04:51.010Z"
     }
   },
   {
@@ -426,7 +426,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:41.199Z"
+      "fetchedAt": "2026-10-04T15:04:51.957Z"
     }
   },
   {
@@ -461,7 +461,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:42.012Z"
+      "fetchedAt": "2026-10-04T15:04:52.848Z"
     }
   },
   {
@@ -493,7 +493,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:06:59.368Z"
+      "fetchedAt": "2026-10-04T15:05:01.763Z"
     }
   },
   {
@@ -525,7 +525,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:07:20.776Z"
+      "fetchedAt": "2026-10-04T15:05:09.836Z"
     }
   },
   {
@@ -557,7 +557,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:07:38.106Z"
+      "fetchedAt": "2026-10-04T15:05:19.267Z"
     }
   },
   {
@@ -588,7 +588,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:07:59.663Z"
+      "fetchedAt": "2026-10-04T15:05:27.524Z"
     }
   },
   {
@@ -621,7 +621,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:08:21.464Z"
+      "fetchedAt": "2026-10-04T15:05:36.646Z"
     }
   },
   {
@@ -657,7 +657,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:08:22.280Z"
+      "fetchedAt": "2026-10-04T15:05:37.573Z"
     }
   },
   {
@@ -688,7 +688,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:08:28.222Z"
+      "fetchedAt": "2026-10-04T15:05:40.563Z"
     }
   },
   {
@@ -724,7 +724,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:08:51.787Z"
+      "fetchedAt": "2026-10-04T15:05:56.439Z"
     }
   },
   {
@@ -761,7 +761,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:02.433Z"
+      "fetchedAt": "2026-10-04T15:06:05.528Z"
     }
   },
   {
@@ -796,7 +796,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:12.587Z"
+      "fetchedAt": "2026-10-04T15:06:15.542Z"
     }
   },
   {
@@ -831,7 +831,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:21.706Z"
+      "fetchedAt": "2026-10-04T15:06:24.581Z"
     }
   },
   {
@@ -867,7 +867,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:30.274Z"
+      "fetchedAt": "2026-10-04T15:06:34.046Z"
     }
   },
   {
@@ -899,7 +899,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:39.310Z"
+      "fetchedAt": "2026-10-04T15:06:43.935Z"
     }
   },
   {
@@ -936,7 +936,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:49.123Z"
+      "fetchedAt": "2026-10-04T15:06:55.316Z"
     }
   },
   {
@@ -973,7 +973,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:09:58.914Z"
+      "fetchedAt": "2026-10-04T15:07:05.290Z"
     }
   },
   {
@@ -1003,7 +1003,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:10:14.453Z"
+      "fetchedAt": "2026-10-04T15:07:19.412Z"
     }
   },
   {
@@ -1039,7 +1039,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:10:38.657Z"
+      "fetchedAt": "2026-10-04T15:07:32.296Z"
     }
   },
   {
@@ -1070,7 +1070,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:10:55.678Z"
+      "fetchedAt": "2026-10-04T15:07:41.036Z"
     }
   },
   {
@@ -1107,7 +1107,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:11:12.991Z"
+      "fetchedAt": "2026-10-04T15:07:55.072Z"
     }
   },
   {
@@ -1143,7 +1143,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:11:29.515Z"
+      "fetchedAt": "2026-10-04T15:08:08.557Z"
     }
   },
   {
@@ -1179,7 +1179,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:11:52.251Z"
+      "fetchedAt": "2026-10-04T15:08:28.317Z"
     }
   },
   {
@@ -1210,7 +1210,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:12:15.512Z"
+      "fetchedAt": "2026-10-04T15:08:42.443Z"
     }
   },
   {
@@ -1242,7 +1242,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:12:36.249Z"
+      "fetchedAt": "2026-10-04T15:08:54.624Z"
     }
   },
   {
@@ -1274,7 +1274,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:12:37.224Z"
+      "fetchedAt": "2026-10-04T15:08:55.048Z"
     }
   },
   {
@@ -1306,7 +1306,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:12:37.635Z"
+      "fetchedAt": "2026-10-04T15:08:55.460Z"
     }
   },
   {
@@ -1338,7 +1338,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:12:38.042Z"
+      "fetchedAt": "2026-10-04T15:08:55.882Z"
     }
   },
   {
@@ -1375,7 +1375,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33772",
-      "fetchedAt": "2026-10-04T00:12:38.463Z"
+      "fetchedAt": "2026-10-04T15:08:56.312Z"
     }
   },
   {
@@ -1414,7 +1414,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:39.475Z"
+      "fetchedAt": "2026-10-04T15:08:57.357Z"
     }
   },
   {
@@ -1453,7 +1453,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:39.876Z"
+      "fetchedAt": "2026-10-04T15:08:57.767Z"
     }
   },
   {
@@ -1488,7 +1488,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:40.295Z"
+      "fetchedAt": "2026-10-04T15:08:58.198Z"
     }
   },
   {
@@ -1524,7 +1524,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:40.725Z"
+      "fetchedAt": "2026-10-04T15:08:58.609Z"
     }
   },
   {
@@ -1562,7 +1562,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:41.142Z"
+      "fetchedAt": "2026-10-04T15:08:59.032Z"
     }
   },
   {
@@ -1597,7 +1597,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:41.546Z"
+      "fetchedAt": "2026-10-04T15:08:59.446Z"
     }
   },
   {
@@ -1635,7 +1635,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:41.962Z"
+      "fetchedAt": "2026-10-04T15:08:59.860Z"
     }
   },
   {
@@ -1669,7 +1669,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:42.370Z"
+      "fetchedAt": "2026-10-04T15:09:00.271Z"
     }
   },
   {
@@ -1707,7 +1707,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:42.772Z"
+      "fetchedAt": "2026-10-04T15:09:00.681Z"
     }
   },
   {
@@ -1746,7 +1746,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:43.179Z"
+      "fetchedAt": "2026-10-04T15:09:01.094Z"
     }
   },
   {
@@ -1784,7 +1784,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:43.584Z"
+      "fetchedAt": "2026-10-04T15:09:01.513Z"
     }
   },
   {
@@ -1823,7 +1823,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:44.008Z"
+      "fetchedAt": "2026-10-04T15:09:01.928Z"
     }
   },
   {
@@ -1862,7 +1862,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:44.415Z"
+      "fetchedAt": "2026-10-04T15:09:02.344Z"
     }
   },
   {
@@ -1897,7 +1897,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:44.819Z"
+      "fetchedAt": "2026-10-04T15:09:02.770Z"
     }
   },
   {
@@ -1936,7 +1936,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:45.225Z"
+      "fetchedAt": "2026-10-04T15:09:03.193Z"
     }
   },
   {
@@ -1974,7 +1974,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:45.628Z"
+      "fetchedAt": "2026-10-04T15:09:03.605Z"
     }
   },
   {
@@ -2008,7 +2008,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:46.041Z"
+      "fetchedAt": "2026-10-04T15:09:04.028Z"
     }
   },
   {
@@ -2046,7 +2046,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:46.448Z"
+      "fetchedAt": "2026-10-04T15:09:04.446Z"
     }
   },
   {
@@ -2085,7 +2085,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:46.876Z"
+      "fetchedAt": "2026-10-04T15:09:04.859Z"
     }
   },
   {
@@ -2124,7 +2124,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:47.289Z"
+      "fetchedAt": "2026-10-04T15:09:05.274Z"
     }
   },
   {
@@ -2159,7 +2159,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:47.694Z"
+      "fetchedAt": "2026-10-04T15:09:05.703Z"
     }
   },
   {
@@ -2198,7 +2198,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:48.098Z"
+      "fetchedAt": "2026-10-04T15:09:06.117Z"
     }
   },
   {
@@ -2237,7 +2237,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:48.501Z"
+      "fetchedAt": "2026-10-04T15:09:06.532Z"
     }
   },
   {
@@ -2276,7 +2276,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:48.922Z"
+      "fetchedAt": "2026-10-04T15:09:06.952Z"
     }
   },
   {
@@ -2311,7 +2311,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:49.334Z"
+      "fetchedAt": "2026-10-04T15:09:07.375Z"
     }
   },
   {
@@ -2348,7 +2348,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:49.740Z"
+      "fetchedAt": "2026-10-04T15:09:07.787Z"
     }
   },
   {
@@ -2386,7 +2386,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:50.150Z"
+      "fetchedAt": "2026-10-04T15:09:08.218Z"
     }
   },
   {
@@ -2425,7 +2425,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:50.590Z"
+      "fetchedAt": "2026-10-04T15:09:08.636Z"
     }
   },
   {
@@ -2460,7 +2460,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:50.993Z"
+      "fetchedAt": "2026-10-04T15:09:09.049Z"
     }
   },
   {
@@ -2496,7 +2496,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:51.398Z"
+      "fetchedAt": "2026-10-04T15:09:09.470Z"
     }
   },
   {
@@ -2535,7 +2535,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:51.813Z"
+      "fetchedAt": "2026-10-04T15:09:09.893Z"
     }
   },
   {
@@ -2566,7 +2566,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:52.216Z"
+      "fetchedAt": "2026-10-04T15:09:10.306Z"
     }
   },
   {
@@ -2605,7 +2605,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:52.623Z"
+      "fetchedAt": "2026-10-04T15:09:10.721Z"
     }
   },
   {
@@ -2644,7 +2644,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:53.036Z"
+      "fetchedAt": "2026-10-04T15:09:11.135Z"
     }
   },
   {
@@ -2679,7 +2679,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:53.451Z"
+      "fetchedAt": "2026-10-04T15:09:11.557Z"
     }
   },
   {
@@ -2718,7 +2718,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:57.713Z"
+      "fetchedAt": "2026-10-04T15:09:14.446Z"
     }
   },
   {
@@ -2757,7 +2757,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:58.127Z"
+      "fetchedAt": "2026-10-04T15:09:14.862Z"
     }
   },
   {
@@ -2792,7 +2792,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:58.559Z"
+      "fetchedAt": "2026-10-04T15:09:15.285Z"
     }
   },
   {
@@ -2826,7 +2826,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=10996",
-      "fetchedAt": "2026-10-04T00:12:58.964Z"
+      "fetchedAt": "2026-10-04T15:09:15.700Z"
     }
   },
   {
@@ -2855,7 +2855,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:00.248Z"
+      "fetchedAt": "2026-10-04T15:09:16.848Z"
     }
   },
   {
@@ -2887,7 +2887,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:00.654Z"
+      "fetchedAt": "2026-10-04T15:09:17.280Z"
     }
   },
   {
@@ -2917,7 +2917,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:01.057Z"
+      "fetchedAt": "2026-10-04T15:09:17.692Z"
     }
   },
   {
@@ -2950,7 +2950,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:01.458Z"
+      "fetchedAt": "2026-10-04T15:09:18.107Z"
     }
   },
   {
@@ -2982,7 +2982,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:01.867Z"
+      "fetchedAt": "2026-10-04T15:09:18.524Z"
     }
   },
   {
@@ -3016,7 +3016,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:02.280Z"
+      "fetchedAt": "2026-10-04T15:09:18.935Z"
     }
   },
   {
@@ -3048,7 +3048,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:02.689Z"
+      "fetchedAt": "2026-10-04T15:09:19.350Z"
     }
   },
   {
@@ -3080,7 +3080,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:03.094Z"
+      "fetchedAt": "2026-10-04T15:09:19.762Z"
     }
   },
   {
@@ -3113,7 +3113,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:03.504Z"
+      "fetchedAt": "2026-10-04T15:09:20.177Z"
     }
   },
   {
@@ -3146,7 +3146,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:03.919Z"
+      "fetchedAt": "2026-10-04T15:09:20.600Z"
     }
   },
   {
@@ -3175,7 +3175,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:04.319Z"
+      "fetchedAt": "2026-10-04T15:09:21.011Z"
     }
   },
   {
@@ -3206,7 +3206,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:04.729Z"
+      "fetchedAt": "2026-10-04T15:09:21.422Z"
     }
   },
   {
@@ -3241,7 +3241,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:05.144Z"
+      "fetchedAt": "2026-10-04T15:09:21.832Z"
     }
   },
   {
@@ -3271,7 +3271,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:05.586Z"
+      "fetchedAt": "2026-10-04T15:09:22.260Z"
     }
   },
   {
@@ -3303,7 +3303,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:05.986Z"
+      "fetchedAt": "2026-10-04T15:09:22.670Z"
     }
   },
   {
@@ -3337,7 +3337,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:06.387Z"
+      "fetchedAt": "2026-10-04T15:09:23.082Z"
     }
   },
   {
@@ -3369,7 +3369,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:06.803Z"
+      "fetchedAt": "2026-10-04T15:09:23.524Z"
     }
   },
   {
@@ -3404,7 +3404,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:07.213Z"
+      "fetchedAt": "2026-10-04T15:09:23.944Z"
     }
   },
   {
@@ -3436,7 +3436,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:07.614Z"
+      "fetchedAt": "2026-10-04T15:09:24.356Z"
     }
   },
   {
@@ -3468,7 +3468,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:08.017Z"
+      "fetchedAt": "2026-10-04T15:09:24.768Z"
     }
   },
   {
@@ -3502,7 +3502,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:08.417Z"
+      "fetchedAt": "2026-10-04T15:09:25.186Z"
     }
   },
   {
@@ -3537,7 +3537,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:08.819Z"
+      "fetchedAt": "2026-10-04T15:09:25.610Z"
     }
   },
   {
@@ -3569,7 +3569,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:09.219Z"
+      "fetchedAt": "2026-10-04T15:09:26.022Z"
     }
   },
   {
@@ -3602,7 +3602,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:09.633Z"
+      "fetchedAt": "2026-10-04T15:09:26.434Z"
     }
   },
   {
@@ -3637,7 +3637,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:10.034Z"
+      "fetchedAt": "2026-10-04T15:09:26.847Z"
     }
   },
   {
@@ -3670,7 +3670,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:10.436Z"
+      "fetchedAt": "2026-10-04T15:09:27.260Z"
     }
   },
   {
@@ -3702,7 +3702,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:10.841Z"
+      "fetchedAt": "2026-10-04T15:09:27.674Z"
     }
   },
   {
@@ -3737,7 +3737,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:11.244Z"
+      "fetchedAt": "2026-10-04T15:09:28.087Z"
     }
   },
   {
@@ -3771,7 +3771,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:11.671Z"
+      "fetchedAt": "2026-10-04T15:09:28.504Z"
     }
   },
   {
@@ -3806,7 +3806,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:12.075Z"
+      "fetchedAt": "2026-10-04T15:09:28.917Z"
     }
   },
   {
@@ -3839,7 +3839,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:12.489Z"
+      "fetchedAt": "2026-10-04T15:09:29.330Z"
     }
   },
   {
@@ -3871,7 +3871,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:12.897Z"
+      "fetchedAt": "2026-10-04T15:09:29.744Z"
     }
   },
   {
@@ -3903,7 +3903,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:13.307Z"
+      "fetchedAt": "2026-10-04T15:09:30.158Z"
     }
   },
   {
@@ -3938,7 +3938,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:13.712Z"
+      "fetchedAt": "2026-10-04T15:09:30.596Z"
     }
   },
   {
@@ -3973,7 +3973,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:14.121Z"
+      "fetchedAt": "2026-10-04T15:09:31.013Z"
     }
   },
   {
@@ -4006,7 +4006,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:14.525Z"
+      "fetchedAt": "2026-10-04T15:09:31.433Z"
     }
   },
   {
@@ -4040,7 +4040,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:14.925Z"
+      "fetchedAt": "2026-10-04T15:09:31.842Z"
     }
   },
   {
@@ -4070,7 +4070,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:15.351Z"
+      "fetchedAt": "2026-10-04T15:09:32.255Z"
     }
   },
   {
@@ -4105,7 +4105,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:15.757Z"
+      "fetchedAt": "2026-10-04T15:09:32.666Z"
     }
   },
   {
@@ -4136,7 +4136,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=31033",
-      "fetchedAt": "2026-10-04T00:13:16.159Z"
+      "fetchedAt": "2026-10-04T15:09:33.077Z"
     }
   },
   {
@@ -4171,7 +4171,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:17.176Z"
+      "fetchedAt": "2026-10-04T15:09:34.119Z"
     }
   },
   {
@@ -4206,7 +4206,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:17.583Z"
+      "fetchedAt": "2026-10-04T15:09:34.527Z"
     }
   },
   {
@@ -4240,7 +4240,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:17.992Z"
+      "fetchedAt": "2026-10-04T15:09:34.936Z"
     }
   },
   {
@@ -4275,7 +4275,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:18.410Z"
+      "fetchedAt": "2026-10-04T15:09:35.360Z"
     }
   },
   {
@@ -4310,7 +4310,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:18.838Z"
+      "fetchedAt": "2026-10-04T15:09:35.791Z"
     }
   },
   {
@@ -4341,7 +4341,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:19.241Z"
+      "fetchedAt": "2026-10-04T15:09:36.199Z"
     }
   },
   {
@@ -4372,7 +4372,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:19.654Z"
+      "fetchedAt": "2026-10-04T15:09:36.614Z"
     }
   },
   {
@@ -4404,7 +4404,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:20.054Z"
+      "fetchedAt": "2026-10-04T15:09:37.020Z"
     }
   },
   {
@@ -4436,7 +4436,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:20.455Z"
+      "fetchedAt": "2026-10-04T15:09:37.441Z"
     }
   },
   {
@@ -4467,7 +4467,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:20.866Z"
+      "fetchedAt": "2026-10-04T15:09:37.856Z"
     }
   },
   {
@@ -4499,7 +4499,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:21.265Z"
+      "fetchedAt": "2026-10-04T15:09:38.263Z"
     }
   },
   {
@@ -4532,7 +4532,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:21.665Z"
+      "fetchedAt": "2026-10-04T15:09:38.680Z"
     }
   },
   {
@@ -4561,7 +4561,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:22.069Z"
+      "fetchedAt": "2026-10-04T15:09:39.661Z"
     }
   },
   {
@@ -4596,7 +4596,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:23.665Z"
+      "fetchedAt": "2026-10-04T15:09:40.072Z"
     }
   },
   {
@@ -4630,7 +4630,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:24.076Z"
+      "fetchedAt": "2026-10-04T15:09:40.478Z"
     }
   },
   {
@@ -4661,7 +4661,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:24.469Z"
+      "fetchedAt": "2026-10-04T15:09:40.899Z"
     }
   },
   {
@@ -4693,7 +4693,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:24.861Z"
+      "fetchedAt": "2026-10-04T15:09:41.311Z"
     }
   },
   {
@@ -4725,7 +4725,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:25.256Z"
+      "fetchedAt": "2026-10-04T15:09:41.721Z"
     }
   },
   {
@@ -4764,7 +4764,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:25.648Z"
+      "fetchedAt": "2026-10-04T15:09:42.130Z"
     }
   },
   {
@@ -4795,7 +4795,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:26.039Z"
+      "fetchedAt": "2026-10-04T15:09:42.543Z"
     }
   },
   {
@@ -4827,7 +4827,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:26.433Z"
+      "fetchedAt": "2026-10-04T15:09:42.952Z"
     }
   },
   {
@@ -4861,7 +4861,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:26.825Z"
+      "fetchedAt": "2026-10-04T15:09:43.361Z"
     }
   },
   {
@@ -4896,7 +4896,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:27.223Z"
+      "fetchedAt": "2026-10-04T15:09:43.772Z"
     }
   },
   {
@@ -4931,7 +4931,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:27.615Z"
+      "fetchedAt": "2026-10-04T15:09:44.181Z"
     }
   },
   {
@@ -4963,7 +4963,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:28.006Z"
+      "fetchedAt": "2026-10-04T15:09:44.590Z"
     }
   },
   {
@@ -4998,7 +4998,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:28.401Z"
+      "fetchedAt": "2026-10-04T15:09:45.021Z"
     }
   },
   {
@@ -5032,7 +5032,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:28.798Z"
+      "fetchedAt": "2026-10-04T15:09:45.432Z"
     }
   },
   {
@@ -5067,7 +5067,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:29.237Z"
+      "fetchedAt": "2026-10-04T15:09:45.852Z"
     }
   },
   {
@@ -5102,7 +5102,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:29.678Z"
+      "fetchedAt": "2026-10-04T15:09:46.282Z"
     }
   },
   {
@@ -5137,7 +5137,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:30.093Z"
+      "fetchedAt": "2026-10-04T15:09:46.698Z"
     }
   },
   {
@@ -5172,7 +5172,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:30.546Z"
+      "fetchedAt": "2026-10-04T15:09:47.108Z"
     }
   },
   {
@@ -5207,7 +5207,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:31.132Z"
+      "fetchedAt": "2026-10-04T15:09:47.524Z"
     }
   },
   {
@@ -5236,7 +5236,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:31.555Z"
+      "fetchedAt": "2026-10-04T15:09:47.935Z"
     }
   },
   {
@@ -5269,7 +5269,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:31.951Z"
+      "fetchedAt": "2026-10-04T15:09:48.346Z"
     }
   },
   {
@@ -5304,7 +5304,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:32.375Z"
+      "fetchedAt": "2026-10-04T15:09:48.756Z"
     }
   },
   {
@@ -5343,7 +5343,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:32.767Z"
+      "fetchedAt": "2026-10-04T15:09:49.169Z"
     }
   },
   {
@@ -5375,7 +5375,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:33.169Z"
+      "fetchedAt": "2026-10-04T15:09:49.583Z"
     }
   },
   {
@@ -5407,7 +5407,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:33.563Z"
+      "fetchedAt": "2026-10-04T15:09:49.994Z"
     }
   },
   {
@@ -5440,7 +5440,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:33.972Z"
+      "fetchedAt": "2026-10-04T15:09:50.420Z"
     }
   },
   {
@@ -5469,7 +5469,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33942",
-      "fetchedAt": "2026-10-04T00:13:34.364Z"
+      "fetchedAt": "2026-10-04T15:09:50.838Z"
     }
   },
   {
@@ -5496,7 +5496,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=3&mainId=91900",
-      "fetchedAt": "2026-10-04T00:13:34.757Z"
+      "fetchedAt": "2026-10-04T15:09:51.248Z"
     }
   },
   {
@@ -5527,7 +5527,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/MatnService/HadithServiceData?inx=1&mainId=1236&serviceId=6",
-      "fetchedAt": "2026-10-04T00:13:35.154Z"
+      "fetchedAt": "2026-10-04T15:09:51.640Z"
     }
   },
   {
@@ -5561,7 +5561,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/BookToc/ViewServicePage?BookID=43&mainId=393972",
-      "fetchedAt": "2026-10-04T00:13:35.402Z"
+      "fetchedAt": "2026-10-04T15:09:51.908Z"
     }
   },
   {
@@ -5595,7 +5595,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:36.236Z"
+      "fetchedAt": "2026-10-04T15:09:52.800Z"
     }
   },
   {
@@ -5627,7 +5627,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:36.630Z"
+      "fetchedAt": "2026-10-04T15:09:53.208Z"
     }
   },
   {
@@ -5662,7 +5662,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:37.023Z"
+      "fetchedAt": "2026-10-04T15:09:53.618Z"
     }
   },
   {
@@ -5696,7 +5696,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:37.417Z"
+      "fetchedAt": "2026-10-04T15:09:54.029Z"
     }
   },
   {
@@ -5731,7 +5731,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:38.210Z"
+      "fetchedAt": "2026-10-04T15:09:54.855Z"
     }
   },
   {
@@ -5765,7 +5765,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:38.603Z"
+      "fetchedAt": "2026-10-04T15:09:55.273Z"
     }
   },
   {
@@ -5800,7 +5800,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:38.994Z"
+      "fetchedAt": "2026-10-04T15:09:55.680Z"
     }
   },
   {
@@ -5838,7 +5838,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:39.393Z"
+      "fetchedAt": "2026-10-04T15:09:56.093Z"
     }
   },
   {
@@ -5873,7 +5873,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:39.790Z"
+      "fetchedAt": "2026-10-04T15:09:56.505Z"
     }
   },
   {
@@ -5906,7 +5906,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:40.207Z"
+      "fetchedAt": "2026-10-04T15:09:56.917Z"
     }
   },
   {
@@ -5936,7 +5936,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:40.606Z"
+      "fetchedAt": "2026-10-04T15:09:57.328Z"
     }
   },
   {
@@ -5971,7 +5971,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:41.000Z"
+      "fetchedAt": "2026-10-04T15:09:57.740Z"
     }
   },
   {
@@ -6003,7 +6003,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:41.392Z"
+      "fetchedAt": "2026-10-04T15:09:58.149Z"
     }
   },
   {
@@ -6038,7 +6038,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:41.804Z"
+      "fetchedAt": "2026-10-04T15:09:58.571Z"
     }
   },
   {
@@ -6073,7 +6073,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:42.199Z"
+      "fetchedAt": "2026-10-04T15:09:58.984Z"
     }
   },
   {
@@ -6106,7 +6106,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:42.597Z"
+      "fetchedAt": "2026-10-04T15:09:59.422Z"
     }
   },
   {
@@ -6137,7 +6137,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:42.994Z"
+      "fetchedAt": "2026-10-04T15:09:59.832Z"
     }
   },
   {
@@ -6167,7 +6167,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:43.385Z"
+      "fetchedAt": "2026-10-04T15:10:00.241Z"
     }
   },
   {
@@ -6197,7 +6197,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:43.787Z"
+      "fetchedAt": "2026-10-04T15:10:00.651Z"
     }
   },
   {
@@ -6230,7 +6230,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:44.182Z"
+      "fetchedAt": "2026-10-04T15:10:01.061Z"
     }
   },
   {
@@ -6262,7 +6262,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:45.375Z"
+      "fetchedAt": "2026-10-04T15:10:02.332Z"
     }
   },
   {
@@ -6297,7 +6297,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:45.768Z"
+      "fetchedAt": "2026-10-04T15:10:02.747Z"
     }
   },
   {
@@ -6332,7 +6332,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:46.174Z"
+      "fetchedAt": "2026-10-04T15:10:03.166Z"
     }
   },
   {
@@ -6360,7 +6360,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:46.970Z"
+      "fetchedAt": "2026-10-04T15:10:04.006Z"
     }
   },
   {
@@ -6393,7 +6393,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:47.363Z"
+      "fetchedAt": "2026-10-04T15:10:04.444Z"
     }
   },
   {
@@ -6427,7 +6427,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:47.771Z"
+      "fetchedAt": "2026-10-04T15:10:04.869Z"
     }
   },
   {
@@ -6463,7 +6463,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:48.174Z"
+      "fetchedAt": "2026-10-04T15:10:05.288Z"
     }
   },
   {
@@ -6498,7 +6498,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:48.580Z"
+      "fetchedAt": "2026-10-04T15:10:05.728Z"
     }
   },
   {
@@ -6531,7 +6531,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:48.979Z"
+      "fetchedAt": "2026-10-04T15:10:06.142Z"
     }
   },
   {
@@ -6564,7 +6564,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:49.372Z"
+      "fetchedAt": "2026-10-04T15:10:06.552Z"
     }
   },
   {
@@ -6599,7 +6599,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:49.782Z"
+      "fetchedAt": "2026-10-04T15:10:06.972Z"
     }
   },
   {
@@ -6634,7 +6634,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:50.186Z"
+      "fetchedAt": "2026-10-04T15:10:07.384Z"
     }
   },
   {
@@ -6669,7 +6669,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:50.582Z"
+      "fetchedAt": "2026-10-04T15:10:07.795Z"
     }
   },
   {
@@ -6704,7 +6704,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:50.981Z"
+      "fetchedAt": "2026-10-04T15:10:08.205Z"
     }
   },
   {
@@ -6739,7 +6739,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:51.381Z"
+      "fetchedAt": "2026-10-04T15:10:08.622Z"
     }
   },
   {
@@ -6772,7 +6772,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33508",
-      "fetchedAt": "2026-10-04T00:13:51.781Z"
+      "fetchedAt": "2026-10-04T15:10:09.041Z"
     }
   },
   {
@@ -6801,7 +6801,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=9182",
-      "fetchedAt": "2026-10-04T00:13:52.174Z"
+      "fetchedAt": "2026-10-04T15:10:09.448Z"
     }
   },
   {
@@ -6830,7 +6830,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=9666",
-      "fetchedAt": "2026-10-04T00:13:52.414Z"
+      "fetchedAt": "2026-10-04T15:10:09.704Z"
     }
   },
   {
@@ -6863,7 +6863,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=9667",
-      "fetchedAt": "2026-10-04T00:13:52.655Z"
+      "fetchedAt": "2026-10-04T15:10:09.963Z"
     }
   },
   {
@@ -6895,7 +6895,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/BookToc/ViewMatnPage?bookId=1&mainId=10620",
-      "fetchedAt": "2026-10-04T00:13:52.893Z"
+      "fetchedAt": "2026-10-04T15:10:10.217Z"
     }
   },
   {
@@ -6928,7 +6928,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:56.428Z"
+      "fetchedAt": "2026-10-04T15:10:13.569Z"
     }
   },
   {
@@ -6961,7 +6961,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:56.820Z"
+      "fetchedAt": "2026-10-04T15:10:13.977Z"
     }
   },
   {
@@ -6991,7 +6991,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:57.213Z"
+      "fetchedAt": "2026-10-04T15:10:14.387Z"
     }
   },
   {
@@ -7024,7 +7024,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:57.606Z"
+      "fetchedAt": "2026-10-04T15:10:14.802Z"
     }
   },
   {
@@ -7054,7 +7054,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:58.000Z"
+      "fetchedAt": "2026-10-04T15:10:15.213Z"
     }
   },
   {
@@ -7087,7 +7087,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:58.390Z"
+      "fetchedAt": "2026-10-04T15:10:15.620Z"
     }
   },
   {
@@ -7120,7 +7120,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:58.782Z"
+      "fetchedAt": "2026-10-04T15:10:16.026Z"
     }
   },
   {
@@ -7153,7 +7153,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:59.174Z"
+      "fetchedAt": "2026-10-04T15:10:16.434Z"
     }
   },
   {
@@ -7186,7 +7186,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:59.567Z"
+      "fetchedAt": "2026-10-04T15:10:16.853Z"
     }
   },
   {
@@ -7216,7 +7216,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:13:59.961Z"
+      "fetchedAt": "2026-10-04T15:10:17.264Z"
     }
   },
   {
@@ -7249,7 +7249,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:00.353Z"
+      "fetchedAt": "2026-10-04T15:10:17.680Z"
     }
   },
   {
@@ -7282,7 +7282,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:00.751Z"
+      "fetchedAt": "2026-10-04T15:10:18.091Z"
     }
   },
   {
@@ -7312,7 +7312,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:01.149Z"
+      "fetchedAt": "2026-10-04T15:10:18.503Z"
     }
   },
   {
@@ -7342,7 +7342,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:01.555Z"
+      "fetchedAt": "2026-10-04T15:10:18.914Z"
     }
   },
   {
@@ -7373,7 +7373,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:01.959Z"
+      "fetchedAt": "2026-10-04T15:10:19.334Z"
     }
   },
   {
@@ -7403,7 +7403,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:02.353Z"
+      "fetchedAt": "2026-10-04T15:10:19.746Z"
     }
   },
   {
@@ -7433,7 +7433,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:02.790Z"
+      "fetchedAt": "2026-10-04T15:10:20.737Z"
     }
   },
   {
@@ -7466,7 +7466,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:04.433Z"
+      "fetchedAt": "2026-10-04T15:10:21.150Z"
     }
   },
   {
@@ -7495,7 +7495,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:04.855Z"
+      "fetchedAt": "2026-10-04T15:10:21.562Z"
     }
   },
   {
@@ -7524,7 +7524,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:05.277Z"
+      "fetchedAt": "2026-10-04T15:10:21.973Z"
     }
   },
   {
@@ -7557,7 +7557,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:05.697Z"
+      "fetchedAt": "2026-10-04T15:10:22.385Z"
     }
   },
   {
@@ -7590,7 +7590,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:06.121Z"
+      "fetchedAt": "2026-10-04T15:10:22.818Z"
     }
   },
   {
@@ -7617,7 +7617,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:06.545Z"
+      "fetchedAt": "2026-10-04T15:10:23.239Z"
     }
   },
   {
@@ -7646,7 +7646,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:06.992Z"
+      "fetchedAt": "2026-10-04T15:10:23.651Z"
     }
   },
   {
@@ -7676,7 +7676,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:07.410Z"
+      "fetchedAt": "2026-10-04T15:10:24.084Z"
     }
   },
   {
@@ -7707,7 +7707,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:07.820Z"
+      "fetchedAt": "2026-10-04T15:10:24.496Z"
     }
   },
   {
@@ -7740,7 +7740,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:08.233Z"
+      "fetchedAt": "2026-10-04T15:10:24.910Z"
     }
   },
   {
@@ -7769,7 +7769,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:08.642Z"
+      "fetchedAt": "2026-10-04T15:10:25.322Z"
     }
   },
   {
@@ -7799,7 +7799,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:09.050Z"
+      "fetchedAt": "2026-10-04T15:10:25.734Z"
     }
   },
   {
@@ -7830,7 +7830,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:09.466Z"
+      "fetchedAt": "2026-10-04T15:10:26.150Z"
     }
   },
   {
@@ -7863,7 +7863,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:09.875Z"
+      "fetchedAt": "2026-10-04T15:10:26.560Z"
     }
   },
   {
@@ -7891,7 +7891,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:10.285Z"
+      "fetchedAt": "2026-10-04T15:10:26.970Z"
     }
   },
   {
@@ -7924,7 +7924,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:10.699Z"
+      "fetchedAt": "2026-10-04T15:10:27.382Z"
     }
   },
   {
@@ -7957,7 +7957,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:11.142Z"
+      "fetchedAt": "2026-10-04T15:10:27.795Z"
     }
   },
   {
@@ -7985,7 +7985,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:11.552Z"
+      "fetchedAt": "2026-10-04T15:10:28.208Z"
     }
   },
   {
@@ -8015,7 +8015,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=32728",
-      "fetchedAt": "2026-10-04T00:14:11.964Z"
+      "fetchedAt": "2026-10-04T15:10:28.623Z"
     }
   },
   {
@@ -8047,7 +8047,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:15.459Z"
+      "fetchedAt": "2026-10-04T15:10:32.147Z"
     }
   },
   {
@@ -8082,7 +8082,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:15.883Z"
+      "fetchedAt": "2026-10-04T15:10:32.565Z"
     }
   },
   {
@@ -8116,7 +8116,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:16.295Z"
+      "fetchedAt": "2026-10-04T15:10:32.982Z"
     }
   },
   {
@@ -8148,7 +8148,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:16.711Z"
+      "fetchedAt": "2026-10-04T15:10:33.403Z"
     }
   },
   {
@@ -8181,7 +8181,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:17.142Z"
+      "fetchedAt": "2026-10-04T15:10:33.815Z"
     }
   },
   {
@@ -8216,7 +8216,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:17.557Z"
+      "fetchedAt": "2026-10-04T15:10:34.228Z"
     }
   },
   {
@@ -8250,7 +8250,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:17.972Z"
+      "fetchedAt": "2026-10-04T15:10:34.640Z"
     }
   },
   {
@@ -8284,7 +8284,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:18.383Z"
+      "fetchedAt": "2026-10-04T15:10:35.051Z"
     }
   },
   {
@@ -8312,7 +8312,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:18.800Z"
+      "fetchedAt": "2026-10-04T15:10:35.462Z"
     }
   },
   {
@@ -8347,7 +8347,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:19.213Z"
+      "fetchedAt": "2026-10-04T15:10:35.882Z"
     }
   },
   {
@@ -8379,7 +8379,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:24.955Z"
+      "fetchedAt": "2026-10-04T15:10:38.570Z"
     }
   },
   {
@@ -8410,7 +8410,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:25.347Z"
+      "fetchedAt": "2026-10-04T15:10:38.984Z"
     }
   },
   {
@@ -8445,7 +8445,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:29.307Z"
+      "fetchedAt": "2026-10-04T15:10:39.955Z"
     }
   },
   {
@@ -8480,7 +8480,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:35.463Z"
+      "fetchedAt": "2026-10-04T15:10:43.423Z"
     }
   },
   {
@@ -8515,7 +8515,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:35.877Z"
+      "fetchedAt": "2026-10-04T15:10:43.850Z"
     }
   },
   {
@@ -8543,7 +8543,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:36.291Z"
+      "fetchedAt": "2026-10-04T15:10:44.261Z"
     }
   },
   {
@@ -8571,7 +8571,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:36.705Z"
+      "fetchedAt": "2026-10-04T15:10:44.677Z"
     }
   },
   {
@@ -8599,7 +8599,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:37.123Z"
+      "fetchedAt": "2026-10-04T15:10:45.093Z"
     }
   },
   {
@@ -8630,7 +8630,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:37.536Z"
+      "fetchedAt": "2026-10-04T15:10:45.503Z"
     }
   },
   {
@@ -8661,7 +8661,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:37.962Z"
+      "fetchedAt": "2026-10-04T15:10:45.922Z"
     }
   },
   {
@@ -8692,7 +8692,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:38.375Z"
+      "fetchedAt": "2026-10-04T15:10:46.368Z"
     }
   },
   {
@@ -8727,7 +8727,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:38.791Z"
+      "fetchedAt": "2026-10-04T15:10:46.783Z"
     }
   },
   {
@@ -8758,7 +8758,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:39.203Z"
+      "fetchedAt": "2026-10-04T15:10:47.194Z"
     }
   },
   {
@@ -8793,7 +8793,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:39.619Z"
+      "fetchedAt": "2026-10-04T15:10:47.607Z"
     }
   },
   {
@@ -8824,7 +8824,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:40.034Z"
+      "fetchedAt": "2026-10-04T15:10:48.022Z"
     }
   },
   {
@@ -8855,7 +8855,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:40.449Z"
+      "fetchedAt": "2026-10-04T15:10:48.435Z"
     }
   },
   {
@@ -8886,7 +8886,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:40.862Z"
+      "fetchedAt": "2026-10-04T15:10:48.846Z"
     }
   },
   {
@@ -8921,7 +8921,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:41.283Z"
+      "fetchedAt": "2026-10-04T15:10:49.264Z"
     }
   },
   {
@@ -8956,7 +8956,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:41.707Z"
+      "fetchedAt": "2026-10-04T15:10:49.683Z"
     }
   },
   {
@@ -8991,7 +8991,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:42.142Z"
+      "fetchedAt": "2026-10-04T15:10:50.109Z"
     }
   },
   {
@@ -9020,7 +9020,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:42.591Z"
+      "fetchedAt": "2026-10-04T15:10:50.536Z"
     }
   },
   {
@@ -9053,7 +9053,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:43.007Z"
+      "fetchedAt": "2026-10-04T15:10:50.952Z"
     }
   },
   {
@@ -9084,7 +9084,7 @@ export const GENERATED_ALIFTA_HTML_CHUNKS: CorpusChunk[] = [
     "htmlIngestion": {
       "method": "official-html",
       "sourcePage": "https://sunna.alifta.gov.sa/Search/ViewSubjectHits?subjectId=33516",
-      "fetchedAt": "2026-10-04T00:14:43.434Z"
+      "fetchedAt": "2026-10-04T15:10:51.391Z"
     }
   }
 ];
