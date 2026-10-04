@@ -12,7 +12,7 @@ import { consumeRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 30;
 
 const MAX_QUERY_LENGTH = 1000;
 

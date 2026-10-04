@@ -388,9 +388,13 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
     }
   }
 
-  return selected.map(({ chunk, score }) => {
-    const src = getSourceById(chunk.sourceId)!;
-    return {
+  const results: RetrievedPassage[] = [];
+  for (const { chunk, score } of selected) {
+    const src = getSourceById(chunk.sourceId);
+    // حارس أخير قبل العرض: مقطع تعذّر توثيق مصدره (معرّف محذوف/خاطئ في سجل
+    // متضارب) يُتجاوز بصمت بدل أن يُسقط الطلب كله بخطأ غير مضبوط.
+    if (!src) continue;
+    results.push({
       chunkId: chunk.id,
       text: chunk.text,
       quranText: chunk.quranText,
@@ -417,6 +421,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
         verificationUrl: src.verificationUrl,
         verificationLabel: src.verificationLabel,
       },
-    } satisfies RetrievedPassage;
-  });
+    });
+  }
+  return results;
 }
