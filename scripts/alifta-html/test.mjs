@@ -28,6 +28,7 @@ import {
   extractCommentaryLinks,
   parseResultTitle,
   stripBookSuffix,
+  verifiedHadithExcerpt,
   validateDetailPage,
   validateCommentaryPage,
   normalizeForDedupe,
@@ -141,6 +142,16 @@ runs.push(test('parseResultTitle splits ordinal, excerpt and book from the real 
 }));
 
 // ── Link discovery on the real subject-page shape ────────────────────────────
+runs.push(test('page labels are used as hadith excerpts only when they occur in the verified matn', () => {
+  const title = 'عمدة القاري — الرحمة وقساوة القلب';
+  const matn = 'حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده .';
+  eq(verifiedHadithExcerpt(title, matn), '', 'commentary/chapter label is not the hadith');
+
+  const excerpt = 'لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ';
+  const full = 'حَدَّثَنَا أَبُو الْيَمَانِ قَالَ لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ فَلَعَلَّهُ أَنْ يَسْتَعْتِبَ .';
+  eq(verifiedHadithExcerpt(excerpt, full), excerpt, 'verbatim excerpt retained');
+}));
+
 runs.push(test('extractSubjectLinks finds individual detail links and drops non-detail routes', async () => {
   const html = await readOffline('subject-tawba.html');
   const links = extractSubjectLinks(html, OFFICIAL, 10);

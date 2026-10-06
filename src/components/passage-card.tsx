@@ -2,14 +2,19 @@ import Link from "next/link";
 import { BookMarked, ChevronDown, ExternalLink, FileText, Tag } from "lucide-react";
 import { Fragment } from "react";
 import type { RetrievedPassage } from "@/lib/types";
+import { isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
 
 export function PassageCard({ passage, index }: { passage: RetrievedPassage; index?: number }) {
   const isLiteral = passage.excerptType === "literal";
   const isIndex = passage.role === "index";
   // Short official excerpt vs. the full official matn: shown as two layers, never
   // repeated, and never mixed with the commentary layer.
-  const shortHadith = (passage.hadithText || passage.hadithFullText || "").trim();
   const rawFullHadith = (passage.hadithFullText || "").trim();
+  const hadithEvidence = [rawFullHadith, passage.text].filter(Boolean).join("\n");
+  const groundedShortHadith = isGroundedHadithExcerpt(passage.hadithText, hadithEvidence)
+    ? passage.hadithText
+    : "";
+  const shortHadith = (groundedShortHadith || rawFullHadith).trim();
   const shortIdx = shortHadith && rawFullHadith ? rawFullHadith.indexOf(shortHadith) : -1;
   const cleanedFullHadith =
     shortIdx > 0 && shortIdx <= 45 ? rawFullHadith.slice(shortIdx).trim() : rawFullHadith;

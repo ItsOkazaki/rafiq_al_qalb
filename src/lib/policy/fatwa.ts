@@ -94,6 +94,35 @@ const MATTER_MAP: [string, string][] = [
   ["رضاع", "مسألة في الرضاع"],
 ];
 
+/**
+ * أسئلة الحكم بصيغة «هل الموضوع حرام/واجب؟» لا تحتوي دائماً على «ما حكم» أو
+ * «هل يجوز». نلتقط فقط طلبات الاستفهام التي تنتهي بوصف حكمي واضح؛ ذكر «الحرام»
+ * داخل سؤال بحثي مثل «هل تؤثر مشاهدة الحرام على القلب؟» لا يكفي وحده للإحالة.
+ */
+const RULING_QUESTION_STARTERS = ["هل", "وهل", "وش", "ايش", "ايه", "ما", "ماذا", "شنو"];
+const RULING_PREDICATES = [
+  "حرام", "حلال", "جائز", "مباح", "مكروه", "واجب", "فرض", "مفروض", "محرم",
+  "مسموح", "باطل", "يصح", "يجب", "تجب",
+].map(normalizeArabic);
+const RULING_DEFINITION_CUES = ["معنى", "تعريف", "المقصود", "لغة"].map(normalizeArabic);
+
+function asksForRuling(norm: string): boolean {
+  if (RULING_DEFINITION_CUES.some((cue) => norm.split(" ").includes(cue))) return false;
+
+  const startsAsQuestion = RULING_QUESTION_STARTERS.some((starter) =>
+    norm === starter || norm.startsWith(`${starter} `),
+  );
+  if (!startsAsQuestion) return false;
+
+  const lastToken = norm.split(" ").at(-1) ?? "";
+  const withoutArticle = lastToken.startsWith("ال") ? lastToken.slice(2) : lastToken;
+  return RULING_PREDICATES.some((predicate) =>
+    withoutArticle === predicate ||
+    withoutArticle === `${predicate}ه` || // مؤنث بعد تطبيع ة ← ه
+    withoutArticle === `${predicate}ا`,
+  );
+}
+
 export interface FatwaDetection {
   isFatwa: boolean;
   matter: string | null;
@@ -102,7 +131,7 @@ export interface FatwaDetection {
 export function detectFatwaRequest(query: string): FatwaDetection {
   const norm = normalizeArabic(query);
   if (!norm) return { isFatwa: false, matter: null };
-  const explicit = FATWA_MARKERS.some((m) => norm.includes(normalizeArabic(m)));
+  const explicit = FATWA_MARKERS.some((m) => norm.includes(normalizeArabic(m))) || asksForRuling(norm);
   const personalCase = PERSONAL_CASE_MARKERS.some((m) => norm.includes(normalizeArabic(m)));
   if (!explicit && !personalCase) return { isFatwa: false, matter: null };
   let matter: string | null = null;

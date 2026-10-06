@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { RetrievedPassage, TopicMatch } from "@/lib/types";
+import { isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
 
 /** توحيد الفواصل وعلامات الترقيم اللاتينية العارضة إلى مقابلها العربي. */
 export function normalizeArabicPunctuation(text: string): string {
@@ -43,7 +44,11 @@ export function buildResearchBrief(
 
   lines.push("أبرز ما تضمنته المادة المسترجعة من المصدر المعتمد:");
   passages.forEach((p, i) => {
-    const sourceText = p.hadithText?.trim() ? p.hadithText : p.text;
+    const hadithEvidence = [p.hadithFullText, p.text].filter(Boolean).join("\n");
+    const shortHadith = isGroundedHadithExcerpt(p.hadithText, hadithEvidence)
+      ? p.hadithText
+      : undefined;
+    const sourceText = shortHadith?.trim() || p.hadithFullText?.trim() || p.text;
     lines.push(
       `${i + 1}. ${firstSentences(sourceText)} (الموضع: ${normalizeArabicPunctuation(p.chapter)})`,
     );

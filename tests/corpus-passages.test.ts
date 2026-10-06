@@ -63,6 +63,14 @@ describe("toRetrievedPassage — حارس المصدر", () => {
     expect(toRetrievedPassage(fakeChunk(), { score: 7.5 })?.score).toBe(7.5);
     expect(toRetrievedPassage(fakeChunk())?.score).toBe(0);
   });
+
+  it("يخفي عنوان صفحة الجامع إذا سُجل خطأً في حقل مقتطف الحديث", () => {
+    const chunk = ALL_CHUNKS.find((item) => item.id === "alifta-html-000162");
+    expect(chunk).toBeDefined();
+    const passage = toRetrievedPassage(chunk!);
+    expect(passage?.hadithText).toBeUndefined();
+    expect(passage?.hadithFullText).toContain("هذه رحمة جعلها الله في قلوب عباده");
+  });
 });
 
 describe("toRetrievedPassages — تجاوز غير القابل للاسترجاع", () => {

@@ -41,6 +41,16 @@ function normalize(text) {
     .trim();
 }
 
+/** Allow punctuation/diacritics to differ while requiring every Arabic word to
+ * occur in the same order in the official matn. */
+function isGroundedHadithExcerpt(excerpt, fullMatn) {
+  const tokens = (text) => normalize(text).split(' ').filter((token) => /^[\u0621-\u064A]+$/.test(token));
+  const needle = tokens(excerpt);
+  const haystack = tokens(fullMatn);
+  return needle.length >= 2 && haystack.length >= needle.length &&
+    ` ${haystack.join(' ')} `.includes(` ${needle.join(' ')} `);
+}
+
 const problems = [];
 if (!Array.isArray(rows) || rows.length < 100) problems.push(`expected >=100 chunks, got ${Array.isArray(rows) ? rows.length : typeof rows}`);
 
@@ -74,6 +84,9 @@ for (const [i, row] of (rows ?? []).entries()) {
     if (!ARABIC_RE.test(row.hadithFullText)) at('hadithFullText has no Arabic');
     if (row.hadithFullText.length < 60) at(`hadithFullText suspiciously short (${row.hadithFullText.length})`);
     if (row.hadithText && row.hadithFullText.length > row.hadithText.length) fullLongerThanExcerpt++;
+    if (row.hadithText && !isGroundedHadithExcerpt(row.hadithText, row.hadithFullText)) {
+      at('hadithText is not an ordered-word excerpt of hadithFullText (possible chapter/title metadata)');
+    }
     const key = normalize(row.hadithFullText);
     if (seenMatns.has(key)) at(`duplicate matn of ${seenMatns.get(key)}`);
     else seenMatns.set(key, row.id);

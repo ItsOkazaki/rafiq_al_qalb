@@ -90,6 +90,21 @@ describe("بطاقة المقطع — طبقات الحديث الرسمي", () 
     const html = renderToStaticMarkup(<PassageCard passage={passage({ hadithText: same, hadithFullText: same })} />);
     expect(html).not.toContain("عرض الحديث الكامل");
   });
+
+  it("لا تعرض عنوان الفصل على أنه متن حديث إن وصل دون تحقق", () => {
+    const html = renderToStaticMarkup(
+      <PassageCard
+        passage={passage({
+          chapter: "عمدة القاري — الرحمة وقساوة القلب",
+          hadithText: "عمدة القاري — الرحمة وقساوة القلب",
+          hadithFullText: "حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده .",
+          text: "حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده .",
+        })}
+      />,
+    );
+    expect(html).toContain("حدثنا عبدان");
+    expect(html).not.toMatch(/<p[^>]*>عمدة القاري — الرحمة وقساوة القلب<\/p>/);
+  });
 });
 
 describe("بطاقة المقطع — القرآن والمقاطع العادية لم تتأثر", () => {

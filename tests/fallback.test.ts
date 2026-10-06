@@ -83,6 +83,21 @@ describe("التنظيم الآلي الحتمي ومعالجة الترقيم �
     expect(brief).toContain("أبرز ما تضمنته المادة المسترجعة من المصدر المعتمد:");
   });
 
+  it("لا يعرض عنوان الفصل المخطوء بوصفه مقتطف حديث في التنظيم الحتمي", () => {
+    const misleadingPassage: RetrievedPassage = {
+      ...SAMPLE_PASSAGE,
+      chapter: "عمدة القاري — الرحمة وقساوة القلب",
+      hadithText: "عمدة القاري — الرحمة وقساوة القلب",
+      hadithFullText: "حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده .",
+      text: "حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده .",
+    };
+    const brief = buildResearchBrief([], [misleadingPassage]);
+    expect(brief).toContain("حدثنا عبدان");
+    expect(brief).not.toContain("1. عمدة القاري — الرحمة وقساوة القلب؛");
+    // يبقى العنوان في موضعه الصحيح بوصفه بيانات إحالة فقط.
+    expect(brief).toContain("(الموضع: عمدة القاري — الرحمة وقساوة القلب)");
+  });
+
   it("يمر التنظيم الحتمي من حارس اللغة العربية الصارم ومن فاحص الصياغات المحظورة على كامل الـcorpus", () => {
     for (const chunk of ALL_CHUNKS) {
       const src = getSourceById(chunk.sourceId)!;
