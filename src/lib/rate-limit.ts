@@ -1,10 +1,22 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // تحديد الطلبات على /api/research — ٣٠ طلباً في الدقيقة لكل عميل.
 //
-// تحديد هوية العميل: مفتاح HMAC-SHA256 مشتق من (أول عنوان في
-// X-Forwarded-For + User-Agent) بسرّ خادوم. السرّ يُخزَّن في PostgreSQL
-// (جدول app_secrets) إن كانت القاعدة متاحة، وإلا وقع النظام على سرّ محلي
-// عشوائي داخل العملية — وفي هذه الحالة يعمل العدّاد لكل مثيل على حدة.
+// تحديد هوية العميل: مفتاح HMAC-SHA256 مشتق من **عنوان العميل وحده** بسرّ خادوم.
+// السرّ يُخزَّن في PostgreSQL (جدول app_secrets) إن كانت القاعدة متاحة، وإلا وقع
+// النظام على سرّ محلي عشوائي داخل العملية — وفي هذه الحالة يعمل العدّاد لكل مثيل
+// على حدة.
+//
+// قاعدة مقاومة التجاوز (مهمة): كل عنصر في بصمة العميل يجب ألا يكون قابلاً للكتابة
+// من العميل نفسه، وإلا صار الحد اختيارياً:
+//   ١) أول عنصر في X-Forwarded-For يكتبه العميل، فلا يُقرأ أبداً. نأخذ العنصر الذي
+//      أضافه آخر وكيل موثوق (من اليمين بعدد قفزات TRUSTED_PROXY_HOPS)، ونفضّل
+//      ترويسات المنصة التي تُكتب من طرفها (x-vercel-forwarded-for ثم x-real-ip).
+//   ٢) User-Agent لم يعد جزءاً من المفتاح إطلاقاً: كان تدويره وحده كافياً للحصول
+//      على دلو جديد لكل طلب، أي تجاوز الحد بلا نهاية.
+//   ٣) ترويسات المنصة (x-vercel-forwarded-for وx-real-ip) تُقرأ فقط عندما نكون
+//      فعلاً على المنصة أو بضبط صريح من المشغّل؛ وخارج ذلك هي ترويسات يكتبها
+//      العميل، فقراءتها تمنح كل طلب عنواناً جديداً أي دلواً جديداً.
+//   ٤) لا يُشتق المفتاح من أي ترويسة يقبلها الخادم كما هي من العميل.
 //
 // لا يُخزَّن أي نص استعلام في أي جزء من هذا المسار.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -63,15 +75,99 @@ export function resetLocalBuckets(): void {
 }
 
 // ── مفتاح العميل المشتق ─────────────────────────────────────────────────────
-export function clientKeyFor(secret: string, ip: string, userAgent: string): string {
-  return createHmac("sha256", secret).update(`${ip}|${userAgent}`).digest("hex");
+/**
+ * المفتاح مشتق من عنوان العميل وحده. لا يُخلط معه User-Agent ولا أي ترويسة أخرى
+ * يكتبها العميل: خلط قيمة يسيطر عليها العميل يعني أن العميل يستطيع توليد عدد غير
+ * محدود من المفاتيح، أي إلغاء الحد عملياً.
+ */
+export function clientKeyFor(secret: string, ip: string): string {
+  return createHmac("sha256", secret).update(`rate-limit|${ip}`).digest("hex");
 }
 
-export function requestFingerprint(request: Request): { ip: string; userAgent: string } {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded?.split(",")[0]?.trim() || "unknown";
-  const userAgent = request.headers.get("user-agent") ?? "";
-  return { ip, userAgent };
+/**
+ * عدد قفزات الوكيل الموثوق بين العميل وبيننا. الافتراضي ١ (منصة واحدة مثل
+ * Vercel). يزداد عند وجود وسيط إضافي مضبوط (nginx أمام المنصة مثلاً).
+ */
+export const DEFAULT_TRUSTED_PROXY_HOPS = 1;
+
+export function trustedProxyHops(): number {
+  const raw = Number(process.env.TRUSTED_PROXY_HOPS ?? DEFAULT_TRUSTED_PROXY_HOPS);
+  if (!Number.isFinite(raw)) return DEFAULT_TRUSTED_PROXY_HOPS;
+  const hops = Math.floor(raw);
+  return hops >= 1 ? hops : DEFAULT_TRUSTED_PROXY_HOPS;
+}
+
+/**
+ * هل تُقرأ ترويسات المنصة (`x-vercel-forwarded-for` و`x-real-ip`) بوصفها موثوقة؟
+ *
+ * على Vercel تكتب المنصة هاتين الترويستين وتعيد كتابة ما يرسله العميل، فهما دليل
+ * سليم على عنوانه. أما على استضافة ذاتية بلا وكيل يضبطهما فهما ترويستان عاديتان
+ * يكتبهما العميل — وقراءتهما هناك تعني أن كل طلب يختار عنوانه، أي دلو جديد لكل
+ * طلب، أي إلغاء الحد عملياً. لذلك:
+ *   ١) على المنصة (متغيرات `VERCEL*` التي يضبطها النشر) تُقرأان.
+ *   ٢) وخارجها تُقرأان فقط إذا ضبط المشغّل `TRUST_PLATFORM_HEADERS=1` صراحةً
+ *      (وسيط أمام التطبيق يكتبهما بنفسه، مثل nginx مع `proxy_set_header`).
+ *   ٣) وعدا ذلك لا يُعتمد أي ترويسة عنوان: `X-Forwarded-For` بعنصر واحد يكتبه
+ *      العميل يمنحه عنواناً جديداً لكل طلب، فيسقط العنوان إلى `"unknown"` (دلو
+ *      واحد مشترك). ضبط `TRUSTED_PROXY_HOPS` وحده لا يكفي لذلك.
+ *
+ * ضبط الاستضافة الذاتية المتعددة المستخدمين: `TRUST_PLATFORM_HEADERS=1` خلف وسيط
+ * يكتب الترويسات بنفسه (nginx: `proxy_set_header X-Real-IP $remote_addr;`) مع
+ * `TRUSTED_PROXY_HOPS` بعدد الوكلاء، وإلا اشترك كل العملاء في دلو واحد.
+ */
+export function platformHeadersTrusted(): boolean {
+  const explicit = (process.env.TRUST_PLATFORM_HEADERS ?? "").trim().toLowerCase();
+  if (["1", "true", "yes"].includes(explicit)) return true;
+  if (["0", "false", "no"].includes(explicit)) return false;
+  // المنصة تعرّف نفسها بأكثر من متغير، ولا يكتب العميل أياً منها: نأخذ بأيّ منها
+  // حتى لا يكون غياب واحدٍ سبباً في إسقاط كل المستخدمين في دلو واحد مشترك.
+  return Boolean(
+    process.env.VERCEL ||
+      process.env.VERCEL_ENV ||
+      process.env.VERCEL_URL ||
+      process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  );
+}
+
+/**
+ * عنوان العميل من ترويسات لا تُقبل من العميل كما هي:
+ * ١) ترويسات المنصة/الوسيط التي يُعاد كتابتها من طرفه — وتُقرأ فقط عندما تكون
+ *    المنصة موثوقة (انظر `platformHeadersTrusted`).
+ * ٢) وإلا العنصر الذي أضافه آخر وكيل موثوق في X-Forwarded-For (من اليمين).
+ * لا يُقرأ أول عنصر في X-Forwarded-For أبداً لأنه من إنشاء العميل.
+ */
+export function clientIpFromHeaders(headers: Headers, hops: number = trustedProxyHops()): string {
+  if (platformHeadersTrusted()) {
+    const vercel = headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+    if (vercel) return vercel;
+
+    const realIp = headers.get("x-real-ip")?.split(",")[0]?.trim();
+    if (realIp) return realIp;
+  }
+
+  // X-Forwarded-For يُقرأ فقط خلف وكيل موثوق. بلا وكيل موثوق يستحيل التمييز بين
+  // عنصر أضافه الوكيل وعنصر كتبه العميل: ترويسة بعنصر واحد يرسلها العميل تصير هي
+  // «العنصر الأيمن» بنفسها، فيحصل كل طلب على عنوان جديد أي دلو جديد، ويلغى الحد
+  // (وهذا ما وقع فعلاً في فحص حي: ٦٠/٦٠ طلباً ناجحاً بتدوير عنصر واحد).
+  // لذلك الافتراض الآمن: بلا ثقة بالوكيل لا تُقرأ الترويسة إطلاقاً ويسقط العنوان
+  // إلى "unknown" — أي دلو واحد مشترك. الفشل هنا باتجاه التشديد لا باتجاه التجاوز.
+  if (!platformHeadersTrusted()) return "unknown";
+
+  const forwarded = headers.get("x-forwarded-for");
+  if (!forwarded) return "unknown";
+  const parts = forwarded
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return "unknown";
+
+  // آخر وكيل موثوق أضاف عنوان العميل الحقيقي في هذا الموضع.
+  const index = parts.length - hops;
+  return parts[index < 0 ? 0 : index] ?? "unknown";
+}
+
+export function requestFingerprint(request: Request): { ip: string } {
+  return { ip: clientIpFromHeaders(request.headers) };
 }
 
 // ── سرّ الخادوم: قاعدة البيانات أولاً، ثم الوقوع المحلي ─────────────────────
@@ -160,8 +256,8 @@ async function consumeDatabaseBucket(key: string, now: number): Promise<RateLimi
  */
 export async function consumeRateLimit(request: Request): Promise<RateLimitDecision> {
   const secret = await getRateLimitSecret();
-  const { ip, userAgent } = requestFingerprint(request);
-  const key = clientKeyFor(secret, ip, userAgent);
+  const { ip } = requestFingerprint(request);
+  const key = clientKeyFor(secret, ip);
   const distributed = await consumeDatabaseBucket(key, Date.now());
   if (distributed) return distributed;
   return consumeLocalBucket(key);

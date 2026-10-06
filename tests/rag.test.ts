@@ -325,3 +325,61 @@ describe("الاستبانة البحثية — مسارات بحث لا أسئ�
     expect(resolveQuestionnairePath("no-such-area", [])).toBeNull();
   });
 });
+
+describe("إسناد المادة إلى مؤلِّفها — لا يُنسب قولُ عالمٍ إلى غيره", () => {
+  const sourceIds = (query: string) =>
+    [...new Set(retrievePassages(query).map((p) => p.source.sourceId))];
+
+  it("سؤال عن ابن القيم في أمراض القلوب لا يرجع بمادة ابن تيمية", () => {
+    const ids = sourceIds("ما رأي ابن القيم في أمراض القلوب؟");
+    expect(ids.length).toBeGreaterThan(0);
+    expect(ids.every((id) => id === "albadr-daa-dawaa")).toBe(true);
+    expect(ids).not.toContain("ibn-taymiyyah-amrad");
+  });
+
+  it("السؤال نفسه عن ابن تيمية يرجع بمادته هو", () => {
+    const ids = sourceIds("ما رأي ابن تيمية في أمراض القلوب؟");
+    expect(ids.length).toBeGreaterThan(0);
+    expect(ids.every((id) => id === "ibn-taymiyyah-amrad")).toBe(true);
+  });
+
+  it("اسم المصدر في السؤال يحصر المادة في ذلك الكتاب", () => {
+    const ids = sourceIds("أمراض القلوب وشفاؤها لابن تيمية");
+    expect(ids.length).toBeGreaterThan(0);
+    expect(ids.every((id) => id === "ibn-taymiyyah-amrad")).toBe(true);
+  });
+
+  it("مؤلِّف له مصدران مسجَّلان يرجع بمادته دون سواه", () => {
+    const ids = sourceIds("ما رأي ابن باز في التوبة؟");
+    expect(ids.length).toBeGreaterThan(0);
+    expect(ids.every((id) => id.startsWith("binbaz"))).toBe(true);
+  });
+
+  it("مؤلِّف غير مسجَّل → امتناع كامل، لا مادة منسوبة إليه بالخطأ", () => {
+    for (const query of [
+      "ما رأي الغزالي في الإسلام؟",
+      "ما رأي النووي في الذكر؟",
+      "ما رأي ابن كثير في تفسير آية الشفاء؟",
+    ]) {
+      expect(retrievePassages(query)).toHaveLength(0);
+    }
+  });
+
+  it("لفظ الإسناد وحده لا يكفي لقبول مصدرٍ ما لم يرد اسم مؤلِّفه أو عنوانه", () => {
+    // «ابن القيم» لا يجوز أن يُطابق «شيخ الإسلام ابن تيمية» عبر أداة مشتركة مثل «ابن»
+    // أو عبر اسم عام مثل «الإمام».
+    const ids = sourceIds("ما قول ابن القيم في شفاء أمراض القلوب؟");
+    expect(ids.every((id) => id === "albadr-daa-dawaa")).toBe(true);
+  });
+
+  it("أدوات اسم المؤلِّف لا تُحتسب في مقام تغطية السؤال فلا تسبب امتناعاً كاذباً", () => {
+    // كان «ابن» يُطلب وجوده داخل المتن، فيمتنع السؤال رغم وجود المادة.
+    expect(retrievePassages("ما رأي ابن تيمية في أعمال القلوب؟").length).toBeGreaterThan(0);
+    expect(retrievePassages("ما رأي ابن القيم في قسوة القلب؟").length).toBeGreaterThan(0);
+  });
+
+  it("الباب يعرف مفهوم «أمراض القلوب» الذي سُمّي به كتابان مسجَّلان", () => {
+    const topics = identifyTopics("ما هي أمراض القلوب؟").map((t) => t.topic.id);
+    expect(topics).toContain("qaswat-al-qalb");
+  });
+});

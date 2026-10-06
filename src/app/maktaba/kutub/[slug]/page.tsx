@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { ArrowRight, BadgeCheck, ExternalLink } from "lucide-react";
 import { ACTIVE_SOURCES, getActiveSourceBySlug } from "@/lib/sources/registry";
 import { getChunksBySource } from "@/lib/corpus/chunks";
+import { toRetrievedPassages } from "@/lib/corpus/passages";
+import { PassageList } from "@/components/passage-list";
 import { TOPICS } from "@/lib/rag/topics";
-import { PassageCard } from "@/components/passage-card";
 import { ApprovalStamp, OrnamentDivider } from "@/components/ornaments";
 import type { RetrievedPassage } from "@/lib/types";
 
@@ -33,35 +34,9 @@ export default async function BookPage({
   const src = getActiveSourceBySlug(slug);
   if (!src) notFound();
 
-  const chunks = getChunksBySource(src.id);
-  const passages: RetrievedPassage[] = chunks.map((c, i) => ({
-    chunkId: c.id,
-    text: c.text,
-    quranText: c.quranText,
-    quranReference: c.quranReference,
-    hadithText: c.hadithText,
-    hadithFullText: c.hadithFullText,
-    explanationText: c.explanationText,
-    explanationSourceUrl: c.explanationSourceUrl,
-    chapter: c.chapter,
-    page: c.page,
-    citationStatus: c.citationStatus ?? "chapter-only",
-    excerptType: c.excerptType,
-    role: c.role,
-    keywords: c.keywords,
-    score: 10 - i,
-    source: {
-      sourceId: src.id,
-      slug: src.slug,
-      title: src.title,
-      author: src.author,
-      publisher: src.publisher,
-      registryUrl: src.registryUrl,
-      originalUrl: c.sourceUrl ?? src.originalUrl,
-      verificationUrl: src.verificationUrl,
-      verificationLabel: src.verificationLabel,
-    },
-  }));
+  // الحارس نفسه المستعمل في الاسترجاع وفي صفحة الباب: مقطع مصدره غير قابل
+  // للاسترجاع يُتجاوز بدل أن يُفترض وجود مصدره.
+  const passages: RetrievedPassage[] = toRetrievedPassages(getChunksBySource(src.id));
 
   return (
     <div className="mx-auto max-w-4xl px-5 pb-24 pt-12">
@@ -131,9 +106,7 @@ export default async function BookPage({
             </Link>
           ))}
         </div>
-        {passages.map((passage, index) => (
-          <PassageCard key={passage.chunkId} passage={passage} index={index} />
-        ))}
+        <PassageList passages={passages} />
       </section>
     </div>
   );

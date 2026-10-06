@@ -43,7 +43,14 @@ export async function POST(request: Request) {
 
   let parsed: ResearchRequestBody;
   try {
-    parsed = JSON.parse(body.text) as ResearchRequestBody;
+    // الجسم يجب أن يكون كائناً (object). القراءة من `null` أو من مصفوفة أو من قيمة
+    // أولية كانت ترمي استثناءً غير ملتقط فيظهر للعميل ٥٠٠ بلا جسم — والجسم
+    // `null` تحديداً طلب شائع من عميل معطوب أو من فحص أمني، فلا يجوز أن يُسقط الخادم.
+    const raw: unknown = JSON.parse(body.text);
+    if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+      return Response.json({ error: "طلب غير صالح." }, { status: 400 });
+    }
+    parsed = raw as ResearchRequestBody;
   } catch {
     return Response.json({ error: "طلب غير صالح." }, { status: 400 });
   }

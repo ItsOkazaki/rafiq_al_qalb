@@ -21,9 +21,9 @@
 | النص القرآني في حقل مستقل بخط حفص | ✅ منفّذ | `quranText`/`quranReference` + `globals.css` |
 | استرجاع جامع السنة من صفحات المتون الرسمية | ✅ منفّذ (271 مقطعاً) | `scripts/alifta-html/ingest.mjs`, `src/lib/corpus/generated/` |
 | بوابة جودة corpus وعدم الكتابة على corpus مرفوض | ✅ منفّذ ومختبر | `scripts/alifta-html/verify.mjs`, اختبار «a rejected run may not replace the committed corpus» |
-| مجموعة قياس ثابتة 40 حالة | ✅ منفّذة وقابلة للتشغيل | `benchmarks/questions.json`, `npm run benchmark` |
+| مجموعة قياس ثابتة ٦٧ حالة (`v3-67`) | ✅ منفّذة وقابلة للتشغيل | `benchmarks/questions.json`, `npm run benchmark` |
 | فحص صحة للبيئة المنشورة | ✅ منفّذ | `GET /api/health` (حالة AI + قاعدة البيانات + عدد المقاطع) |
-| اختبارات آلية | ✅ 99 اختبار Vitest + 33 اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
+| اختبارات آلية | ✅ ٢٧١ اختبار Vitest + ٣٣ اختبار زاحف Al-Ifta | `tests/`, `npm run alifta:test` |
 | تصنيف المصادر المستبعدة ومنع استرجاعها | ✅ منفّذ | `EXCLUDED_SOURCES` في سجل المصادر |
 
 ## غير منفّذ في مسار التشغيل (صراحةً)
@@ -35,8 +35,8 @@
 | AI Re-ranking | ❌ غير موصول | الترتيب حتمي (topic/keyword/rarity) داخل `retrievePassages`. |
 | Claim generation + Claim verification | ❌ غير موصول | لا توجد ادعاءات ولا تحقق على مادة المستخدم. |
 | Conflict detection على مادة المستخدم | ⚠️ جزئي | `/api/benchmark/conflict` يفحص مقطعين **اصطناعيين** بمصفوفة أنماط، ويتطلب مزوّداً. |
-| اختبار UX مع مستخدمين | ⏳ لم يُنفّذ | البروتوكول ونموذج النتائج جاهزان في `docs/UX-TEST-PLAN.md`. |
-| تشغيل benchmark على البيئة المنشورة | ⏳ لم يُنفّذ في هذا الـcommit | الأمر جاهز: `npm run benchmark -- --url <deployment>`. |
+| اختبار UX مع مستخدمين | ⏳ لم يُنفّذ | لم تُجرَ أي جلسة اختبار مع مستخدمين، ولا نتائج مسجّلة. |
+| تشغيل benchmark على البيئة المنشورة | ⏳ لم يُنفّذ في هذا الـcommit | الأمر جاهز: `npm run benchmark -- --url <deployment>`. آخر تشغيل كامل موثّق محلي (٦٧/٦٧). |
 | تضمين خط حفص داخل المستودع | ✅ منفّذ | `public/fonts/UthmanicHafs_V22.ttf` غير معدَّل + `npm run verify:quran-font` يفحص البصمة؛ الترخيص المضمَّن في الملف يسمح بالاستخدام والنسخ والتوزيع ويمنع التعديل (`docs/FONT-LICENSE.md`). |
 
 ## ملاحظة منهجية
