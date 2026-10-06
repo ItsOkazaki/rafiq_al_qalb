@@ -29,6 +29,7 @@ import {
   parseResultTitle,
   stripBookSuffix,
   verifiedHadithExcerpt,
+  isGroundedHadithExcerpt,
   validateDetailPage,
   validateCommentaryPage,
   normalizeForDedupe,
@@ -677,6 +678,49 @@ runs.push(test('crawler, corpus verifier and app agree on what opens a commentar
     assert(new RegExp(fromIngest.slice(1, fromIngest.lastIndexOf('/')), 'iu').test(line),
       `recognised as commentary: ${line}`);
   }
+}));
+
+runs.push(test('crawler and corpus verifier share one grounding rule for the short excerpt', async () => {
+  const ingestSrc = await read('ingest.mjs');
+  const verifySrc = await read('verify.mjs');
+  const pattern = /function isGroundedHadithExcerpt\([\s\S]*?\n\}/;
+  const fromIngest = ingestSrc.match(pattern)?.[0];
+  const fromVerify = verifySrc.match(pattern)?.[0];
+  assert(fromIngest, 'ingest.mjs defines isGroundedHadithExcerpt');
+  assert(fromVerify, 'verify.mjs defines isGroundedHadithExcerpt');
+  eq(fromIngest, fromVerify, 'crawler predicate === verifier predicate');
+  // A looser crawler predicate is exactly how a chapter label reached `hadithText`
+  // while the committed corpus stayed clean, which made the quality gate reject
+  // every fresh crawl.
+}));
+
+runs.push(test('the crawler refuses a search-result label that is not in the stored matn', () => {
+  // Real records from a live crawl. Both carry a search-result snippet belonging
+  // to a different hadith than the matn stored beside it; the committed corpus
+  // correctly omits `hadithText` for them.
+  const cases = [
+    {
+      id: "alifta-html-000043",
+      excerpt: "يَا أَبَا ذَرٍّ ، أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ",
+      matn: "حَدَّثَنَا أَبُو نُعَيْمٍ ، حَدَّثَنَا الْأَعْمَشُ ، عَنْ إِبْرَاهِيمَ التَّيْمِيِّ ، عَنْ أَبِيهِ ، عَنْ أَبِي ذَرٍّ - رَضِيَ اللهُ عَنْهُ - قَالَ: كُنْتُ مَعَ النَّبِيِّ - صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ - فِي الْمَسْجِدِ عِنْدَ غُرُوبِ الشَّمْسِ ، فَقَالَ: يَا أَبَا ذَرٍّ ، أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ؟ قُلْتُ: اللهُ وَرَسُولُهُ أَعْلَمُ ، قَالَ: فَإِنَّهَا تَذْهَبُ حَتَّى تَسْجُدَ تَحْتَ الْعَرْشِ ، فَذَلِكَ قَوْلُهُ تَعَالَى:\nوَالشَّمْسُ تَجْرِي لِمُسْتَقَرٍّ لَهَا ذَلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ\nسُورَةُ يس\nوَقَالَ مُجَاهِدٌ :\nفَعَزَّزْنَا\nشَدَّدْنَا ،\nيَا حَسْرَةً عَلَى الْعِبَادِ\nكَانَ حَسْرَةً عَلَيْهِمُ اسْتِهْزَاؤُهُمْ بِالرُّسُلِ ،\nأَنْ تُدْرِكَ الْقَمَرَ\nلَا يَسْتُرُ ضَوْءُ أَحَدِهِمَا ضَوْءَ الْآخَرِ ، وَلَا يَنْبَغِي لَهُمَا ذَلِكَ ،\nسَابِقُ النَّهَارِ\nيَتَطَالَبَانِ حَثِيثَيْنِ\nنَسْلَخُ\nنُخْرِجُ أَحَدَهُمَا مِنَ الْآخَرِ وَيَجْرِي كُلُّ وَاحِدٍ مِنْهُمَا\nمِنْ مِثْلِهِ\nمِنَ الْأَنْعَامِ ،\nفَكِهُونَ\nمُعْجَبُونَ ،\nجُنْدٌ مُحْضَرُونَ\nعِنْدَ الْحِسَابِ .\nوَيُذْكَرُ عَنْ عِكْرِمَةَ :\nالْمَشْحُونِ\nالْمُوقَرُ . وَقَالَ ابْنُ عَبَّاسٍ :\nقَالُوا طَائِرُكُمْ\nمَصَائِبُكُمْ\nيَنْسِلُونَ\nيَخْرُجُونَ ،\nمَرْقَدِنَا\nمَخْرَجِنَا\nأَحْصَيْنَاهُ\nحَفِظْنَاهُ مَكَانَتُهُمْ وَمَكَانُهُمْ وَاحِدٌ .\nوَالشَّمْسُ تَجْرِي لِمُسْتَقَرٍّ لَهَا ذَلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ",
+    },
+    {
+      id: "alifta-html-000048",
+      excerpt: "أَلَا أُخْبِرُكُمْ عَنِ النَّفَرِ الثَّلَاثَةِ",
+      matn: "حَدَّثَنَا قُتَيْبَةُ بْنُ سَعِيدٍ ، عَنْ مَالِكِ بْنِ أَنَسٍ - فِيمَا قُرِئَ عَلَيْهِ - عَنْ إِسْحَاقَ بْنِ عَبْدِ اللهِ بْنِ أَبِي طَلْحَةَ أَنَّ أَبَا مُرَّةَ مَوْلَى عَقِيلِ بْنِ أَبِي طَالِبٍ أَخْبَرَهُ عَنْ أَبِي وَاقِدٍ اللَّيْثِيِّ أَنَّ رَسُولَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ بَيْنَمَا هُوَ جَالِسٌ فِي الْمَسْجِدِ وَالنَّاسُ مَعَهُ إِذْ أَقْبَلَ نَفَرٌ ثَلَاثَةٌ ، فَأَقْبَلَ اثْنَانِ إِلَى رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ وَذَهَبَ وَاحِدٌ ، قَالَ: فَوَقَفَا عَلَى رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ ، فَأَمَّا أَحَدُهُمَا فَرَأَى فُرْجَةً فِي الْحَلْقَةِ فَجَلَسَ فِيهَا ، وَأَمَّا الْآخَرُ فَجَلَسَ خَلْفَهُمْ ، وَأَمَّا الثَّالِثُ فَأَدْبَرَ ذَاهِبًا ، فَلَمَّا فَرَغَ رَسُولُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: أَلَا أُخْبِرُكُمْ عَنِ النَّفَرِ الثَّلَاثَةِ؟ أَمَّا أَحَدُهُمْ فَأَوَى إِلَى اللهِ فَآوَاهُ اللهُ ، وَأَمَّا الْآخَرُ فَاسْتَحْيَا فَاسْتَحْيَا اللهُ مِنْهُ ، وَأَمَّا الْآخَرُ فَأَعْرَضَ فَأَعْرَضَ اللهُ عَنْهُ .\nبَابُ مَنْ أَتَى مَجْلِسًا فَوَجَدَ فُرْجَةً فَجَلَسَ فِيهَا ، وَإِلَّا وَرَاءَهُمْ .",
+    },
+  ];
+  for (const { id, excerpt, matn } of cases) {
+    assert(!isGroundedHadithExcerpt(excerpt, matn), `${id}: excerpt is not grounded in its own matn`);
+    eq(verifiedHadithExcerpt(excerpt, matn), '', `${id}: crawler stores no short excerpt`);
+  }
+  // The guard must not discard genuine excerpts either. Whatever the crawler
+  // stores has to be grounded in the stored matn.
+  const grounded = cases[0].matn.split(/[\n،]/)[0].trim();
+  assert(isGroundedHadithExcerpt(grounded, cases[0].matn), 'a genuine opening line stays grounded');
+  const kept = verifiedHadithExcerpt(grounded, cases[0].matn);
+  assert(kept.length > 0, 'a genuine opening line is kept');
+  assert(isGroundedHadithExcerpt(kept, cases[0].matn), 'what the crawler keeps is grounded in the stored matn');
 }));
 
 await Promise.all(runs);

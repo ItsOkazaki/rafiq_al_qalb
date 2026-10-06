@@ -127,6 +127,34 @@ export const MIN_FULL_HADITH_CHARS = 60;
 export const CORPUS_SHRINK_FLOOR = 0.5;
 
 /** Diacritics/punctuation-insensitive form used only for matching, never for output. */
+function normalize(text) {
+  return String(text ?? '')
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+    .replace(/[\u0640]/g, '')
+    .replace(/[\u0622\u0623\u0625]/g, '\u0627')
+    .replace(/\u0649/g, '\u064a')
+    .replace(/\u0629/g, '\u0647')
+    .replace(/[^\u0600-\u06FF\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * The crawler must apply the same grounding rule the corpus verifier and the
+ * app enforce: a short excerpt may occupy `hadithText` only when its Arabic
+ * words occur, in order, in the matn that is actually stored next to it.
+ * A search-result label or chapter heading is metadata, never hadith text.
+ * The body below is character-identical to verify.mjs and is pinned equal by
+ * an offline regression test.
+ */
+function isGroundedHadithExcerpt(excerpt, fullMatn) {
+  const tokens = (text) => normalize(text).split(' ').filter((token) => /^[\u0621-\u064A]+$/.test(token));
+  const needle = tokens(excerpt);
+  const haystack = tokens(fullMatn);
+  return needle.length >= 2 && haystack.length >= needle.length &&
+    ` ${haystack.join(' ')} `.includes(` ${needle.join(' ')} `);
+}
+
 function normalizeForDedupe(text) {
   return String(text ?? '')
     .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
@@ -175,9 +203,7 @@ function stripBookSuffix(title) {
 /** Keep a page label as the short hadith only when it is verifiably in the matn. */
 function verifiedHadithExcerpt(label, fullMatn) {
   const excerpt = stripBookSuffix(label);
-  const normalizedExcerpt = normalizeForDedupe(excerpt);
-  const normalizedMatn = normalizeForDedupe(fullMatn);
-  return normalizedExcerpt && normalizedMatn.includes(normalizedExcerpt) ? excerpt : '';
+  return isGroundedHadithExcerpt(excerpt, fullMatn) ? excerpt : '';
 }
 
 /**
@@ -899,7 +925,15 @@ async function ingest(manifest) {
       topics: [...new Set(topicIds)],
       keywords: keywordSeeds(title || chapter || '', topicIds),
       text: combined,
-      ...(hadithText ? { hadithText: cleanText(hadithText) } : {}),
+      // Choke point: whatever the caller passed, the stored short excerpt must be
+      // grounded in the stored matn. Otherwise it is chapter/title metadata and
+      // would be displayed as a hadith.
+      ...(() => {
+        const excerpt = cleanText(hadithText);
+        if (!excerpt) return {};
+        if (fullHadith && !isGroundedHadithExcerpt(excerpt, fullHadith)) return {};
+        return { hadithText: excerpt };
+      })(),
       ...(fullHadith ? { hadithFullText: fullHadith } : {}),
       ...(explanation ? { explanationText: explanation } : {}),
       // An explanation is only ever stored together with the exact official page it came from.
@@ -1231,6 +1265,7 @@ export {
   stripBookSuffix,
   parseResultTitle,
   verifiedHadithExcerpt,
+  isGroundedHadithExcerpt,
   extractCommentaryLinks,
   validateDetailPage,
   validateCommentaryPage,
