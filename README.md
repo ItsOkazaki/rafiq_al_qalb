@@ -138,15 +138,16 @@ npm run build && npm start
 | `npm start` | تشغيل بناء الإنتاج | لا |
 | `npm run lint` | ESLint | لا |
 | `npm run typecheck` | ‏`tsc --noEmit` | لا |
-| `npm test` | ٢٧١ اختبار وحدة (Vitest): الاسترجاع، الإسناد إلى المؤلِّف، المسار، السلامة والأذى الذاتي بكل اللهجات، بوابات الفتوى/التشخيص/الوصفة، تطبيع المعجم، حدود الطلب وهوية العميل ومقاومة التجاوز، التنظيم الحتمي، بطاقة الدليل، نصوص المكتبة | لا |
+| `npm test` | ٣١٠ اختبار وحدة (Vitest): الاسترجاع، الإسناد إلى المؤلِّف، المسار، السلامة والأذى الذاتي بكل اللهجات، بوابات الفتوى/التشخيص/الوصفة، تطبيع المعجم، حدود الطلب وهوية العميل ومقاومة التجاوز، التنظيم الحتمي، بطاقة الدليل، نصوص المكتبة | لا |
 | `npm run audit:gate` | سلامة التبعيات: `npm audit --omit=dev --audit-level=high` — لا ثغرات عالية أو حرجة في تبعات الإنتاج | لا |
 | `npm run smoke` | فحص زمن التشغيل: ٦٧ حالة + ١٠ فحوص صريحة | لا |
 | `npm run benchmark -- --url <URL> [--limit N]` | قياس حقيقي على الـAPI، ويكتب `benchmarks/results/latest.json` | نعم (للرابط) |
 | `npm run verify:quran-font` | وجود خط حفص + مطابقة بصمته + ربط CSS | لا |
-| `npm run alifta:test` | ٣٣ اختبار انحدار للزاحف (بلا شبكة، على DOM حقيقي محفوظ) | لا |
+| `npm run alifta:test` | ٤١ اختبار انحدار للزاحف (بلا شبكة، على DOM حقيقي محفوظ) | لا |
 | `npm run alifta:manifest` | ١٧ هدفاً تغطي الأبواب الاثني عشر + العتبات | لا |
 | `npm run alifta:verify` | بوابة جودة المدوّنة المولَّدة | لا |
 | `npm run alifta:ingest` | سحب المتون الرسمية وبناء المدوّنة (بوابات قبول قبل الكتابة) | نعم |
+| `npm run alifta:repair-matn` | فصل المتن عن الشرح في السجلات المولَّدة سابقاً، ثم إعادة تشغيل بوابة الجودة | لا |
 | `npm run alifta:live-check` / `npm run alifta:capture` | فحص حي / حفظ نماذج من الموقع الرسمي | نعم |
 | `node scripts/loop-engineering.mjs` | حلقة التحسين المحلية: الاختبارات + الأنواع + خلاصة آخر قياس | لا |
 
@@ -221,7 +222,7 @@ npm run build && npm start
 | `topic_hit` | **1.00** |
 | `retrieval_source_recall` | 0.9250 |
 | `retrieval_chunk_hit_at_4` | 0.6538 |
-| `retrieval_chunk_recall` | 0.3942 |
+| `retrieval_chunk_recall` | 0.4038 |
 | `retrieval_identical_between_modes` | true |
 | `model_organization_rate` | **0** — بلا مفتاح كل التنظيم حتمي، وهذه هي القيمة الصحيحة لا قيمة ناقصة |
 | `deterministic_organization_rate` | **1** |
@@ -282,7 +283,7 @@ npm run build && npm start
 | دمج فرع التسليم في `main` | **مفتوح** — وهو نفسه خطوة النشر، إذ ينشر Vercel من `main` تلقائياً |
 | وسم إصدار `challenge-final-2026` | **مفتوح** — بعد إغلاق البنود أدناه |
 | تشغيل القياس على البيئة المنشورة (بمفتاح) لتسجيل `model_organization_rate` بقيمة غير صفرية | **مفتوح** — المقياس صار يُحسب فعلاً (قيمته 0 محلياً لأن التشغيل حتمي بالكامل)، ويبقى قياس مسار النموذج متوقفاً على بيئة بمفتاح |
-| فحص التعارض `POST /api/benchmark/conflict` | محلياً `CHECK` (بلا مزوِّد)؛ يحتاج بيئة بمفتاح |
+| فحص التعارض `POST /api/benchmark/conflict` | يعمل بمجرد ضبط مفتاح مزوِّد — يُرجع `ok:true` مع التعارض المضبوط لأن الكشف حتمي ولا يحتاج وصولاً للشبكة؛ وبلا مفتاح يُرجع 503 «Configure an AI provider first.» |
 | اختبار تجربة مع مستخدمين حقيقيين | **لم يُنفَّذ** — لا جلسات ولا نتائج مسجَّلة |
 | فيديو العرض (≤ دقيقتان) | **مفتوح** — السيناريو جاهز: `docs/DEMO-SCRIPT.md` |
 | البحث الدلالي (semantic embeddings) | غير موصول بقصد؛ العميل موجود في `src/lib/ai/embeddings.ts` كأساس هندسي معلَّق، والاسترجاع الحالي لفظي/موضوعي فقط |
@@ -300,7 +301,7 @@ src/lib/policy/       بوابات الفتوى/التشخيص/الوصفة
 src/lib/safety.ts     كاشف الأذى الذاتي: ١٤٥ علامة + ١٩ نمطاً + ١٩ قاعدة تركيبية
 src/lib/ai/           مزوِّد النموذج + حارس المخرجات (التمثيلات الدلالية غير موصولة)
 src/lib/sources/      سجل المصادر المعتمدة والمستبعدة
-scripts/alifta-html/  الزاحف + ٣٣ اختبار انحدار + بوابات الجودة
+scripts/alifta-html/  الزاحف + ٤١ اختبار انحدار + بوابات الجودة
 benchmarks/           ٦٧ حالة ثابتة + مُشغِّل القياس
 docs/                 فهرس + ١٩ وثيقة (ابدأ من docs/README.md)
 public/fonts/         خط حفص المُضمَّن + ترخيصه
@@ -328,12 +329,19 @@ issues fatwas, or prescribes treatment.
   deterministically.
 - **Corpus:** 486 approved chunks — 271 generated from official Al-Ifta pages (full matn, 278/280
   pages verified, 12/12 doors covered) plus 215 curated chunks from 7 registered sources.
+- **Matn and sharh are never the same layer:** a commentary page (`BookToc/ViewServicePage` —
+  عمدة القاري، فتح الباري، …) puts the matn and the commentator's text back to back with no
+  separator, so the crawler cuts at the first commentary opener and keeps only the verified matn in
+  `hadithFullText`, with the official gloss in `explanationText`. `npm run alifta:verify` fails the
+  corpus if any stored matn still carries a sharh section, and `npm run alifta:repair-matn`
+  re-derives an already committed corpus with the same splitter. If a matn cannot be verified
+  separately, the card suppresses the «الحديث» layer instead of labelling commentary as hadith.
 - **Four policy gates before retrieval** (safety → diagnosis → fatwa → prescription), so a
   fatwa-shaped question can never collapse into a generic "insufficient material" answer. The
   safety detector covers dialectal cries for help and method-seeking phrasings across Saudi/Gulf,
   Egyptian, Levantine, Moroccan, Libyan and Iraqi Arabic plus English: 145 markers, 19 patterns,
   19 compositional rules, with negation and other-target handling.
-- **Reproducibility:** 271 unit tests, 33 offline crawler regression tests, manifest checks, a
+- **Reproducibility:** 310 unit tests, 41 offline crawler regression tests, manifest checks, a
   67-case frozen benchmark (dataset revision `v3-67`, including 12 self-harm cases, 8 fatwa cases,
   5 cross-author attribution cases and 2 false-refusal guards), an offline runtime smoke test, a
   production-dependency audit gate, and a SHA-256-checked Quran font gate — all runnable from

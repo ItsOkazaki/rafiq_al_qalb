@@ -32,6 +32,7 @@ import {
   validateDetailPage,
   validateCommentaryPage,
   normalizeForDedupe,
+  splitMatnAndCommentary,
   errorCategory,
   MIN_FULL_HADITH_CHARS,
   assessIngestion,
@@ -573,6 +574,109 @@ runs.push(test('crawler and corpus verifier agree on the minimum length of a ful
   const match = verifySrc.match(/hadithFullText\.length < (\d+)/);
   assert(match, 'verify.mjs states a minimum matn length');
   eq(MIN_FULL_HADITH_CHARS, Number(match[1]), 'crawler minimum === verifier minimum');
+}));
+
+// ── matn vs. sharh separation on an official commentary (ViewServicePage) page ──
+// Regression for alifta-html-000162 (عمدة القاري — الرحمة وقساوة القلب,
+// BookToc/ViewServicePage?BookID=43&mainId=393972): the page puts the matn and the
+// commentator's text one after the other with no `* * *` separator and no page
+// chrome between them, so the whole sharh was stored in `hadithFullText` and later
+// displayed under the «الحديث» heading — commentary labelled as hadith.
+runs.push(test('splitMatnAndCommentary keeps only the matn from a line-based sharh page', () => {
+  const body = [
+    'حدثنا عبدان ومحمد قالا : أخبرنا عبد الله قال : أخبرنا عاصم بن سليمان ، عن أبي عثمان قال : حدثني أسامة بن زيد رضي الله عنهما قال : أرسلت ابنة النبي صلى الله عليه وسلم إليه إن ابنا لي قبض فأتنا ، فقال : هذه رحمة جعلها الله في قلوب عباده ، وإنما يرحم الله من عباده الرحماء .',
+    'هذا الحديث مطابق لقوله : " وما يرخص من البكاء في غير نوح " فإن قوله : " ففاضت عيناه " بكاء من غير نوح .',
+    '( ذكر رجاله ) وهم ستة : الأول عبدان بفتح العين وسكون الباء الموحدة .',
+    'قوله : " قبض " على صيغة المجهول أي : قرب من أن يقبض .',
+  ].join('\n');
+  const { matn, commentary, cut } = splitMatnAndCommentary(body);
+  eq(cut, true, 'the cut is reported');
+  assert(matn.startsWith('حدثنا عبدان'), 'matn keeps its isnad');
+  assert(matn.trim().endsWith('الرحماء .'), 'matn keeps its closing');
+  assert(!/هذا الحديث|ذكر رجاله|قوله\s*:/.test(matn), 'no commentary survives in the matn');
+  assert(commentary.startsWith('هذا الحديث مطابق'), 'commentary starts where the sharh starts');
+  assert(commentary.includes('( ذكر رجاله )'), 'the rest of the sharh is kept, not dropped');
+}));
+
+runs.push(test('splitMatnAndCommentary leaves a plain matn untouched', () => {
+  const matn = 'حَدَّثَنَا مُحَمَّدُ بْنُ بَشَّارٍ ، حَدَّثَنَا يَحْيَى ، عَنْ عُبَيْدِ اللَّهِ ، قَالَ : حَدَّثَنِي سَعِيدُ بْنُ أَبِي سَعِيدٍ ، عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللَّهُ عَنْهُ ، عَنِ النَّبِيِّ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ قَالَ : مَنْ تَابَ قَبْلَ أَنْ تَطْلُعَ الشَّمْسُ مِنْ مَغْرِبِهَا تَابَ اللهُ عَلَيْهِ .';
+  const result = splitMatnAndCommentary(matn);
+  eq(result.cut, false, 'nothing is cut');
+  eq(result.matn, matn, 'matn unchanged');
+  eq(result.commentary, '', 'no commentary invented');
+}));
+
+runs.push(test('splitMatnAndCommentary also cuts a single-blob page (matn and sharh in one paragraph)', () => {
+  const matn = 'حَدَّثَنَا أَبُو الْيَمَانِ ، أَخْبَرَنَا شُعَيْبٌ ، عَنِ الزُّهْرِيِّ ، أَنَّ أَبَا هُرَيْرَةَ قَالَ : سَمِعْتُ رَسُولَ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ يَقُولُ : لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ .';
+  const blob = `${matn} قوله : " لَنْ يُدْخِلَ أَحَدًا عَمَلُهُ الْجَنَّةَ " أي بعمله المجرد عن محض الفضل .`;
+  const { matn: cutMatn, commentary, cut } = splitMatnAndCommentary(blob);
+  eq(cut, true, 'the blob is cut');
+  eq(cutMatn, matn, 'matn is exactly the hadith');
+  assert(commentary.startsWith('قوله :'), 'commentary kept separately');
+}));
+
+runs.push(test('a sharh line inside the matn itself never causes a cut (only lines after the first)', () => {
+  // A matn may legitimately quote «قوله» inside the reported speech; the matn is
+  // always the first paragraph, so line 0 is never inspected.
+  const body = 'قال النبي صلى الله عليه وسلم : قوله تعالى " ولا تقنطوا " أي لا تيأسوا ، فاقرأوها فإن فيها الرحمة الواسعة للمذنبين .';
+  const result = splitMatnAndCommentary(body);
+  eq(result.cut, false, 'no cut');
+  eq(result.matn, body, 'matn preserved whole');
+}));
+
+runs.push(test('ViewServicePage fixture: matn stored as matn, official sharh stored as explanation', async () => {
+  const html = await readOffline('service-umdat-al-qari-393972.html');
+  const label = '1 - أرسلت ابنة النبي صلى الله عليه وسلم إليه إن ابنا لي قبض فأتنا<br><br>عمدة القاري';
+  const { fullHadithText, explanationText } = extractHadithAndExplanation(html, label, { maxExplanationChars: 6000 });
+  assert(fullHadithText.length >= MIN_FULL_HADITH_CHARS, `matn kept (${fullHadithText.length} chars)`);
+  assert(!/قوله\s*[:：]/.test(fullHadithText), 'no «قوله :» gloss inside hadithFullText');
+  assert(!/ذكر رجاله|ذكر لطائف إسناده|ذكر تعدد موضعه/.test(fullHadithText), 'no sharh section headings inside hadithFullText');
+  assert(!/هذا الحديث مطابق/.test(fullHadithText), 'no «هذا الحديث مطابق» inside hadithFullText');
+  assert(hasNorm(fullHadithText, 'هذه رحمة جعلها الله في قلوب عباده'), 'the real matn wording is kept');
+  assert(explanationText.length > 0, 'the official sharh is preserved in explanationText');
+  assert(/قوله\s*[:：]/.test(explanationText), 'explanationText is the commentary');
+  assert(!explanationText.includes(fullHadithText.trim()), 'matn and explanation are not the same layer');
+}));
+
+runs.push(test('fath al-Bari service page: the matn no longer duplicates the commentary', async () => {
+  const html = await readFixture('service-fath-al-bari-8804.html');
+  const { fullHadithText, explanationText } = extractHadithAndExplanation(html, '', { maxExplanationChars: 6000 });
+  assert(fullHadithText.length > 0 && explanationText.length > 0, 'both layers present');
+  assert(fullHadithText.length < explanationText.length,
+    `matn (${fullHadithText.length}) must be shorter than the sharh (${explanationText.length}), not the whole page`);
+  assert(!explanationText.includes(fullHadithText.trim()), 'the matn is not re-shown as commentary');
+  assert(!fullHadithText.includes(explanationText.trim().slice(0, 200)), 'the commentary is not shown as matn');
+  // The card shows «الحديث» and «الشرح» as two layers; overlapping text would print
+  // the same commentary twice.
+  const shared = explanationText.trim().slice(0, 300);
+  assert(!fullHadithText.includes(shared), 'no 300-char overlap between the two displayed layers');
+}));
+
+runs.push(test('crawler, corpus verifier and app agree on what opens a commentary', async () => {
+  const ingestSrc = await read('ingest.mjs');
+  const verifySrc = await read('verify.mjs');
+  const appSrc = await fs.readFile(path.join(__dirname, '..', '..', 'src', 'lib', 'corpus', 'hadith.ts'), 'utf8');
+  const pattern = /COMMENTARY_LINE_START_RE =\r?\n\s*(\/\^.*\/[a-z]*)/;
+  const fromIngest = ingestSrc.match(pattern)?.[1];
+  const fromVerify = verifySrc.match(pattern)?.[1];
+  const fromApp = appSrc.match(pattern)?.[1];
+  assert(fromIngest, 'ingest.mjs defines COMMENTARY_LINE_START_RE');
+  assert(fromVerify, 'verify.mjs defines COMMENTARY_LINE_START_RE');
+  assert(fromApp, 'src/lib/corpus/hadith.ts defines COMMENTARY_LINE_START_RE');
+  eq(fromVerify, fromIngest, 'verifier pattern === crawler pattern');
+  eq(fromApp, fromIngest, 'app pattern === crawler pattern');
+  // The pattern must actually recognise the forms that appear on the official pages.
+  const probe = [
+    'قوله : " قبض " على صيغة المجهول',
+    '( ذكر رجاله ) وهم ستة',
+    'هذا الحديث مطابق لقوله',
+    '[8/73] ( ذكر معناه )',
+    'ما يستفاد منه : كذا',
+  ];
+  for (const line of probe) {
+    assert(new RegExp(fromIngest.slice(1, fromIngest.lastIndexOf('/')), 'iu').test(line),
+      `recognised as commentary: ${line}`);
+  }
 }));
 
 await Promise.all(runs);

@@ -24,6 +24,12 @@ export const MIN_PASSAGE_SCORE = 3;
  */
 export const MIN_PASSAGE_TEXT_LENGTH = 40;
 
+/**
+ * نسبة شيوع اللفظ التي تفصل «المميِّز» من «العام» في المادة المعتمدة.
+ * اللفظ الوارد في أكثر من هذه النسبة من المقاطع عامٌّ: مطابقته لا تُثبت صلة.
+ */
+export const DISTINCTIVE_DF_FRACTION = 0.02;
+
 const GENERIC_QUERY_TOKENS = new Set([
   "الله", "الناس", "العبد", "العباد", "الدنيا", "الاخره", "شيء", "امر", "امور",
   "موضوع", "موضوعات", "بحث", "ماده", "مادة", "العلم", "العلمية", "الحديث", "السؤال",
@@ -337,6 +343,8 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   const authorityCue = hasAuthorityCue(norm);
   const allowedSourceIds =
     authorityCue && explicit.authorMentioned ? explicit.authorIds : explicit.ids;
+  /** هل سمّى السؤال مصدراً بعينه فحُصرت المادة فيه؟ */
+  const sourceNamedInQuery = allowedSourceIds.size > 0;
 
   if (authorityCue) {
     if (allowedSourceIds.size === 0) return [];
@@ -352,7 +360,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
   // القلوب؟» لا يلزم أن يحتوي المتن على لفظ «تيمية» حتى يكون إسناداً صحيحاً له —
   // فحصر المصدر سبق وأثبته. إبقاؤها في مقام التغطية كان يُسقط أسئلة صحيحة كاملة
   // (امتناع كاذب على مؤلف مسجّل وموضوع مفهرس).
-  const meaningfulQueryTokens = queryTokens.filter(({ original }) => {
+  const isMeaningfulToken = (original: string) => {
     const normalized = normalizeArabic(original);
     if (GENERIC_QUERY_TOKENS.has(normalized)) return false;
     if (explicit.authorTokens.has(normalized)) return false;
@@ -363,7 +371,26 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       if (AUTHOR_NAME_TOKENS.has(canonicalSearchToken(normalized))) return false;
     }
     return true;
-  }).length;
+  };
+  const meaningfulQueryTokens = queryTokens.filter(({ original }) => isMeaningfulToken(original)).length;
+
+  /**
+   * ألفاظ السؤال «المميِّزة»: النادرة في المادة المعتمدة أو الغائبة عنها.
+   *
+   * ورود ألفاظ فقهية عامة («حكم»، «صلاة») داخل شرح طويل ليس دليلاً على أن المقطع
+   * يجيب عن السؤال؛ فشرحٌ من تسعة عشر ألف حرف يصادف نصف أسئلة الفقه. لذلك متى حمل
+   * السؤال لفظاً مميِّزاً — وهو ما يحدد مسألته فعلاً — فلا بد أن يطابقه المقطع.
+   * «حكم صلاة الحائض» يحمل «حائض» ولا يذكره المقطع، فيُرفض بدل أن يُعرض مع سطر
+   * «حدود المادة». وسؤالٌ كلُّ ألفاظه عامة لا يُعاقب: لا لفظ مميِّز فيه فيُترك
+   * للقاعدة اللفظية وحدها.
+   */
+  const distinctiveDfCap = Math.max(3, corpusSize * DISTINCTIVE_DF_FRACTION);
+  const distinctiveQueryForms = new Set(
+    queryTokens
+      .filter(({ original }) => isMeaningfulToken(original))
+      .filter(({ variants }) => Math.max(...variants.map((v) => docFreq.get(v) ?? 0)) <= distinctiveDfCap)
+      .map(({ original }) => normalizeArabic(original)),
+  );
 
   const scored = approved
     .map((chunk) => {
@@ -373,9 +400,13 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       let lexicalMatch = false;
       let strongLexicalMatch = false;
 
+      // وسم الباب يُحتسب لكل مقطع على حده، لا للسؤال ككل: مطابقة السؤال لبابٍ ما لا
+      // تُسند إليه مقطعاً لا يحمل ذلك الوسم.
+      let topicMatch = false;
       for (const t of chunk.topics) {
         if (matchedTopicIds.has(t)) {
           score += 3;
+          topicMatch = true;
         }
       }
 
@@ -410,7 +441,8 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
 
       let weightedHits = 0;
       let nonGenericMatches = 0;
-      for (const { variants } of queryTokens) {
+      let distinctiveMatches = 0;
+      for (const { original, variants } of queryTokens) {
         let exact = false;
         let similar = false;
         let bestWeight = 0;
@@ -437,6 +469,7 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
           if (!GENERIC_QUERY_TOKENS.has(variants[0])) {
             nonGenericMatches += 1;
             if (bestWeight >= 3.5) strongLexicalMatch = true;
+            if (distinctiveQueryForms.has(normalizeArabic(original))) distinctiveMatches += 1;
           }
         }
       }
@@ -459,9 +492,21 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
       const fullCoverage = nonGenericMatches >= 2 && coverage >= 0.99;
       // الدليل اللفظي إلزامي: وسم الباب وحده لا يكفي. بعد ذلك تكفي مطابقة
       // الباب، أو تغطية لفظية قوية/كاملة لكلمات السؤال.
+      // إن حمل السؤال لفظاً مميِّزاً فلا بد أن يطابقه المقطع؛ وإلا فمطابقة ألفاظ عامة
+      // داخل نص طويل لا تُثبت أنه يجيب عن السؤال.
+      const distinctiveCovered = distinctiveQueryForms.size === 0 || distinctiveMatches > 0;
       const relevance =
         lexicalMatch &&
-        (matchedTopicIds.size > 0 || (nonGenericMatches >= 2 && coverage >= 0.5 && (strongLexicalMatch || fullCoverage)));
+        (topicMatch ||
+          // سؤالٌ يسمّي مصدراً بعينه (عنوان كتاب أو اسم مؤلِّف) حُصرت مادته في ذلك
+          // المصدر، فالإسناد ثابت بحصر المصدر نفسه ولا يُطلب من كل مقطع فيه أن يحمل
+          // وسم الباب الذي طابقه السؤال: «أمراض القلوب وشفاؤها لابن تيمية» يسأل عن
+          // الكتاب كله لا عن بابٍ بعينه.
+          (sourceNamedInQuery && matchedTopicIds.size > 0) ||
+          (nonGenericMatches >= 2 &&
+            coverage >= 0.5 &&
+            (strongLexicalMatch || fullCoverage) &&
+            distinctiveCovered));
       return { chunk, score, lexicalMatch, relevance };
     })
     .filter((x) => x.score >= MIN_PASSAGE_SCORE && x.relevance && x.lexicalMatch)

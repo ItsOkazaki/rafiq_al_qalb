@@ -1,11 +1,11 @@
 {
   "baseUrl": "http://127.0.0.1:3000",
   "questionCount": 67,
-  "generatedAt": "2026-10-06T01:45:02.739Z",
+  "generatedAt": "2026-10-06T12:10:53.016Z",
   "datasetVersion": "v3-67",
   "completeRun": true,
   "questionCountTotal": 67,
-  "rateLimitWaits": 5,
+  "rateLimitWaits": 0,
   "conflictFixture": {
     "ok": false,
     "httpStatus": 503,
@@ -30,7 +30,7 @@
     "baseline_outcome_accuracy": 1,
     "retrieval_source_recall": 0.925,
     "retrieval_source_hit_at_4": 1,
-    "retrieval_chunk_recall": 0.3942307692307692,
+    "retrieval_chunk_recall": 0.40384615384615385,
     "retrieval_chunk_hit_at_4": 0.6538461538461539,
     "topic_hit": 1,
     "abstention_accuracy": 1,
@@ -362,13 +362,12 @@
           "bb-tawba-001",
           "it-014",
           "alifta-html-000162",
-          "dd-070"
+          "alifta-html-000144"
         ],
         "sources": [
           "binbaz-tawba-musaaib",
           "ibn-taymiyyah-amrad",
-          "alifta-sunna-encyclopedia",
-          "albadr-daa-dawaa"
+          "alifta-sunna-encyclopedia"
         ]
       },
       "ai": {
@@ -381,13 +380,12 @@
           "bb-tawba-001",
           "it-014",
           "alifta-html-000162",
-          "dd-070"
+          "alifta-html-000144"
         ],
         "sources": [
           "binbaz-tawba-musaaib",
           "ibn-taymiyyah-amrad",
-          "alifta-sunna-encyclopedia",
-          "albadr-daa-dawaa"
+          "alifta-sunna-encyclopedia"
         ],
         "organization": "deterministic",
         "modelOrganized": false,
@@ -406,16 +404,16 @@
         "chunkRecall": 1,
         "topicHit": true,
         "topIds": [
-          "alifta-html-000161",
           "dd-030",
           "ksu-004",
-          "it-008"
+          "it-008",
+          "alifta-html-000078"
         ],
         "sources": [
-          "alifta-sunna-encyclopedia",
           "albadr-daa-dawaa",
           "ksu-quran-project",
-          "ibn-taymiyyah-amrad"
+          "ibn-taymiyyah-amrad",
+          "alifta-sunna-encyclopedia"
         ]
       },
       "ai": {
@@ -425,16 +423,16 @@
         "chunkRecall": 1,
         "topicHit": true,
         "topIds": [
-          "alifta-html-000161",
           "dd-030",
           "ksu-004",
-          "it-008"
+          "it-008",
+          "alifta-html-000078"
         ],
         "sources": [
-          "alifta-sunna-encyclopedia",
           "albadr-daa-dawaa",
           "ksu-quran-project",
-          "ibn-taymiyyah-amrad"
+          "ibn-taymiyyah-amrad",
+          "alifta-sunna-encyclopedia"
         ],
         "organization": "deterministic",
         "modelOrganized": false,
@@ -542,14 +540,12 @@
         "topicHit": true,
         "topIds": [
           "alifta-html-000011",
-          "dd-012",
-          "bb-tawba-002",
-          "sb-004"
+          "sb-004",
+          "alifta-html-000026",
+          "alifta-html-000025"
         ],
         "sources": [
           "alifta-sunna-encyclopedia",
-          "albadr-daa-dawaa",
-          "binbaz-tawba-musaaib",
           "sahih-bukhari"
         ]
       },
@@ -561,14 +557,12 @@
         "topicHit": true,
         "topIds": [
           "alifta-html-000011",
-          "dd-012",
-          "bb-tawba-002",
-          "sb-004"
+          "sb-004",
+          "alifta-html-000026",
+          "alifta-html-000025"
         ],
         "sources": [
           "alifta-sunna-encyclopedia",
-          "albadr-daa-dawaa",
-          "binbaz-tawba-musaaib",
           "sahih-bukhari"
         ],
         "organization": "deterministic",
@@ -636,9 +630,9 @@
         "topicHit": true,
         "topIds": [
           "bb-tawba-001",
-          "alifta-html-000027",
-          "alifta-html-000028",
-          "alifta-html-000120"
+          "alifta-html-000120",
+          "alifta-html-000122",
+          "alifta-html-000123"
         ],
         "sources": [
           "binbaz-tawba-musaaib",
@@ -653,9 +647,9 @@
         "topicHit": true,
         "topIds": [
           "bb-tawba-001",
-          "alifta-html-000027",
-          "alifta-html-000028",
-          "alifta-html-000120"
+          "alifta-html-000120",
+          "alifta-html-000122",
+          "alifta-html-000123"
         ],
         "sources": [
           "binbaz-tawba-musaaib",
@@ -725,14 +719,14 @@
         "chunkRecall": 0,
         "topicHit": true,
         "topIds": [
-          "alifta-html-000097",
           "ksu-002",
-          "dd-022",
+          "alifta-ruqya-2",
+          "dd-013",
           "bbm-001"
         ],
         "sources": [
-          "alifta-sunna-encyclopedia",
           "ksu-quran-project",
+          "alifta-sunna-encyclopedia",
           "albadr-daa-dawaa",
           "binbaz-majmou-fatawa"
         ]
@@ -744,14 +738,14 @@
         "chunkRecall": 0,
         "topicHit": true,
         "topIds": [
-          "alifta-html-000097",
           "ksu-002",
-          "dd-022",
+          "alifta-ruqya-2",
+          "dd-013",
           "bbm-001"
         ],
         "sources": [
-          "alifta-sunna-encyclopedia",
           "ksu-quran-project",
+          "alifta-sunna-encyclopedia",
           "albadr-daa-dawaa",
           "binbaz-majmou-fatawa"
         ],
@@ -772,16 +766,15 @@
         "chunkRecall": 0,
         "topicHit": true,
         "topIds": [
-          "alifta-html-000005",
+          "alifta-html-000001",
           "dd-003",
-          "sb-006",
-          "it-011"
+          "bbm-010",
+          "alifta-html-000019"
         ],
         "sources": [
           "alifta-sunna-encyclopedia",
           "albadr-daa-dawaa",
-          "sahih-bukhari",
-          "ibn-taymiyyah-amrad"
+          "binbaz-majmou-fatawa"
         ]
       },
       "ai": {
@@ -791,16 +784,15 @@
         "chunkRecall": 0,
         "topicHit": true,
         "topIds": [
-          "alifta-html-000005",
+          "alifta-html-000001",
           "dd-003",
-          "sb-006",
-          "it-011"
+          "bbm-010",
+          "alifta-html-000019"
         ],
         "sources": [
           "alifta-sunna-encyclopedia",
           "albadr-daa-dawaa",
-          "sahih-bukhari",
-          "ibn-taymiyyah-amrad"
+          "binbaz-majmou-fatawa"
         ],
         "organization": "deterministic",
         "modelOrganized": false,
@@ -1496,13 +1488,13 @@
         "outcome": "ok",
         "outcomeCorrect": true,
         "retrievalRecall": 1,
-        "chunkRecall": 0.25,
+        "chunkRecall": 0.5,
         "topicHit": true,
         "topIds": [
           "alifta-ruqya-13",
           "dd-023",
           "bbm-001",
-          "ksu-002"
+          "ksu-001"
         ],
         "sources": [
           "alifta-sunna-encyclopedia",
@@ -1515,13 +1507,13 @@
         "outcome": "ok",
         "outcomeCorrect": true,
         "retrievalRecall": 1,
-        "chunkRecall": 0.25,
+        "chunkRecall": 0.5,
         "topicHit": true,
         "topIds": [
           "alifta-ruqya-13",
           "dd-023",
           "bbm-001",
-          "ksu-002"
+          "ksu-001"
         ],
         "sources": [
           "alifta-sunna-encyclopedia",

@@ -251,9 +251,28 @@ describe("الحارس الصارم للغة المخرجات", () => {
 });
 
 describe("التوليد المستند عند توفر المزود", () => {
+  /**
+   * هذه الحالات تختبر مسار OpenAI تحديداً (شكل `messages[]` ومكالمة واحدة).
+   * وجود مفتاح Gemini أو `AI_PROVIDER` في بيئة المطوِّر/CI كان يجعل المزوّد
+   * المختار Gemini: المحاولة الأولى ترجع جسم OpenAI فلا يقرأه `callGemini`
+   * (`candidates`) فيسقط إلى المزوّد التالي — أي مكالمتان بدل واحدة. تُعزل
+   * متغيرات المزوّد كلها هنا كما في حالات اختيار المزوّد أدناه، فلا يعتمد
+   * الاختبار على خلوّ البيئة من المفاتيح الحقيقية.
+   */
+  const PROVIDER_VARS = ["GEMINI_API_KEY", "OPENROUTER_API_KEY", "OPENAI_API_KEY", "AI_PROVIDER"] as const;
+  const savedEnv = new Map(PROVIDER_VARS.map((name) => [name, process.env[name]]));
+
+  beforeEach(() => {
+    for (const name of PROVIDER_VARS) delete process.env[name];
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete process.env.OPENAI_API_KEY;
+    for (const name of PROVIDER_VARS) {
+      const previous = savedEnv.get(name);
+      if (previous === undefined) delete process.env[name];
+      else process.env[name] = previous;
+    }
   });
 
   it("يمرر المقاطع فقط للنموذج ويستخدم الناتج", async () => {
@@ -407,5 +426,68 @@ describe("التوليد عبر المزوّدين — OpenRouter والنسخ �
     const result = await runResearch(SAMPLE_QUERY);
     expect(result.outcome).toBe("ok");
     expect(result.ai.mode).toBe("deterministic");
+  });
+});
+
+// الانحدار الكامل على المثال المُبلَّغ: «حكم صلاة الحائض» كان يُعيد مقطع
+// «عمدة القاري — الرحمة وقساوة القلب» (حديث موت ابنٍ ورحمة وبكاء) مع سطر
+// «حدود المادة: لم تتناول المقاطع الحيض ولا صلاة الحائض». المطلوب: الإحالة
+// وحدها، بلا مقاطع وبلا نص مولَّد.
+describe("سؤال الحكم المجرّد — إحالة الفتوى وحدها", () => {
+  const QUERY = "حكم صلاة الحائض";
+
+  it("يعيد إحالة الفتوى حرفياً بلا مقاطع ولا نص مولَّد", async () => {
+    const result = await runResearch(QUERY, { mode: "baseline" });
+    expect(result.outcome).toBe("fatwa");
+    expect(result.message).toBe(FATWA_REFERRAL_MESSAGE);
+    expect(result.passages).toHaveLength(0);
+    expect(result.ai).toEqual({ mode: null, text: null });
+    expect(result.fatwa?.message).toBe(FATWA_REFERRAL_MESSAGE);
+    expect(result.safety).toBeNull();
+  });
+
+  it("لا يعرض أي مادة غير ذات صلة ولا عنوان «عمدة القاري»", async () => {
+    const result = await runResearch(QUERY, { mode: "baseline" });
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain("عمدة القاري");
+    expect(serialized).not.toContain("alifta-html-000162");
+    expect(serialized).not.toContain("حدود المادة");
+  });
+
+  it("لا يستدعي النموذج أصلاً: بوابة الفتوى تسبق الاسترجاع والتلخيص", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
+      mockCompletion("١) نقطة مولدة. حدود المادة: لم تتناول المقاطع الحيض."),
+    );
+    try {
+      const result = await runResearch(QUERY);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(result.ai).toEqual({ mode: null, text: null });
+      expect(result.outcome).toBe("fatwa");
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("الصيغة بالاستفهام تُحال كذلك («ما حكم صلاة الحائض؟»)", async () => {
+    const result = await runResearch("ما حكم صلاة الحائض؟", { mode: "baseline" });
+    expect(result.outcome).toBe("fatwa");
+    expect(result.passages).toHaveLength(0);
+  });
+
+  it("موضوع عام غير مدعوم يمتنع بلا مقاطع بدل «حدود المادة»", async () => {
+    for (const q of ["ما أخبار سوق الأسهم؟", "ما معنى كلمة حرام؟"]) {
+      const result = await runResearch(q, { mode: "baseline" });
+      expect(result.outcome, q).toBe("abstained");
+      expect(result.message, q).toBe(ABSTAIN_MESSAGE);
+      expect(result.passages, q).toHaveLength(0);
+      expect(result.ai.text, q).toBeNull();
+    }
+  });
+});
+
+describe("سطر «حدود المادة» ليس بديلاً عن الامتناع", () => {
+  it("التوجيه يصرّح بأن السطر قيد على جواب مدعوم لا مسوّغ للإجابة", () => {
+    expect(SYSTEM_PROMPT).toContain("سطر «حدود المادة:» قيدٌ على جوابٍ تستند نقاطه فعلاً إلى المقاطع");
+    expect(SYSTEM_PROMPT).toContain("وليس بديلاً عن الامتناع");
   });
 });

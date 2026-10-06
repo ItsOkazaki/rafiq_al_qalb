@@ -99,3 +99,65 @@ describe("اتساق الـcorpus مع السجل (منع انحدار صفحة 
     expect(notRetrievable.map((c) => c.sourceId)).toEqual([]);
   });
 });
+
+// انحدار على الفصل بين المتن والشرح في المادة المسلَّمة نفسها:
+// alifta-html-000162 (عمدة القاري — الرحمة وقساوة القلب، صفحة
+// BookToc/ViewServicePage?BookID=43&mainId=393972) كان `hadithFullText` فيها
+// ١٢٩٩٣ حرفاً: المتن ثم شرح العيني كله. وكانت البطاقة تعرضه تحت عنوان «الحديث».
+describe("الفصل بين المتن والشرح في المادة المسلَّمة", () => {
+  const SHARH_MARKERS = [
+    /قوله\s*[:：]/,
+    /ذكر رجاله/,
+    /ذكر لطائف إسناده/,
+    /ذكر تعدد موضعه/,
+    /ما يستفاد منه/,
+    /هذا الحديث مطابق/,
+  ];
+
+  it("سجل عمدة القاري المبلَّغ عنه لم يعد يحمل الشرح في متنه", () => {
+    const chunk = ALL_CHUNKS.find((c) => c.id === "alifta-html-000162");
+    expect(chunk).toBeDefined();
+    expect(chunk!.chapter).toBe("عمدة القاري — الرحمة وقساوة القلب");
+    const matn = chunk!.hadithFullText ?? "";
+    for (const marker of SHARH_MARKERS) {
+      expect(marker.test(matn), `متن السجل لا يزال يحمل ${marker}`).toBe(false);
+    }
+    expect(matn.length).toBeLessThan(1000);
+    expect(matn).toContain("هذه رحمة جعلها الله في قلوب عباده");
+    // الشرح الرسمي محفوظ في طبقته الخاصة لا محذوفاً.
+    expect((chunk!.explanationText ?? "").length).toBeGreaterThan(0);
+  });
+
+  it("لا سجل في المادة كلها يحمل شرحاً داخل متنه", () => {
+    const offenders = ALL_CHUNKS.filter((c) => {
+      const matn = c.hadithFullText;
+      if (!matn) return false;
+      // السطر الأول هو المتن نفسه؛ ما بعده فقط يمكن أن يكون شرحاً.
+      return matn.split("\n").slice(1).some((line) => SHARH_MARKERS.some((m) => m.test(line)));
+    });
+    expect(offenders.map((c) => c.id)).toEqual([]);
+  });
+
+  it("متنٌ ملوّث بالشرح لا يمرّ إلى البطاقة على أنه حديث", () => {
+    const passage = toRetrievedPassage(
+      fakeChunk({
+        id: "contaminated-001",
+        hadithFullText:
+          "حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده .\nقوله : \" قبض \" على صيغة المجهول أي قرب من أن يقبض .",
+        explanationText: "شرح رسمي منفصل عن المتن.",
+      }),
+    );
+    expect(passage).not.toBeNull();
+    expect(passage!.hadithFullText).toBeUndefined();
+    expect(passage!.hadithText).toBeUndefined();
+    // الشرح الرسمي يبقى في طبقته.
+    expect(passage!.explanationText).toBe("شرح رسمي منفصل عن المتن.");
+  });
+
+  it("متنٌ سليم يمرّ إلى البطاقة كما هو", () => {
+    const matn =
+      "حدثنا عبدان ومحمد قالا أخبرنا عبد الله عن أسامة بن زيد قال هذه رحمة جعلها الله في قلوب عباده ، وإنما يرحم الله من عباده الرحماء .";
+    const passage = toRetrievedPassage(fakeChunk({ id: "clean-001", hadithFullText: matn }));
+    expect(passage!.hadithFullText).toBe(matn);
+  });
+});

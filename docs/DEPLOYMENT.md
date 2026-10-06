@@ -95,5 +95,5 @@ official link; `ai.mode` = `model` when a key is configured, `deterministic` oth
 
 `.github/workflows/refresh-alifta-html.yml` يعيد بناء corpus جامع السنة من الصفحات
 الرسمية (تشغيل يدوي `workflow_dispatch`، وعلى كل دفعة إلى `main`). الوظيفة تشغّل
-الاختبارات (٢٧١ اختبار وحدة + ٣٣ اختبار زاحف)، ثم الـingest، ثم بوابة الجودة، ثم تلتزم بالـcorpus الناتج — ولا تكتب corpus
+الاختبارات (٣١٠ اختبار وحدة + ٤١ اختبار زاحف)، ثم الـingest، ثم بوابة الجودة، ثم تلتزم بالـcorpus الناتج — ولا تكتب corpus
 مرفوضاً في مسارات التطبيق أبداً.
