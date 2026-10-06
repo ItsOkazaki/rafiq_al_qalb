@@ -7,6 +7,7 @@
 import { ALL_CHUNKS } from "@/lib/corpus/chunks";
 import { TOPICS } from "@/lib/rag/topics";
 import { ACTIVE_SOURCES, getSourceById, isRetrievableSourceId, isExcludedSourceTitle } from "@/lib/sources/registry";
+import { toRetrievedPassage } from "@/lib/corpus/passages";
 import { normalizeArabic, tokenizeArabic } from "@/lib/text/arabic";
 import type { CorpusChunk, RetrievedPassage, TopicMatch } from "@/lib/types";
 
@@ -39,13 +40,35 @@ const GENERIC_QUERY_TOKENS = new Set([
 const QURAN_QUERY_HINTS = ["قرآن", "مصحف", "آية", "اية", "آيه", "ايه", "سورة", "سوره"]
   .map(normalizeArabic);
 const AUTHORITY_QUERY_HINTS = ["رأي", "راي", "قول", "موقف"] .map(normalizeArabic);
-const IGNORED_AUTHOR_TOKENS = new Set([
+const IGNORED_AUTHOR_TOKENS_RAW = new Set([
   "الشيخ", "شيخ", "الإمام", "الامام", "رحمه", "الله", "بن", "ابن", "عبد",
   "الرئاسة", "رئاسة", "العامة", "العلمية", "علميه", "بحوث", "الإفتاء", "افتاء",
   "شركة", "حرف", "تقنية", "لتقنية", "معلومات", "تعاون", "مجمع", "ملك",
   "لطباعة", "مصحف", "شريف", "القرآن", "قران", "كريم", "وتفسير", "ميسر",
   "محمد", "عبدالعزيز", "عبد",
+  // ألفاظ دينية عامة كانت تُحتسب «اسم مؤلف» فتُسند إلى مصدر لم يُذكر مؤلفه في
+  // السؤال: «الإسلام» في اسم ابن تيمية، و«نص/تفسير» في اسم مصدر المصحف.
+  "الاسلام", "اسلام", "الدين", "دين", "علامه", "محدث", "فقيه", "نص", "تفسير",
+  "العزيز", "عزيز", "السنة", "سنه", "النبوية", "نبويه",
 ]);
+
+/**
+ * مجموعة التجاهل بصيغتها الفعلية بعد التطبيع وتجريد السوابق.
+ * كانت المجموعة السابقة مكتوبة بأشكال غير مطبَّعة («الإمام»، «الرئاسة») بينما
+ * المقارنة تجري على وحدات مطبَّعة ومجرَّدة («امام»، «رئاسه») — أي أن معظمها لم
+ * يكن يعمل إطلاقاً.
+ */
+const IGNORED_AUTHOR_TOKENS: Set<string> = (() => {
+  const out = new Set<string>();
+  for (const token of IGNORED_AUTHOR_TOKENS_RAW) {
+    const normalized = normalizeArabic(token);
+    if (!normalized) continue;
+    out.add(normalized);
+    out.add(canonicalSearchToken(normalized));
+  }
+  out.delete("");
+  return out;
+})();
 
 function canonicalSearchToken(token: string): string {
   let t = normalizeArabic(token);
@@ -107,20 +130,74 @@ function hasAuthorityCue(norm: string): boolean {
   return AUTHORITY_QUERY_HINTS.some((hint) => hint && queryTokens.has(hint));
 }
 
-function getExplicitSourceIds(norm: string): Set<string> {
-  const ids = new Set<string>();
+/**
+ * كل ألفاظ أسماء المؤلفين في المصادر النشطة (بما فيها الأدوات: «ابن»، «بن»،
+ *«الشيخ»). تُستعمل لاستثناء ألفاظ الإسناد من مقام تغطية السؤال: اسم المؤلف دليل
+ * على **المصدر** وقد حُسم أمره بحصر المصدر، فلا يُطلب وجوده داخل المتن أيضاً.
+ */
+const AUTHOR_NAME_TOKENS: Set<string> = (() => {
+  const out = new Set<string>();
   for (const source of ACTIVE_SOURCES) {
-    const authorTokens = tokenizeArabic(source.author)
+    for (const raw of tokenizeArabic(source.author)) {
+      const normalized = normalizeArabic(raw);
+      if (!normalized) continue;
+      // أرقام سنوات الولادة/الوفاة ليست ألفاظ إسناد بحثية.
+      if (!/[\u0600-\u06FF]/.test(normalized)) continue;
+      out.add(normalized);
+      const canonical = canonicalSearchToken(normalized);
+      if (canonical) out.add(canonical);
+    }
+  }
+  return out;
+})();
+
+interface ExplicitSources {
+  /** كل المصادر التي ذكرها السؤال صراحةً (باسم مؤلف أو بعنوان كتاب). */
+  ids: Set<string>;
+  /** المصادر المذكورة **باسم مؤلفها** وحدها. */
+  authorIds: Set<string>;
+  /** هل ذُكر اسم مؤلف مسجّل في السؤال؟ */
+  authorMentioned: boolean;
+  /** ألفاظ اسم المؤلف التي ظهرت في السؤال — ألفاظ إسناد لا ألفاظ مضمون. */
+  authorTokens: Set<string>;
+}
+
+/**
+ * تحديد المصادر المذكورة صراحةً في السؤال.
+ *
+ * التمييز بين «ذُكر المؤلف» و«ذُكر عنوان الكتاب» جوهري: عند السؤال عن رأي عالم
+ * بعينه لا يجوز أن يُسند القول إلى عالم آخر لمجرد أن عنوان كتابه يشترك في لفظتين
+ * مع السؤال. كان «ما رأي ابن القيم في أمراض القلوب؟» يُعيد مادة ابن تيمية لأن
+ * عنوان كتابه (أمراض القلوب وشفاؤها) يطابق لفظتين من السؤال.
+ */
+function findExplicitSources(norm: string): ExplicitSources {
+  const ids = new Set<string>();
+  const authorIds = new Set<string>();
+  const authorTokens = new Set<string>();
+  let authorMentioned = false;
+
+  for (const source of ACTIVE_SOURCES) {
+    const sourceAuthorTokens = tokenizeArabic(source.author)
       .map(normalizeArabic)
       .filter((t) => t.length >= 3 && !IGNORED_AUTHOR_TOKENS.has(t));
     const titleTokens = tokenizeArabic(source.title)
       .map(normalizeArabic)
-      .filter((t) => t.length >= 4 && !GENERIC_QUERY_TOKENS.has(t));
-    const matchingAuthorTokens = authorTokens.filter((t) => norm.includes(t));
+      .filter((t) => t.length >= 4 && !GENERIC_QUERY_TOKENS.has(t) && !IGNORED_AUTHOR_TOKENS.has(t));
+
+    const matchingAuthorTokens = sourceAuthorTokens.filter((t) => norm.includes(t));
     const matchingTitleTokens = titleTokens.filter((t) => norm.includes(t));
-    if (matchingAuthorTokens.length >= 1 || matchingTitleTokens.length >= 2) ids.add(source.id);
+
+    if (matchingAuthorTokens.length >= 1) {
+      ids.add(source.id);
+      authorIds.add(source.id);
+      authorMentioned = true;
+      for (const token of matchingAuthorTokens) authorTokens.add(token);
+    } else if (matchingTitleTokens.length >= 2) {
+      ids.add(source.id);
+    }
   }
-  return ids;
+
+  return { ids, authorIds, authorMentioned, authorTokens };
 }
 
 function buildDocumentFrequency(corpus: CorpusChunk[]): Map<string, number> {
@@ -247,20 +324,40 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
 
   // عند السؤال عن «رأي/قول/موقف» عالم بعينه، لا نقبل مقطعاً من عالم آخر؛
   // وإذا لم يظهر اسم مؤلف مسجّل في المصادر النشطة، فالمادة غير قابلة للإسناد.
-  const explicitSourceIds = getExplicitSourceIds(norm);
-  if (hasAuthorityCue(norm)) {
-    if (explicitSourceIds.size === 0) return [];
-    approved = approved.filter((chunk) => explicitSourceIds.has(chunk.sourceId));
-  } else if (explicitSourceIds.size > 0) {
-    approved = approved.filter((chunk) => explicitSourceIds.has(chunk.sourceId));
+  //
+  // قاعدة الإسناد: إذا ذُكر اسم مؤلف، فالإسناد له وحده — ولا يُقبل مصدر عُرف من
+  // عنوان كتابه فقط. وبلا اسم مؤلف يبقى العنوان دليلاً كافياً على المصدر المطلوب.
+  const explicit = findExplicitSources(norm);
+  const authorityCue = hasAuthorityCue(norm);
+  const allowedSourceIds =
+    authorityCue && explicit.authorMentioned ? explicit.authorIds : explicit.ids;
+
+  if (authorityCue) {
+    if (allowedSourceIds.size === 0) return [];
+    approved = approved.filter((chunk) => allowedSourceIds.has(chunk.sourceId));
+  } else if (allowedSourceIds.size > 0) {
+    approved = approved.filter((chunk) => allowedSourceIds.has(chunk.sourceId));
   }
 
   const docFreq = buildDocumentFrequency(approved);
   const corpusSize = Math.max(approved.length, 1);
   const queryTokens = [...tokens].map((t) => ({ original: t, variants: tokenVariants(t) }));
-  const meaningfulQueryTokens = queryTokens.filter(
-    ({ original }) => !GENERIC_QUERY_TOKENS.has(normalizeArabic(original)),
-  ).length;
+  // ألفاظ اسم المؤلف ألفاظ إسناد لا ألفاظ مضمون: السؤال «ما رأي ابن تيمية في أمراض
+  // القلوب؟» لا يلزم أن يحتوي المتن على لفظ «تيمية» حتى يكون إسناداً صحيحاً له —
+  // فحصر المصدر سبق وأثبته. إبقاؤها في مقام التغطية كان يُسقط أسئلة صحيحة كاملة
+  // (امتناع كاذب على مؤلف مسجّل وموضوع مفهرس).
+  const meaningfulQueryTokens = queryTokens.filter(({ original }) => {
+    const normalized = normalizeArabic(original);
+    if (GENERIC_QUERY_TOKENS.has(normalized)) return false;
+    if (explicit.authorTokens.has(normalized)) return false;
+    if (explicit.authorTokens.has(canonicalSearchToken(normalized))) return false;
+    // اسم المؤلف بأدواته («ابن»، «بن»، «الشيخ») — لا يُطلب داخل المتن.
+    if (explicit.authorMentioned) {
+      if (AUTHOR_NAME_TOKENS.has(normalized)) return false;
+      if (AUTHOR_NAME_TOKENS.has(canonicalSearchToken(normalized))) return false;
+    }
+    return true;
+  }).length;
 
   const scored = approved
     .map((chunk) => {
@@ -390,38 +487,10 @@ export function retrievePassages(query: string, opts: RetrieveOptions = {}): Ret
 
   const results: RetrievedPassage[] = [];
   for (const { chunk, score } of selected) {
-    const src = getSourceById(chunk.sourceId);
-    // حارس أخير قبل العرض: مقطع تعذّر توثيق مصدره (معرّف محذوف/خاطئ في سجل
-    // متضارب) يُتجاوز بصمت بدل أن يُسقط الطلب كله بخطأ غير مضبوط.
-    if (!src) continue;
-    results.push({
-      chunkId: chunk.id,
-      text: chunk.text,
-      quranText: chunk.quranText,
-      quranReference: chunk.quranReference,
-      hadithText: chunk.hadithText,
-      hadithFullText: chunk.hadithFullText,
-      explanationText: chunk.explanationText,
-      explanationSourceUrl: chunk.explanationSourceUrl,
-      chapter: chunk.chapter,
-      page: chunk.page,
-      citationStatus: chunk.citationStatus ?? "chapter-only",
-      excerptType: chunk.excerptType,
-      role: chunk.role,
-      keywords: chunk.keywords,
-      score,
-      source: {
-        sourceId: src.id,
-        slug: src.slug,
-        title: src.title,
-        author: src.author,
-        publisher: src.publisher,
-        registryUrl: src.registryUrl,
-        originalUrl: chunk.sourceUrl ?? src.originalUrl,
-        verificationUrl: src.verificationUrl,
-        verificationLabel: src.verificationLabel,
-      },
-    });
+    // الحارس نفسه المستعمل في صفحات المكتبة (src/lib/corpus/passages.ts):
+    // مقطع تعذّر توثيق مصدره يُتجاوز بصمت بدل أن يُسقط الطلب كله بخطأ غير مضبوط.
+    const passage = toRetrievedPassage(chunk, { score });
+    if (passage) results.push(passage);
   }
   return results;
 }

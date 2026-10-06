@@ -19,7 +19,7 @@ If no benchmark report exists yet it prints the command to produce one
 
 1. Start from a clean tree (`git status` clean).
 2. Run the helper; both gates must pass.
-3. Run the fixed 40-case benchmark against a deployment.
+3. Run the fixed 67-case benchmark (`v3-67`) against a deployment.
 4. Inspect failing cases by class: door matching, retrieval threshold, abstention,
    fatwa/safety routing, or the model-organization layer.
 5. Change one root cause; re-run the same cases; keep the change only if the target metric

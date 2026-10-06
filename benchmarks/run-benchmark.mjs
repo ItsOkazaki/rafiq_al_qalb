@@ -15,7 +15,7 @@
 // It never invents numbers: every figure in benchmarks/results/latest.json comes from
 // a real HTTP response of the target deployment.
 //
-// Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10] [--dataset v1-40]
+// Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10] [--dataset v3-67]
 // ─────────────────────────────────────────────────────────────────────────────
 import fs from 'node:fs/promises';
 import pg from 'pg';
@@ -28,7 +28,15 @@ const getArg = (name, fallback) => {
 };
 
 if (args.includes('--help')) {
-  console.log('Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10] [--dataset v1-40]');
+  console.log(
+    'Usage: npm run benchmark -- --url http://localhost:3000 [--limit 10] [--dataset v3-67] [--pace-ms 2100] [--max-rate-retries 12]',
+  );
+  console.log('');
+  console.log('A full run issues two requests per case (baseline + ai) against a rate-limited');
+  console.log('endpoint (30/min per client). 429 responses are honoured via `retry-after` and');
+  console.log('retried — the limit is never bypassed. Use --pace-ms to avoid 429s entirely.');
+  console.log('A partial run (--limit) never overwrites results/latest.json; it writes');
+  console.log('results/partial-<n>.json so the committed full-run evidence stays intact.');
   process.exit(0);
 }
 
@@ -36,7 +44,8 @@ const baseUrl = getArg('--url', 'http://localhost:3000').replace(/\/$/, '');
 const limit = Number(getArg('--limit', '0')) || 0;
 const questions = JSON.parse(await fs.readFile(new URL('./questions.json', import.meta.url), 'utf8'));
 const selected = limit > 0 ? questions.slice(0, limit) : questions;
-const datasetVersion = getArg('--dataset', 'v1-40');
+const datasetVersion = getArg('--dataset', 'v3-67');
+const paceMs = Number(getArg('--pace-ms', '0')) || 0;
 
 let health = {};
 try {
@@ -44,14 +53,46 @@ try {
   if (response.ok) health = await response.json();
 } catch { /* health metadata is nice-to-have; a reachable /api/research is the gate */ }
 
+/**
+ * /api/research is rate-limited (30 requests/minute per client) and a full run issues
+ * two requests per case, i.e. 80 for the frozen 40-case set. The runner must therefore
+ * respect the limit instead of dying on the first 429: it waits for the `retry-after`
+ * window and retries. The limit itself is never bypassed — no special header, no
+ * exemption, no limiter flag: the runner simply behaves like a patient client.
+ *
+ * `--pace-ms N` additionally spaces requests to stay under the limit in the first place.
+ */
+let rateLimitWaits = 0;
+
+async function requestWithRateLimit(url, body, question, mode) {
+  const maxAttempts = Number(getArg('--max-rate-retries', '12')) || 12;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    if (paceMs > 0) await new Promise((resolve) => setTimeout(resolve, paceMs));
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (response.status === 429) {
+      const retryAfter = Number(response.headers.get('retry-after')) || 60;
+      rateLimitWaits += 1;
+      process.stdout.write(`\n  … rate-limited (429), waiting ${retryAfter}s for the next window\n`);
+      await new Promise((resolve) => setTimeout(resolve, (retryAfter + 1) * 1000));
+      continue;
+    }
+    if (!response.ok) throw new Error(`${question.id}/${mode}: HTTP ${response.status}`);
+    return response.json();
+  }
+  throw new Error(`${question.id}/${mode}: still rate-limited after ${maxAttempts} attempts`);
+}
+
 async function runCase(question, mode) {
-  const response = await fetch(`${baseUrl}/api/research`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ query: question.query, mode }),
-  });
-  if (!response.ok) throw new Error(`${question.id}/${mode}: HTTP ${response.status}`);
-  return response.json();
+  return requestWithRateLimit(
+    `${baseUrl}/api/research`,
+    { query: question.query, mode },
+    question,
+    mode,
+  );
 }
 
 async function runConflictFixture() {
@@ -85,6 +126,10 @@ function retrievalSignals(question, result) {
     expected.size === 0 ? null : [...expected].filter((x) => got.has(x)).length / expected.size;
 
   return {
+    // `outcome` must be carried on the row: aggregate() reports outcome accuracy from it,
+    // and it is what tells an answered case from a refusal. Without it both organization
+    // rates were permanently null, with or without a provider key.
+    outcome: result.outcome ?? null,
     outcomeCorrect: result.outcome === question.expectedOutcome,
     retrievalRecall: recall(expectedSources, sources),
     chunkRecall: recall(expectedChunks, chunks),
@@ -127,16 +172,33 @@ const report = aggregate(rows, {
   questionCount: rows.length,
   generatedAt: new Date().toISOString(),
   datasetVersion,
+  completeRun: rows.length === questions.length,
+  questionCountTotal: questions.length,
+  rateLimitWaits,
   conflictFixture: conflict,
   health,
 });
 
+const isCompleteRun = rows.length === questions.length;
 await fs.mkdir(new URL('./results/', import.meta.url), { recursive: true });
-await fs.writeFile(new URL('./results/latest.json', import.meta.url), JSON.stringify(report, null, 2), 'utf8');
+// Integrity: results/latest.json is the committed evidence for the numbers quoted in the
+// README. A partial run must not silently replace it with a smaller report.
+const resultFile = isCompleteRun
+  ? new URL('./results/latest.json', import.meta.url)
+  : new URL(`./results/partial-${rows.length}.json`, import.meta.url);
+await fs.writeFile(resultFile, JSON.stringify(report, null, 2), 'utf8');
 await persistToNeon(report, datasetVersion);
 console.log(JSON.stringify(report.summary, null, 2));
 console.log(`Conflict fixture: ${conflict.ok ? 'PASS' : 'CHECK'} (${conflict.conflictCount} conflicts reported)`);
-console.log('Saved: benchmarks/results/latest.json');
+if (rateLimitWaits > 0) {
+  console.log(`Rate limit: honoured ${rateLimitWaits} time(s) via retry-after (never bypassed).`);
+}
+console.log(
+  `Saved: benchmarks/results/${isCompleteRun ? 'latest.json' : `partial-${rows.length}.json`}`,
+);
+if (!isCompleteRun) {
+  console.log(`NOTE: partial run (${rows.length}/${questions.length} cases) — results/latest.json was left untouched.`);
+}
 
 async function persistToNeon(report, version) {
   const url = process.env.DATABASE_URL;
@@ -178,8 +240,18 @@ function aggregate(rows, meta) {
   const sourceRows = rows.filter((r) => r.ai.retrievalRecall !== null);
   const chunkRows = rows.filter((r) => r.ai.chunkRecall !== null);
   const topicRows = rows.filter((r) => r.ai.topicHit !== null);
-  const abstentionRows = rows.filter((r) => ['out-of-scope', 'fatwa-safety', 'hallucination'].includes(r.type));
-  const answerRows = rows.filter((r) => ['ok', 'abstained', 'fatwa', 'safety'].includes(r.ai.outcome));
+  // Every case whose correct behaviour is a refusal counts toward abstention_accuracy:
+  // out-of-scope, hallucination probes, فتوى refusals, self-harm/crisis routing, and the
+  // diagnosis/prescription gates. (v1 counted only the first three, so a safety regression
+  // could not move the headline metric.)
+  const abstentionRows = rows.filter((r) => [
+    'out-of-scope', 'fatwa-safety', 'hallucination',
+    'crisis-safety', 'policy-diagnosis', 'policy-prescription',
+  ].includes(r.type));
+  // "Answered cases" = cases where the organization layer actually ran. A refusal
+  // (fatwa / diagnosis / safety / abstention) has no summary at all, so including those
+  // rows would depress both organization rates and make them non-complementary.
+  const answerRows = rows.filter((r) => r.ai.organization !== null);
 
   return {
     ...meta,

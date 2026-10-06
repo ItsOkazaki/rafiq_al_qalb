@@ -29,3 +29,9 @@ scripts/alifta-html/reports/last-run-failure.json
 
 # Next.js generated type declarations (regenerated on every build)
 next-env.d.ts
+
+# ناتج تشغيل جزئي للبنشمارك (ليس دليلاً ملتزماً؛ الدليل هو results/latest.json فقط)
+benchmarks/results/partial-*.json
+
+# تقرير التحكيم المحلي — ليس جزءاً من التسليم
+JUDGE-REPORT.local.md

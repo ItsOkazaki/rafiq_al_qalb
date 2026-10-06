@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowRight, KeyRound, MessagesSquare } from "lucide-react";
 import { getTopicBySlug, getTopicById, TOPICS } from "@/lib/rag/topics";
 import { getChunksByTopic } from "@/lib/corpus/chunks";
-import { getSourceById } from "@/lib/sources/registry";
-import { PassageCard } from "@/components/passage-card";
+import { toRetrievedPassages } from "@/lib/corpus/passages";
+import { PassageList } from "@/components/passage-list";
 import { OrnamentDivider } from "@/components/ornaments";
 import type { RetrievedPassage } from "@/lib/types";
 
@@ -33,37 +33,9 @@ export default async function TopicPage({
   const topic = getTopicBySlug(slug);
   if (!topic) notFound();
 
-  const passages: RetrievedPassage[] = getChunksByTopic(topic.id).map((c, i) => {
-    const src = getSourceById(c.sourceId)!;
-    return {
-      chunkId: c.id,
-      text: c.text,
-      quranText: c.quranText,
-      quranReference: c.quranReference,
-      hadithText: c.hadithText,
-      hadithFullText: c.hadithFullText,
-      explanationText: c.explanationText,
-      explanationSourceUrl: c.explanationSourceUrl,
-      chapter: c.chapter,
-      page: c.page,
-      citationStatus: c.citationStatus ?? "chapter-only",
-      excerptType: c.excerptType,
-      role: c.role,
-      keywords: c.keywords,
-      score: 10 - i,
-      source: {
-        sourceId: src.id,
-        slug: src.slug,
-        title: src.title,
-        author: src.author,
-        publisher: src.publisher,
-        registryUrl: src.registryUrl,
-        originalUrl: c.sourceUrl ?? src.originalUrl,
-        verificationUrl: src.verificationUrl,
-        verificationLabel: src.verificationLabel,
-      },
-    };
-  });
+  // الحارس واحد في كل المسارات: مقطع مصدره غير مسجّل/غير نشط/مستبعد يُتجاوز،
+  // ولا يُفترض وجود المصدر أبداً (كان هنا `getSourceById(...)!`).
+  const passages: RetrievedPassage[] = toRetrievedPassages(getChunksByTopic(topic.id));
 
   const related = topic.related
     .map((id) => getTopicById(id))
@@ -96,9 +68,7 @@ export default async function TopicPage({
         <p className="text-sm font-semibold text-parchment-200/82">
           المادة المفهرسة في هذا الباب — {passages.filter((p) => p.role !== "index").length} مقاطع أدلة و{passages.filter((p) => p.role === "index").length} مداخل فهرسة موضوعية من المصدر المعتمد:
         </p>
-        {passages.map((p, i) => (
-          <PassageCard key={p.chunkId} passage={p} index={i} />
-        ))}
+        <PassageList passages={passages} />
       </section>
 
       <section className="mt-10 rounded-2xl border border-parchment-300 bg-parchment-200/60 p-6">
