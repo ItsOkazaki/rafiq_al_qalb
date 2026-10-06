@@ -29,6 +29,7 @@ import {
   parseResultTitle,
   stripBookSuffix,
   verifiedHadithExcerpt,
+  isGroundedHadithExcerpt,
   validateDetailPage,
   validateCommentaryPage,
   normalizeForDedupe,
@@ -677,6 +678,81 @@ runs.push(test('crawler, corpus verifier and app agree on what opens a commentar
     assert(new RegExp(fromIngest.slice(1, fromIngest.lastIndexOf('/')), 'iu').test(line),
       `recognised as commentary: ${line}`);
   }
+}));
+
+runs.push(test('crawler and corpus verifier share one grounding rule for the short excerpt', async () => {
+  const ingestSrc = await read('ingest.mjs');
+  const verifySrc = await read('verify.mjs');
+  const pattern = /function isGroundedHadithExcerpt\([\s\S]*?\n\}/;
+  const fromIngest = ingestSrc.match(pattern)?.[0];
+  const fromVerify = verifySrc.match(pattern)?.[0];
+  assert(fromIngest, 'ingest.mjs defines isGroundedHadithExcerpt');
+  assert(fromVerify, 'verify.mjs defines isGroundedHadithExcerpt');
+  eq(fromIngest, fromVerify, 'crawler predicate === verifier predicate');
+  // A looser crawler predicate is exactly how a chapter label reached `hadithText`
+  // while the committed corpus stayed clean, which made the quality gate reject
+  // every fresh crawl.
+}));
+
+runs.push(test('a word carrying an Arabic question mark still matches its bare form', () => {
+  // Real records from a live crawl. Both excerpts genuinely occur in the matn
+  // stored beside them — but the closing word carries an Arabic question mark
+  // (U+061F). That mark sits inside U+0600-U+06FF, so a normalizer that keeps
+  // the Arabic range leaves it glued to the word, and the Arabic-letters token
+  // filter then discards the whole word. The excerpt stops grounding, the
+  // quality gate rejects the entire crawl, and a legitimate short excerpt is
+  // dropped from the corpus. src/lib/text/arabic.ts already strips these marks;
+  // the crawler and verifier normalizers must not drift from it.
+const cases = [
+    {
+      id: "alifta-html-000043",
+      excerpt: "يَا أَبَا ذَرٍّ ، أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ",
+      matn: "حَدَّثَنَا أَبُو نُعَيْمٍ ، حَدَّثَنَا الْأَعْمَشُ ، عَنْ إِبْرَاهِيمَ التَّيْمِيِّ ، عَنْ أَبِيهِ ، عَنْ أَبِي ذَرٍّ - رَضِيَ اللهُ عَنْهُ - قَالَ: كُنْتُ مَعَ النَّبِيِّ - صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ - فِي الْمَسْجِدِ عِنْدَ غُرُوبِ الشَّمْسِ ، فَقَالَ: يَا أَبَا ذَرٍّ ، أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ؟ قُلْتُ: اللهُ وَرَسُولُهُ أَعْلَمُ ، قَالَ: فَإِنَّهَا تَذْهَبُ حَتَّى تَسْجُدَ تَحْتَ الْعَرْشِ ، فَذَلِكَ قَوْلُهُ تَعَالَى:\nوَالشَّمْسُ تَجْرِي لِمُسْتَقَرٍّ لَهَا ذَلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ\nسُورَةُ يس\nوَقَالَ مُجَاهِدٌ :\nفَعَزَّزْنَا\nشَدَّدْنَا ،\nيَا حَسْرَةً عَلَى الْعِبَادِ\nكَانَ حَسْرَةً عَلَيْهِمُ اسْتِهْزَاؤُهُمْ بِالرُّسُلِ ،\nأَنْ تُدْرِكَ الْقَمَرَ\nلَا يَسْتُرُ ضَوْءُ أَحَدِهِمَا ضَوْءَ الْآخَرِ ، وَلَا يَنْبَغِي لَهُمَا ذَلِكَ ،\nسَابِقُ النَّهَارِ\nيَتَطَالَبَانِ حَثِيثَيْنِ\nنَسْلَخُ\nنُخْرِجُ أَحَدَهُمَا مِنَ الْآخَرِ وَيَجْرِي كُلُّ وَاحِدٍ مِنْهُمَا\nمِنْ مِثْلِهِ\nمِنَ الْأَنْعَامِ ،\nفَكِهُونَ\nمُعْجَبُونَ ،\nجُنْدٌ مُحْضَرُونَ\nعِنْدَ الْحِسَابِ .\nوَيُذْكَرُ عَنْ عِكْرِمَةَ :\nالْمَشْحُونِ\nالْمُوقَرُ . وَقَالَ ابْنُ عَبَّاسٍ :\nقَالُوا طَائِرُكُمْ\nمَصَائِبُكُمْ\nيَنْسِلُونَ\nيَخْرُجُونَ ،\nمَرْقَدِنَا\nمَخْرَجِنَا\nأَحْصَيْنَاهُ\nحَفِظْنَاهُ مَكَانَتُهُمْ وَمَكَانُهُمْ وَاحِدٌ .\nوَالشَّمْسُ تَجْرِي لِمُسْتَقَرٍّ لَهَا ذَلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ",
+    },
+    {
+      id: "alifta-html-000048",
+      excerpt: "أَلَا أُخْبِرُكُمْ عَنِ النَّفَرِ الثَّلَاثَةِ",
+      matn: "حَدَّثَنَا قُتَيْبَةُ بْنُ سَعِيدٍ ، عَنْ مَالِكِ بْنِ أَنَسٍ - فِيمَا قُرِئَ عَلَيْهِ - عَنْ إِسْحَاقَ بْنِ عَبْدِ اللهِ بْنِ أَبِي طَلْحَةَ أَنَّ أَبَا مُرَّةَ مَوْلَى عَقِيلِ بْنِ أَبِي طَالِبٍ أَخْبَرَهُ عَنْ أَبِي وَاقِدٍ اللَّيْثِيِّ أَنَّ رَسُولَ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ بَيْنَمَا هُوَ جَالِسٌ فِي الْمَسْجِدِ وَالنَّاسُ مَعَهُ إِذْ أَقْبَلَ نَفَرٌ ثَلَاثَةٌ ، فَأَقْبَلَ اثْنَانِ إِلَى رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ وَذَهَبَ وَاحِدٌ ، قَالَ: فَوَقَفَا عَلَى رَسُولِ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ ، فَأَمَّا أَحَدُهُمَا فَرَأَى فُرْجَةً فِي الْحَلْقَةِ فَجَلَسَ فِيهَا ، وَأَمَّا الْآخَرُ فَجَلَسَ خَلْفَهُمْ ، وَأَمَّا الثَّالِثُ فَأَدْبَرَ ذَاهِبًا ، فَلَمَّا فَرَغَ رَسُولُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: أَلَا أُخْبِرُكُمْ عَنِ النَّفَرِ الثَّلَاثَةِ؟ أَمَّا أَحَدُهُمْ فَأَوَى إِلَى اللهِ فَآوَاهُ اللهُ ، وَأَمَّا الْآخَرُ فَاسْتَحْيَا فَاسْتَحْيَا اللهُ مِنْهُ ، وَأَمَّا الْآخَرُ فَأَعْرَضَ فَأَعْرَضَ اللهُ عَنْهُ .\nبَابُ مَنْ أَتَى مَجْلِسًا فَوَجَدَ فُرْجَةً فَجَلَسَ فِيهَا ، وَإِلَّا وَرَاءَهُمْ .",
+    },
+  ];
+  for (const { id, excerpt, matn } of cases) {
+    assert(isGroundedHadithExcerpt(excerpt, matn), `${id}: a genuine excerpt grounds in its own matn`);
+    assert(verifiedHadithExcerpt(excerpt, matn).length > 0, `${id}: the crawler keeps a genuine excerpt`);
+  }
+  // The rule must still refuse metadata: a chapter label is not hadith text.
+  for (const { matn } of cases) {
+    const label = 'الحلق والجلوس في المساجد';
+    assert(!isGroundedHadithExcerpt(label, matn), 'a chapter label is not grounded in the matn');
+    eq(verifiedHadithExcerpt(label, matn), '', 'the crawler stores no short excerpt for a chapter label');
+  }
+  // Direct regression guard on the tokenization itself. The predicate needs at
+  // least two needle tokens, so these probes are two words long.
+  assert(isGroundedHadithExcerpt('تغرب الشمس', 'أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ؟'),
+    '«الشمس» matches «الشمسُ؟»');
+  assert(isGroundedHadithExcerpt('الصبر عند البلاء', 'الصبر عند البلاء؟'),
+    '«البلاء» matches «البلاء؟»');
+  assert(!isGroundedHadithExcerpt('بلاء', 'الصبر عند البلاء؟'),
+    'a single token stays below the two-word floor');
+}));
+
+runs.push(test('crawler and verifier normalizers agree with the app on Arabic punctuation', async () => {
+  const ingestSrc = await read('ingest.mjs');
+  const verifySrc = await read('verify.mjs');
+  const appSrc = await fs.readFile(path.join(__dirname, '..', '..', 'src', 'lib', 'text', 'arabic.ts'), 'utf8');
+  const pattern = /function normalize\(text\) \{[\s\S]*?\n\}/;
+  eq(ingestSrc.match(pattern)?.[0], verifySrc.match(pattern)?.[0], 'crawler normalizer === verifier normalizer');
+  // Whatever the app strips as Arabic punctuation, the scripts must strip too —
+  // that drift is what broke the corpus gate. Compare the character classes.
+  const classOf = (src, where) => {
+    const line = src.split('\n').find((l) => l.includes('\\u060C') && l.includes('.replace'));
+    assert(line, `${where} strips Arabic punctuation (، ؛ ؟ …)`);
+    const m = line.match(/\[([^\]]*)\]/);
+    assert(m, `${where} uses a character class for it`);
+    return m[1];
+  };
+  const appSet = classOf(appSrc, 'src/lib/text/arabic.ts');
+  eq(classOf(ingestSrc, 'ingest.mjs'), appSet, 'crawler strips the app punctuation set');
+  eq(classOf(verifySrc, 'verify.mjs'), appSet, 'verifier strips the app punctuation set');
 }));
 
 await Promise.all(runs);
