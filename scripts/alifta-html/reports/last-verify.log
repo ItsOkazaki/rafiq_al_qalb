@@ -2,8 +2,6 @@
 > rafiq-al-qalb@1.0.0 alifta:verify
 > node scripts/alifta-html/verify.mjs
 
-PASS: 271 direct-HTML Al-Ifta evidence chunks verified (ingested 278/280 detail pages, 9 commentary pages, 17 duplicates merged).
-PASS: all source URLs are individual official sunna.alifta.gov.sa hadith/service pages.
-PASS: 271/271 records carry the full official matn (271 longer than the short excerpt).
-PASS: 10 records carry an official explanation, each with its exact source URL.
-PASS: all 12 doors have at least 3 chunks — {"athar-al-dhunub":78,"qaswat-al-qalb":74,"al-tawba":40,"takrar-al-dhanb":40,"al-ghafla":39,"dhikr-athar":39,"al-hamm-wal-qalaq":41,"khushu-tadabbur":80,"hudur-al-qalb":81,"al-tadawi-bil-quran":40,"al-nazar-ghad":41,"hasm-al-shahwa":40}
+FAIL: 2 corpus problem(s):
+  - #42 alifta-html-000043: hadithText is not an ordered-word excerpt of hadithFullText (possible chapter/title metadata)
+  - #47 alifta-html-000048: hadithText is not an ordered-word excerpt of hadithFullText (possible chapter/title metadata)
