@@ -33,6 +33,7 @@ function normalize(text) {
   return String(text ?? '')
     .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
     .replace(/[\u0640]/g, '')
+    .replace(/[\u060C\u061B\u061F\u066A-\u066D\u06D4]/g, ' ')
     .replace(/[\u0622\u0623\u0625]/g, '\u0627')
     .replace(/\u0649/g, '\u064a')
     .replace(/\u0629/g, '\u0647')

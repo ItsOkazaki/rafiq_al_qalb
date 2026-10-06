@@ -694,11 +694,16 @@ runs.push(test('crawler and corpus verifier share one grounding rule for the sho
   // every fresh crawl.
 }));
 
-runs.push(test('the crawler refuses a search-result label that is not in the stored matn', () => {
-  // Real records from a live crawl. Both carry a search-result snippet belonging
-  // to a different hadith than the matn stored beside it; the committed corpus
-  // correctly omits `hadithText` for them.
-  const cases = [
+runs.push(test('a word carrying an Arabic question mark still matches its bare form', () => {
+  // Real records from a live crawl. Both excerpts genuinely occur in the matn
+  // stored beside them — but the closing word carries an Arabic question mark
+  // (U+061F). That mark sits inside U+0600-U+06FF, so a normalizer that keeps
+  // the Arabic range leaves it glued to the word, and the Arabic-letters token
+  // filter then discards the whole word. The excerpt stops grounding, the
+  // quality gate rejects the entire crawl, and a legitimate short excerpt is
+  // dropped from the corpus. src/lib/text/arabic.ts already strips these marks;
+  // the crawler and verifier normalizers must not drift from it.
+const cases = [
     {
       id: "alifta-html-000043",
       excerpt: "يَا أَبَا ذَرٍّ ، أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ",
@@ -711,16 +716,43 @@ runs.push(test('the crawler refuses a search-result label that is not in the sto
     },
   ];
   for (const { id, excerpt, matn } of cases) {
-    assert(!isGroundedHadithExcerpt(excerpt, matn), `${id}: excerpt is not grounded in its own matn`);
-    eq(verifiedHadithExcerpt(excerpt, matn), '', `${id}: crawler stores no short excerpt`);
+    assert(isGroundedHadithExcerpt(excerpt, matn), `${id}: a genuine excerpt grounds in its own matn`);
+    assert(verifiedHadithExcerpt(excerpt, matn).length > 0, `${id}: the crawler keeps a genuine excerpt`);
   }
-  // The guard must not discard genuine excerpts either. Whatever the crawler
-  // stores has to be grounded in the stored matn.
-  const grounded = cases[0].matn.split(/[\n،]/)[0].trim();
-  assert(isGroundedHadithExcerpt(grounded, cases[0].matn), 'a genuine opening line stays grounded');
-  const kept = verifiedHadithExcerpt(grounded, cases[0].matn);
-  assert(kept.length > 0, 'a genuine opening line is kept');
-  assert(isGroundedHadithExcerpt(kept, cases[0].matn), 'what the crawler keeps is grounded in the stored matn');
+  // The rule must still refuse metadata: a chapter label is not hadith text.
+  for (const { matn } of cases) {
+    const label = 'الحلق والجلوس في المساجد';
+    assert(!isGroundedHadithExcerpt(label, matn), 'a chapter label is not grounded in the matn');
+    eq(verifiedHadithExcerpt(label, matn), '', 'the crawler stores no short excerpt for a chapter label');
+  }
+  // Direct regression guard on the tokenization itself. The predicate needs at
+  // least two needle tokens, so these probes are two words long.
+  assert(isGroundedHadithExcerpt('تغرب الشمس', 'أَتَدْرِي أَيْنَ تَغْرُبُ الشَّمْسُ؟'),
+    '«الشمس» matches «الشمسُ؟»');
+  assert(isGroundedHadithExcerpt('الصبر عند البلاء', 'الصبر عند البلاء؟'),
+    '«البلاء» matches «البلاء؟»');
+  assert(!isGroundedHadithExcerpt('بلاء', 'الصبر عند البلاء؟'),
+    'a single token stays below the two-word floor');
+}));
+
+runs.push(test('crawler and verifier normalizers agree with the app on Arabic punctuation', async () => {
+  const ingestSrc = await read('ingest.mjs');
+  const verifySrc = await read('verify.mjs');
+  const appSrc = await fs.readFile(path.join(__dirname, '..', '..', 'src', 'lib', 'text', 'arabic.ts'), 'utf8');
+  const pattern = /function normalize\(text\) \{[\s\S]*?\n\}/;
+  eq(ingestSrc.match(pattern)?.[0], verifySrc.match(pattern)?.[0], 'crawler normalizer === verifier normalizer');
+  // Whatever the app strips as Arabic punctuation, the scripts must strip too —
+  // that drift is what broke the corpus gate. Compare the character classes.
+  const classOf = (src, where) => {
+    const line = src.split('\n').find((l) => l.includes('\\u060C') && l.includes('.replace'));
+    assert(line, `${where} strips Arabic punctuation (، ؛ ؟ …)`);
+    const m = line.match(/\[([^\]]*)\]/);
+    assert(m, `${where} uses a character class for it`);
+    return m[1];
+  };
+  const appSet = classOf(appSrc, 'src/lib/text/arabic.ts');
+  eq(classOf(ingestSrc, 'ingest.mjs'), appSet, 'crawler strips the app punctuation set');
+  eq(classOf(verifySrc, 'verify.mjs'), appSet, 'verifier strips the app punctuation set');
 }));
 
 await Promise.all(runs);
