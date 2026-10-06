@@ -4,15 +4,14 @@ PASS: generated corpus holds 271 records and is safe to commit.
 + git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 + git status --porcelain=v1
  M scripts/alifta-html/reports/last-commit.log
- M scripts/alifta-html/reports/last-run.log
  M src/lib/corpus/generated/alifta-html-chunks.json
  M src/lib/corpus/generated/alifta-html-chunks.ts
  M src/lib/corpus/generated/alifta-html-ledger.json
 + git add src/lib/corpus/generated/alifta-html-chunks.ts src/lib/corpus/generated/alifta-html-chunks.json src/lib/corpus/generated/alifta-html-ledger.json
 + git diff --cached --quiet
 + git commit -m 'chore: refresh Al-Ifta HTML corpus'
-[main baf5986] chore: refresh Al-Ifta HTML corpus
- 3 files changed, 544 insertions(+), 544 deletions(-)
+[main 11f9d09] chore: refresh Al-Ifta HTML corpus
+ 3 files changed, 543 insertions(+), 543 deletions(-)
 + git pull --rebase --autostash origin main
 From https://github.com/ItsOkazaki/rafiq_al_qalb
  * branch            main       -> FETCH_HEAD
