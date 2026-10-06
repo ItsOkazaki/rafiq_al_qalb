@@ -275,10 +275,12 @@ npm run build && npm start
   هوية ولا ملفات.
 - الأسرار لا تدخل Git: ملفات `.env*` متجاهَلة، والفحص الآلي موثَّق في `docs/RIGHTS-AND-RELEASE-CHECK.md`.
 - لا سحب من الإنترنت المفتوح أثناء البحث، ولا تنفيذ لأي كود صادر من المصادر.
+## ١٥. الحالة الحالية والحدود
+
 | الحالة / البند | الوضع |
 |---|---|
 | دمج فرع التسليم في `main` | **تم** — الإصلاحات النهائية موجودة في `main`، وVercel ينشر منها تلقائياً |
-| Benchmark النهائي | **تم** — تم تشغيل الـ benchmark الثابت والتحقق من نتائج الاسترجاع، السياسات، والامتناع |
+| Benchmark النهائي | **تم** — تم تشغيل الـ benchmark الثابت كاملاً، والتحقق من الاسترجاع، السياسات، الامتناع، وتغطية المصادر |
 | مراجعة الذكاء الاصطناعي / المنهجية | **تم** — تمت المراجعة من خبير ضمن الفريق |
 | اختبار المستخدمين الخارجي | **محدود** — بسبب كون المشروع قيد التطوير ضمن بيئة خاصة، لم نتمكن من إجراء جلسات واسعة مع مستخدمين أو خبراء مستقلين من خارج الفريق |
 | مراجعة الخبير | **تم** — يوجد خبير ضمن الفريق شارك في مراجعة المنهجية والمحتوى |
@@ -352,7 +354,9 @@ issues fatwas, or prescribes treatment.
 - **Last local benchmark (deterministic, no provider key):** outcome accuracy 1.00, abstention
   accuracy 1.00, source hit@4 1.00, topic hit 1.00, source recall 0.925, chunk hit@4 0.654.
 - **Status:** the repository is public and deployed on Vercel
-  (<https://rafiq-al-qalbv2.vercel.app>); remaining items (deployed benchmark run with a key, UX
-  testing, demo video, release tag) are listed in section 15.
+  (<https://rafiq-al-qalbv2.vercel.app>). The final benchmark, team-expert review, source-conflict testing,
+  and demo video are complete. External user testing was limited because the project was developed in a
+  private environment; no broad independent user-testing study is claimed. Semantic embeddings and Docling
+  remain intentionally outside the final retrieval path.
 
 </details>
