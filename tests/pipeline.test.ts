@@ -251,9 +251,28 @@ describe("الحارس الصارم للغة المخرجات", () => {
 });
 
 describe("التوليد المستند عند توفر المزود", () => {
+  /**
+   * هذه الحالات تختبر مسار OpenAI تحديداً (شكل `messages[]` ومكالمة واحدة).
+   * وجود مفتاح Gemini أو `AI_PROVIDER` في بيئة المطوِّر/CI كان يجعل المزوّد
+   * المختار Gemini: المحاولة الأولى ترجع جسم OpenAI فلا يقرأه `callGemini`
+   * (`candidates`) فيسقط إلى المزوّد التالي — أي مكالمتان بدل واحدة. تُعزل
+   * متغيرات المزوّد كلها هنا كما في حالات اختيار المزوّد أدناه، فلا يعتمد
+   * الاختبار على خلوّ البيئة من المفاتيح الحقيقية.
+   */
+  const PROVIDER_VARS = ["GEMINI_API_KEY", "OPENROUTER_API_KEY", "OPENAI_API_KEY", "AI_PROVIDER"] as const;
+  const savedEnv = new Map(PROVIDER_VARS.map((name) => [name, process.env[name]]));
+
+  beforeEach(() => {
+    for (const name of PROVIDER_VARS) delete process.env[name];
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete process.env.OPENAI_API_KEY;
+    for (const name of PROVIDER_VARS) {
+      const previous = savedEnv.get(name);
+      if (previous === undefined) delete process.env[name];
+      else process.env[name] = previous;
+    }
   });
 
   it("يمرر المقاطع فقط للنموذج ويستخدم الناتج", async () => {
