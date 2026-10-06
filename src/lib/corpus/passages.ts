@@ -13,6 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSourceById, isRetrievableSourceId } from "@/lib/sources/registry";
+import { isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
 import type { CorpusChunk, RetrievedPassage } from "@/lib/types";
 
 /**
@@ -31,12 +32,20 @@ export function toRetrievedPassage(
   const source = getSourceById(chunk.sourceId);
   if (!source) return null;
 
+  // بعض صفحات الجامع تسجّل عنوان الصفحة في `hadithText` بدل مقتطف الحديث.
+  // لا نمرّر هذا العنوان إلى الـAPI/البطاقة على أنه نص حديث؛ يبقى الموضع
+  // محفوظاً في `chapter`، ويُعرض المتن الموثق عند الحاجة.
+  const hadithEvidence = [chunk.hadithFullText, chunk.text].filter(Boolean).join("\n");
+  const hadithText = isGroundedHadithExcerpt(chunk.hadithText, hadithEvidence)
+    ? chunk.hadithText
+    : undefined;
+
   return {
     chunkId: chunk.id,
     text: chunk.text,
     quranText: chunk.quranText,
     quranReference: chunk.quranReference,
-    hadithText: chunk.hadithText,
+    hadithText,
     hadithFullText: chunk.hadithFullText,
     explanationText: chunk.explanationText,
     explanationSourceUrl: chunk.explanationSourceUrl,

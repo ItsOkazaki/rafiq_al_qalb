@@ -4,6 +4,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runResearch } from "@/lib/research/pipeline";
 import { ABSTAIN_MESSAGE, scanForForbiddenFraming } from "@/lib/terminology";
+import { FATWA_REFERRAL_MESSAGE } from "@/lib/policy/fatwa";
+import { DIAGNOSIS_REFERRAL_MESSAGE } from "@/lib/policy/diagnosis";
+import { PRESCRIPTION_REFERRAL_MESSAGE } from "@/lib/policy/prescription";
 import { SYSTEM_PROMPT } from "@/lib/ai/provider";
 import { sanitizeStrictArabicOutput } from "@/lib/text/strict-output";
 import { isExcludedSourceTitle, isRetrievableSourceId } from "@/lib/sources/registry";
@@ -27,6 +30,9 @@ describe("السلامة لها الأولوية القصوى — قبل أي ا
     expect(result.safety).not.toBeNull();
     expect(result.safety!.message).toContain("مساعدة بشرية");
     expect(result.safety!.steps.length).toBeGreaterThanOrEqual(3);
+    expect(result.topics).toHaveLength(0);
+    expect(result.ai).toEqual({ mode: null, text: null });
+    expect(JSON.stringify(result)).not.toContain("عمدة القاري");
   });
 
   it("السلامة تتقدم على مطابقة الموضوعات", async () => {
@@ -65,6 +71,17 @@ describe("لا فتاوى — إحالة على أهل العلم", () => {
     for (const q of ["ما حكم الزكاة في مالي؟", "أتعامل بالربا هل يجوز؟", "نذرت نذراً ولم أوفِ", "ما كفارة اليمين؟"]) {
       const result = await runResearch(q);
       expect(result.outcome).toBe("fatwa");
+    }
+  });
+
+  it("صياغة «هل الموضوع حرام/واجب؟» لا تتسرب إلى بحثٍ بفتوى خاطئة", async () => {
+    for (const q of ["هل قساوة القلب حرام؟", "هل التوبة واجبة؟"]) {
+      const result = await runResearch(q, { mode: "baseline" });
+      expect(result.outcome, q).toBe("fatwa");
+      expect(result.message, q).toContain("لا تصدر حكماً شرعياً");
+      expect(result.passages, q).toHaveLength(0);
+      expect(result.ai, q).toEqual({ mode: null, text: null });
+      expect(JSON.stringify(result), q).not.toContain("عمدة القاري");
     }
   });
 
@@ -182,6 +199,17 @@ describe("الامتناع الأمين", () => {
     expect(result.suggestions.length).toBeGreaterThan(0);
   });
 
+  it("لا يُسترجع مقطع عمدة القاري لسؤال خارج النطاق بسبب تشابه ألفاظ عارض", async () => {
+    for (const query of ["ما أخبار سوق الأسهم؟", "ما معنى كلمة حرام؟"]) {
+      const result = await runResearch(query, { mode: "baseline" });
+      expect(result.outcome, query).toBe("abstained");
+      expect(result.message, query).toBe(ABSTAIN_MESSAGE);
+      expect(result.passages, query).toHaveLength(0);
+      expect(result.ai, query).toEqual({ mode: null, text: null });
+      expect(JSON.stringify(result), query).not.toContain("عمدة القاري");
+    }
+  });
+
   it("مدخل فارغ → طلب توضيح ولا اختراع", async () => {
     const result = await runResearch("  ");
     expect(result.outcome).toBe("invalid");
@@ -284,6 +312,12 @@ describe("التوليد المستند عند توفر المزود", () => {
       "لا تستخدم أي معرفة خارج",
       "ميّز بوضوح",
       "قل ذلك صراحة",
+      "لا تعرض عنوان المصدر أو عنوان الفصل أو الكلمات المفتاحية كأنها دليل أو جواب",
+      ABSTAIN_MESSAGE,
+      FATWA_REFERRAL_MESSAGE,
+      DIAGNOSIS_REFERRAL_MESSAGE,
+      PRESCRIPTION_REFERRAL_MESSAGE,
+      "أولوية التوجيه والسلامة",
       "المخرج النهائي عربي فقط",
       "لا تضف علامات وقف أو تشكيل من إنشائك",
       "لا حروف لاتينية",

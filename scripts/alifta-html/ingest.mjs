@@ -172,6 +172,14 @@ function stripBookSuffix(title) {
   return value.replace(/[،,:;\s]+$/u, "").trim();
 }
 
+/** Keep a page label as the short hadith only when it is verifiably in the matn. */
+function verifiedHadithExcerpt(label, fullMatn) {
+  const excerpt = stripBookSuffix(label);
+  const normalizedExcerpt = normalizeForDedupe(excerpt);
+  const normalizedMatn = normalizeForDedupe(fullMatn);
+  return normalizedExcerpt && normalizedMatn.includes(normalizedExcerpt) ? excerpt : '';
+}
+
 /**
  * Split an official result title into its parts. The site emits the ordinal, the
  * matched excerpt and the book name separated by <br>.
@@ -967,7 +975,10 @@ async function ingest(manifest) {
         }
         const added = addRow({
           text: fullMatn || target.label,
-          hadithText: stripBookSuffix(target.label),
+          // `target.label` is sometimes a chapter/title, not a hadith excerpt.
+          // Store it in the short-excerpt field only when it occurs verbatim in
+          // the verified matn; otherwise keep it as chapter metadata only.
+          hadithText: verifiedHadithExcerpt(target.label, fullMatn),
           hadithFullText: fullMatn,
           explanationText: explanation,
           explanationSourceUrl: explanation ? target.url : '',
@@ -1146,6 +1157,7 @@ export {
   extractExplanationFromServicePage,
   stripBookSuffix,
   parseResultTitle,
+  verifiedHadithExcerpt,
   extractCommentaryLinks,
   validateDetailPage,
   validateCommentaryPage,
