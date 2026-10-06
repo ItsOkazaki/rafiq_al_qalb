@@ -41,6 +41,23 @@ function normalize(text) {
     .trim();
 }
 
+/**
+ * Line-leading forms that open the commentator's text instead of the matn.
+ * `hadithFullText` is displayed under the «الحديث» heading, so a record whose matn
+ * still carries the sharh would present official commentary as hadith. Must stay in
+ * step with COMMENTARY_LINE_START_RE in scripts/alifta-html/ingest.mjs —
+ * tests/alifta-matn-separation.test.ts pins the agreement.
+ */
+const COMMENTARY_LINE_START_RE =
+  /^\s*(?:\[[^\]\n]{0,16}\]\s*)?[(（]?\s*(?:مطابقته للترجمة|مُطَابَقَتُهُ لِلتَّرْجَمَةِ|ذكر معناه|ذِكر معناه|ذكر رجاله|ذِكر رجاله|ذكر لطائف إسناده|ذِكر لطائف إسناده|ذكر تعدد موضعه|ما يستفاد منه|ذكر ما يستفاد منه|قوله|قَوْلُهُ|قلت|قُلت|هذا الحديث|بيان الإعراب|بَيَانُ(?:ت)?\s*(?:الإعراب|اللغة))\s*(?:[:：)）.،]|\s|$)/iu;
+
+/** True when a stored matn still carries the commentator's text after line 0. */
+function matnCarriesCommentary(matn) {
+  const lines = String(matn ?? '').split('\n');
+  // Line 0 is the matn itself; only the lines after it can be commentary.
+  return lines.slice(1).some((line) => COMMENTARY_LINE_START_RE.test(line));
+}
+
 /** Allow punctuation/diacritics to differ while requiring every Arabic word to
  * occur in the same order in the official matn. */
 function isGroundedHadithExcerpt(excerpt, fullMatn) {
@@ -86,6 +103,9 @@ for (const [i, row] of (rows ?? []).entries()) {
     if (row.hadithText && row.hadithFullText.length > row.hadithText.length) fullLongerThanExcerpt++;
     if (row.hadithText && !isGroundedHadithExcerpt(row.hadithText, row.hadithFullText)) {
       at('hadithText is not an ordered-word excerpt of hadithFullText (possible chapter/title metadata)');
+    }
+    if (matnCarriesCommentary(row.hadithFullText)) {
+      at('hadithFullText carries the commentator\'s sharh — it would be displayed as hadith; run `npm run alifta:repair-matn`');
     }
     const key = normalize(row.hadithFullText);
     if (seenMatns.has(key)) at(`duplicate matn of ${seenMatns.get(key)}`);

@@ -13,7 +13,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSourceById, isRetrievableSourceId } from "@/lib/sources/registry";
-import { isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
+import { isDisplayableMatn, isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
 import type { CorpusChunk, RetrievedPassage } from "@/lib/types";
 
 /**
@@ -32,13 +32,19 @@ export function toRetrievedPassage(
   const source = getSourceById(chunk.sourceId);
   if (!source) return null;
 
+  // متنٌ لا يزال يحمل شرح المعلِّق ليس متناً: عرضه تحت عنوان «الحديث» ينسب شرحاً
+  // رسمياً إلى الحديث نفسه، ويكرّر الشرح المعروض في طبقته الخاصة. يُحجب عرض
+  // الحديث كاملاً بدل إعادة تسمية الشرح — ولا يُخمَّن موضع نهاية المتن.
+  const hadithFullText = isDisplayableMatn(chunk.hadithFullText) ? chunk.hadithFullText : undefined;
+
   // بعض صفحات الجامع تسجّل عنوان الصفحة في `hadithText` بدل مقتطف الحديث.
   // لا نمرّر هذا العنوان إلى الـAPI/البطاقة على أنه نص حديث؛ يبقى الموضع
   // محفوظاً في `chapter`، ويُعرض المتن الموثق عند الحاجة.
-  const hadithEvidence = [chunk.hadithFullText, chunk.text].filter(Boolean).join("\n");
-  const hadithText = isGroundedHadithExcerpt(chunk.hadithText, hadithEvidence)
-    ? chunk.hadithText
-    : undefined;
+  const hadithEvidence = [hadithFullText, chunk.text].filter(Boolean).join("\n");
+  const hadithText =
+    hadithFullText && isGroundedHadithExcerpt(chunk.hadithText, hadithEvidence)
+      ? chunk.hadithText
+      : undefined;
 
   return {
     chunkId: chunk.id,
@@ -46,7 +52,7 @@ export function toRetrievedPassage(
     quranText: chunk.quranText,
     quranReference: chunk.quranReference,
     hadithText,
-    hadithFullText: chunk.hadithFullText,
+    hadithFullText,
     explanationText: chunk.explanationText,
     explanationSourceUrl: chunk.explanationSourceUrl,
     chapter: chunk.chapter,

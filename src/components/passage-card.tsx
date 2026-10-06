@@ -2,19 +2,28 @@ import Link from "next/link";
 import { BookMarked, ChevronDown, ExternalLink, FileText, Tag } from "lucide-react";
 import { Fragment } from "react";
 import type { RetrievedPassage } from "@/lib/types";
-import { isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
+import { isDisplayableMatn, isGroundedHadithExcerpt } from "@/lib/corpus/hadith";
 
 export function PassageCard({ passage, index }: { passage: RetrievedPassage; index?: number }) {
   const isLiteral = passage.excerptType === "literal";
   const isIndex = passage.role === "index";
   // Short official excerpt vs. the full official matn: shown as two layers, never
   // repeated, and never mixed with the commentary layer.
-  const rawFullHadith = (passage.hadithFullText || "").trim();
+  //
+  // A matn that still carries the commentator's sharh is not a matn. Displaying it
+  // under «الحديث» would label official commentary as hadith, and would repeat the
+  // very commentary the card already shows under «الشرح المرتبط بالمادة الأصلية».
+  // The hadith-specific display is suppressed in that case — the card falls back to
+  // the general passage layer — rather than relabelling the commentary.
+  const rawFullHadith = isDisplayableMatn(passage.hadithFullText)
+    ? (passage.hadithFullText || "").trim()
+    : "";
   const hadithEvidence = [rawFullHadith, passage.text].filter(Boolean).join("\n");
   const groundedShortHadith = isGroundedHadithExcerpt(passage.hadithText, hadithEvidence)
     ? passage.hadithText
     : "";
-  const shortHadith = (groundedShortHadith || rawFullHadith).trim();
+  const candidateShortHadith = (groundedShortHadith || rawFullHadith).trim();
+  const shortHadith = isDisplayableMatn(candidateShortHadith) ? candidateShortHadith : "";
   const shortIdx = shortHadith && rawFullHadith ? rawFullHadith.indexOf(shortHadith) : -1;
   const cleanedFullHadith =
     shortIdx > 0 && shortIdx <= 45 ? rawFullHadith.slice(shortIdx).trim() : rawFullHadith;
@@ -69,8 +78,32 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
         </section>
       )}
 
-      {/* Hadith + explanation: the short official excerpt, the full official matn
-          (expandable), and the official commentary are three separate layers. */}
+      {/* Official commentary layer. Kept independent of the hadith layer: when the
+          matn cannot be verified separately from the sharh the hadith display is
+          suppressed, but the official commentary is still verified text and must
+          remain visible in its own layer. */}
+      {passage.explanationText ? (
+        <div className="mb-5 rounded-xl border border-white/10 bg-white/5 px-5 py-5">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-2 text-xs font-bold text-brass-200">
+              <FileText className="size-3.5" strokeWidth={2} />
+              الشرح المرتبط بالمادة الأصلية
+            </span>
+            {passage.explanationSourceUrl && (
+              <Link href={passage.explanationSourceUrl} target="_blank" rel="noopener noreferrer" className="link-brass text-[10px] font-medium">
+                فتح صفحة الشرح <ExternalLink className="inline size-3 ms-1" strokeWidth={2} />
+              </Link>
+            )}
+          </div>
+          <p className="passage-text text-parchment-100/90 leading-[1.95]" dir="rtl" lang="ar">{passage.explanationText}</p>
+          <p className="mt-3 border-t border-white/8 pt-2 text-[10px] leading-5 text-parchment-200/55">
+            نص الشرح من الصفحة الرسمية المرتبطة بالمادة الأصلية، وهو طبقة منفصلة عن أي ملخّص آلي.
+          </p>
+        </div>
+      ) : null}
+
+      {/* Hadith: the short official excerpt, then the full official matn (expandable).
+          Rendered only when a matn could be verified separately from the commentary. */}
       {shortHadith ? (
         <section className="mb-5 space-y-4" aria-label="النص الحديثي وشرح المصدر">
           <div className="rounded-xl border border-brass-400/30 bg-forest-950/45 px-5 py-5 shadow-inner">
@@ -95,25 +128,7 @@ export function PassageCard({ passage, index }: { passage: RetrievedPassage; ind
             )}
           </div>
 
-          {passage.explanationText ? (
-            <div className="rounded-xl border border-white/10 bg-white/5 px-5 py-5">
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-2 text-xs font-bold text-brass-200">
-                  <FileText className="size-3.5" strokeWidth={2} />
-                  الشرح المرتبط بالمادة الأصلية
-                </span>
-                {passage.explanationSourceUrl && (
-                  <Link href={passage.explanationSourceUrl} target="_blank" rel="noopener noreferrer" className="link-brass text-[10px] font-medium">
-                    فتح صفحة الشرح <ExternalLink className="inline size-3 ms-1" strokeWidth={2} />
-                  </Link>
-                )}
-              </div>
-              <p className="passage-text text-parchment-100/90 leading-[1.95]" dir="rtl" lang="ar">{passage.explanationText}</p>
-              <p className="mt-3 border-t border-white/8 pt-2 text-[10px] leading-5 text-parchment-200/55">
-                نص الشرح من الصفحة الرسمية المرتبطة بالمادة الأصلية، وهو طبقة منفصلة عن أي ملخّص آلي.
-              </p>
-            </div>
-          ) : (
+          {!passage.explanationText && (
             <div className="rounded-lg border border-white/8 bg-black/5 px-4 py-3 text-[11px] leading-6 text-parchment-200/65">
               لم يُسترجع شرح رسمي لهذه المادة، ولا يُضاف شرح من خارج الصفحة الرسمية.
               <Link href={passage.source.originalUrl} target="_blank" rel="noopener noreferrer" className="link-brass ms-1 font-medium">

@@ -221,7 +221,7 @@ npm run build && npm start
 | `topic_hit` | **1.00** |
 | `retrieval_source_recall` | 0.9250 |
 | `retrieval_chunk_hit_at_4` | 0.6538 |
-| `retrieval_chunk_recall` | 0.3942 |
+| `retrieval_chunk_recall` | 0.4038 |
 | `retrieval_identical_between_modes` | true |
 | `model_organization_rate` | **0** — بلا مفتاح كل التنظيم حتمي، وهذه هي القيمة الصحيحة لا قيمة ناقصة |
 | `deterministic_organization_rate` | **1** |
@@ -328,12 +328,19 @@ issues fatwas, or prescribes treatment.
   deterministically.
 - **Corpus:** 486 approved chunks — 271 generated from official Al-Ifta pages (full matn, 278/280
   pages verified, 12/12 doors covered) plus 215 curated chunks from 7 registered sources.
+- **Matn and sharh are never the same layer:** a commentary page (`BookToc/ViewServicePage` —
+  عمدة القاري، فتح الباري، …) puts the matn and the commentator's text back to back with no
+  separator, so the crawler cuts at the first commentary opener and keeps only the verified matn in
+  `hadithFullText`, with the official gloss in `explanationText`. `npm run alifta:verify` fails the
+  corpus if any stored matn still carries a sharh section, and `npm run alifta:repair-matn`
+  re-derives an already committed corpus with the same splitter. If a matn cannot be verified
+  separately, the card suppresses the «الحديث» layer instead of labelling commentary as hadith.
 - **Four policy gates before retrieval** (safety → diagnosis → fatwa → prescription), so a
   fatwa-shaped question can never collapse into a generic "insufficient material" answer. The
   safety detector covers dialectal cries for help and method-seeking phrasings across Saudi/Gulf,
   Egyptian, Levantine, Moroccan, Libyan and Iraqi Arabic plus English: 145 markers, 19 patterns,
   19 compositional rules, with negation and other-target handling.
-- **Reproducibility:** 271 unit tests, 33 offline crawler regression tests, manifest checks, a
+- **Reproducibility:** 310 unit tests, 41 offline crawler regression tests, manifest checks, a
   67-case frozen benchmark (dataset revision `v3-67`, including 12 self-harm cases, 8 fatwa cases,
   5 cross-author attribution cases and 2 false-refusal guards), an offline runtime smoke test, a
   production-dependency audit gate, and a SHA-256-checked Quran font gate — all runnable from

@@ -92,6 +92,11 @@ const MATTER_MAP: [string, string][] = [
   ["حلفت", "مسألة في الأيمان"],
   ["عده", "مسألة في العدّة"],
   ["رضاع", "مسألة في الرضاع"],
+  // مسائل العبادات الأكثر وروداً في صيغة «حكم …» المجرّدة. تُكتب بالصورة المطبَّعة
+  // لأن المقارنة تجري بعد التطبيع («الحائض» ← «الحايض»)، والأخصّ يُختبر أولاً.
+  ["حيض", "مسألة في الحيض"],
+  ["حايض", "مسألة في الحيض"],
+  ["صلاه", "مسألة في الصلاة"],
 ];
 
 /**
@@ -123,6 +128,22 @@ function asksForRuling(norm: string): boolean {
   );
 }
 
+/**
+ * «حكم صلاة الحائض»، «حكم تكرار الذنب» — عبارة اسمية تطلب الحكم بلا أداة استفهام.
+ * هي طلب فتوى تماماً كـ«ما حكم …»، وكان سقوطها إلى مسار البحث يُرجع صفحة لا علاقة
+ * لها بالمسألة: ألفاظ فقهية عامة («حكم»، «صلاة») تصادف ورودها داخل شرح طويل فتكفي
+ * لقبول مقطعه، فتُعرض المادة مع سطر «حدود المادة» بدل الإحالة إلى أهل العلم.
+ *
+ * تشترط مسنداً بعد لفظ الحكم (كلمة تالية) حتى لا تلتقط ذكراً عارضاً للكلمة، وتستثني
+ * أسئلة التعريف («معنى»، «تعريف») كما تفعل `asksForRuling`.
+ */
+const RULING_NOUN_RE = /^(?:[وف])?(?:ال)?(?:حكم|احكام)(?:ه|ها|هم|هما)?(?=\s+\S)/u;
+
+function asksForRulingByNoun(norm: string): boolean {
+  if (RULING_DEFINITION_CUES.some((cue) => norm.split(" ").includes(cue))) return false;
+  return RULING_NOUN_RE.test(norm);
+}
+
 export interface FatwaDetection {
   isFatwa: boolean;
   matter: string | null;
@@ -131,7 +152,10 @@ export interface FatwaDetection {
 export function detectFatwaRequest(query: string): FatwaDetection {
   const norm = normalizeArabic(query);
   if (!norm) return { isFatwa: false, matter: null };
-  const explicit = FATWA_MARKERS.some((m) => norm.includes(normalizeArabic(m))) || asksForRuling(norm);
+  const explicit =
+    FATWA_MARKERS.some((m) => norm.includes(normalizeArabic(m))) ||
+    asksForRuling(norm) ||
+    asksForRulingByNoun(norm);
   const personalCase = PERSONAL_CASE_MARKERS.some((m) => norm.includes(normalizeArabic(m)));
   if (!explicit && !personalCase) return { isFatwa: false, matter: null };
   let matter: string | null = null;

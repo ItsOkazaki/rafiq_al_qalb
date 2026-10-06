@@ -2,7 +2,7 @@
 // تنفيذ الاعتماد والاستبعاد، حد الاسترجاع، الاستبانة، والامتناع.
 
 import { describe, expect, it } from "vitest";
-import { CHUNKS } from "@/lib/corpus/chunks";
+import { ALL_CHUNKS, CHUNKS } from "@/lib/corpus/chunks";
 import {
   QUESTIONNAIRE_AREAS,
   REFINEMENT_QUESTIONS,
@@ -381,5 +381,39 @@ describe("إسناد المادة إلى مؤلِّفها — لا يُنسب ق
   it("الباب يعرف مفهوم «أمراض القلوب» الذي سُمّي به كتابان مسجَّلان", () => {
     const topics = identifyTopics("ما هي أمراض القلوب؟").map((t) => t.topic.id);
     expect(topics).toContain("qaswat-al-qalb");
+  });
+});
+
+// انحدار على الاسترجاع: سؤال حكم فقهي خارج نطاق المادة كان يُعيد مقطع شرح طويل
+// («عمدة القاري — الرحمة وقساوة القلب») لأن ألفاظاً فقهية عامة («حكم»، «صلاة»)
+// تصادف ورودها داخل شرح من تسعة عشر ألف حرف. بوابة الفتوى تتقدم على الاسترجاع،
+// وهذه الاختبارات تحرس الاسترجاع نفسه دفاعاً في العمق.
+describe("الاسترجاع — سؤال فقهي خارج النطاق لا يُسند إلى شرح طويل", () => {
+  const OUT_OF_SCOPE = [
+    "حكم صلاة الحائض",
+    "ما أخبار سوق الأسهم؟",
+    "ما معنى كلمة حرام؟",
+    "ما أخبار الحيض والصلاة؟",
+  ];
+  it.each(OUT_OF_SCOPE)("لا يعيد أي مقطع: %s", (q) => {
+    expect(retrievePassages(q)).toHaveLength(0);
+  });
+
+  it("مقطع عمدة القاري للرحمة وقساوة القلب لا يُسند إلى سؤال الحيض والصلاة", () => {
+    const ids = retrievePassages("حكم صلاة الحائض").map((p) => p.chunkId);
+    expect(ids).not.toContain("alifta-html-000162");
+  });
+
+  it("وسم الباب يُحتسب لكل مقطع على حده لا للسؤال ككل", () => {
+    // سؤال عن الغفلة يطابق باب الغفلة؛ مقطعٌ من باب الذكر وحده لا يُسند إليه
+    // بمجرد اشتراك لفظ عابر، وإن طابق السؤال باباً آخر.
+    const q = "ما أثر الغفلة على القلب في المادة المفهرسة؟";
+    const matched = new Set(identifyTopics(q).map((m) => m.topic.id));
+    expect(matched.has("al-ghafla")).toBe(true);
+    for (const p of retrievePassages(q)) {
+      const chunk = ALL_CHUNKS.find((c) => c.id === p.chunkId);
+      const sharesDoor = (chunk?.topics ?? []).some((t) => matched.has(t));
+      expect(sharesDoor, `${p.chunkId} — ${chunk?.chapter}`).toBe(true);
+    }
   });
 });

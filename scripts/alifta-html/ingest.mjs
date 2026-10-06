@@ -316,22 +316,31 @@ function extractMatnFromPage(pageText, hintSnippet = '') {
     const end = Math.min(full.length, at + 4000);
     const slice = cleanText(full.slice(Math.max(0, at - 40), end));
     const kept = collapseRepeatedParagraphs(slice.split('\n').filter((l) => !isUiNoise(l) && hasArabic(l)));
-    return { number: '', text: cleanText(kept.join('\n')).replace(MATN_LEAD_RE, ''), matchedHint: true };
+    // The window is taken from the live page, so on a sharh page it runs straight
+    // into the commentary. Cut it back to the matn before storing it as one.
+    const { matn, commentary } = splitMatnAndCommentary(cleanText(kept.join('\n')).replace(MATN_LEAD_RE, ''));
+    return { number: '', text: matn, commentary, matchedHint: true };
   }
 
   // Consecutive lines that continue the same numbered matn belong to it; the scan
-  // stops at page chrome, at the next numbered matn, or at a commentary separator.
+  // stops at page chrome, at the next numbered matn, at a commentary separator, or
+  // at the first line that opens the commentator's own text.
   const block = [picked.body];
   for (let i = picked.index + 1; i < lines.length; i++) {
     const line = lines[i];
     if (isUiNoise(line) || MATN_LEAD_RE.test(line) || line === '* * *') break;
+    if (COMMENTARY_LINE_START_RE.test(line)) break;
     if (hasArabic(line)) block.push(line.replace(MATN_LEAD_RE, ''));
   }
 
-  const text = cleanText(collapseRepeatedParagraphs(block).join('\n'));
+  // Belt and braces: a page that keeps matn and sharh in one paragraph still must
+  // not store the sharh as matn.
+  const { matn, commentary } = splitMatnAndCommentary(cleanText(collapseRepeatedParagraphs(block).join('\n')));
+  const text = matn;
   return {
     number: picked.number,
     text,
+    commentary,
     matchedHint: hint ? tokenOverlapRatio(hintSnippet, text) >= 0.6 : true,
   };
 }
@@ -343,6 +352,64 @@ function firstCommentaryMarkerIndex(text) {
     if (m && typeof m.index === 'number' && (best < 0 || m.index < best)) best = m.index;
   }
   return best;
+}
+
+/**
+ * Line-leading forms that open the commentator's text instead of the matn.
+ *
+ * On a service/sharh page (BookToc/ViewServicePage — عمدة القاري، فتح الباري، …)
+ * the official matn is followed *directly* by the commentary, with no `* * *`
+ * separator and no page chrome between them. `extractMatnFromPage` used to stop
+ * only at UI noise, the next numbered matn, or `* * *`, so the whole sharh was
+ * swept into `hadithFullText` and later displayed under the «الحديث» heading.
+ *
+ * The patterns are anchored to the start of a line (optionally behind a paren or
+ * a `[8/73]` page marker) so a matn that merely contains the word «قوله» is never
+ * cut mid-sentence.
+ */
+const COMMENTARY_LINE_START_RE =
+  /^\s*(?:\[[^\]\n]{0,16}\]\s*)?[(（]?\s*(?:مطابقته للترجمة|مُطَابَقَتُهُ لِلتَّرْجَمَةِ|ذكر معناه|ذِكر معناه|ذكر رجاله|ذِكر رجاله|ذكر لطائف إسناده|ذِكر لطائف إسناده|ذكر تعدد موضعه|ما يستفاد منه|ذكر ما يستفاد منه|قوله|قَوْلُهُ|قلت|قُلت|هذا الحديث|بيان الإعراب|بَيَانُ(?:ت)?\s*(?:الإعراب|اللغة))\s*(?:[:：)）.،]|\s|$)/iu;
+
+/**
+ * Split an official page body into the verified matn and the commentary that
+ * follows it. The matn always comes first, so the search starts at the second
+ * line and never touches line 0.
+ *
+ * Two shapes occur in the wild:
+ *   1. line-based — the matn is its own paragraph and every sharh section starts
+ *      a new line («هذا الحديث مطابق…», «( ذكر رجاله )», «قوله : …»).
+ *   2. one blob — the page arrives as a single paragraph, so the first commentary
+ *      marker inside the text is the cut point.
+ *
+ * Returns `{ matn, commentary, cut }`; `cut` is false when nothing was removed,
+ * which is the normal case for a plain matn page.
+ */
+function splitMatnAndCommentary(text) {
+  const value = cleanText(text);
+  if (!value) return { matn: '', commentary: '', cut: false };
+
+  const lines = value.split('\n');
+  for (let i = 1; i < lines.length; i++) {
+    if (COMMENTARY_LINE_START_RE.test(lines[i])) {
+      const matn = cleanText(lines.slice(0, i).join('\n'));
+      const commentary = cleanText(lines.slice(i).join('\n'));
+      if (matn) return { matn, commentary, cut: true };
+    }
+  }
+
+  // Single-blob pages: cut at the first commentary marker past a minimum matn
+  // length, on a word boundary so no word is ever halved.
+  const markerAt = firstCommentaryMarkerIndex(value);
+  if (markerAt >= MIN_FULL_HADITH_CHARS) {
+    const head = value.slice(0, markerAt);
+    const boundary = Math.max(head.lastIndexOf(' '), head.lastIndexOf('\n'));
+    const matn = cleanText(boundary > 0 ? head.slice(0, boundary) : head);
+    if (matn.length >= MIN_FULL_HADITH_CHARS) {
+      return { matn, commentary: cleanText(value.slice(matn.length)), cut: true };
+    }
+  }
+
+  return { matn: value, commentary: '', cut: false };
 }
 
 /** Drop trailing site chrome / analysis trees from a commentary body. */
@@ -397,6 +464,12 @@ function extractHadithAndExplanation(pageHtml, shortHint = '', { maxExplanationC
   let explanationText = '';
   if (/\*\s*\*\s*\*/.test(pageText) || COMMENTARY_MARKER_RES.some((re) => re.test(pageText))) {
     explanationText = extractExplanationFromServicePage(pageHtml, { maxChars: maxExplanationChars });
+  }
+  // The commentary cut off the matn is official text from the same official page.
+  // It is kept in `explanationText` — never appended to the matn — and only when no
+  // dedicated explanation section was found, so nothing verified is overwritten.
+  if (!explanationText && normalizeForDedupe(matn.commentary ?? '').length >= MIN_FULL_HADITH_CHARS) {
+    explanationText = truncateAtBoundary(matn.commentary, maxExplanationChars);
   }
   return { fullHadithText: matn.text, explanationText, hadithNumber: matn.number };
 }
@@ -1164,6 +1237,8 @@ export {
   looksLikeUsefulAliftaDetail,
   normalizeForDedupe,
   tokenOverlapRatio,
+  splitMatnAndCommentary,
+  truncateAtBoundary,
   errorCategory,
   assessIngestion,
   ingest,

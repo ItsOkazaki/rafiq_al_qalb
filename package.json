@@ -20,6 +20,7 @@
     "alifta:live-check": "node scripts/alifta-html/live-check.mjs",
     "alifta:capture": "node scripts/alifta-html/capture-fixtures.mjs",
     "alifta:ingest": "node scripts/alifta-html/ingest.mjs scripts/alifta-html/manifest.json",
+    "alifta:repair-matn": "node scripts/alifta-html/repair-matn.mjs",
     "alifta:verify": "node scripts/alifta-html/verify.mjs"
   },
   "dependencies": {
